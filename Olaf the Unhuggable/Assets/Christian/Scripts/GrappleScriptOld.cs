@@ -28,8 +28,8 @@ public class GrappleScriptOld : MonoBehaviour
     void Update()
     {
 
-        mousePosition = Input.mousePosition;
-        mousePosition.z = 0f;
+       // mousePosition = Input.mousePosition;
+        //mousePosition.z = 0f;
 
         if (Input.GetButtonDown("Fire1"))
         {
@@ -53,8 +53,17 @@ public class GrappleScriptOld : MonoBehaviour
     {
         Debug.Log("Start Grapple");
         RaycastHit hit;
-        if (Physics.Raycast(grappleSpawn.position, mousePosition, out hit, maxDistance, whatIsGrappleable))
+        Ray tempRay;
+        tempRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (Physics.Raycast(grappleSpawn.position, mousePosition, out hit, maxDistance, whatIsGrappleable))
+
+        if (Physics.Raycast(tempRay, out hit, maxDistance, whatIsGrappleable))
         {
+           if (hit.point.z != player.transform.position.z)
+            {
+                Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
+                hit.point = tempVector;
+            }
             grapplePoint = hit.point;
             joint = player.AddComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
