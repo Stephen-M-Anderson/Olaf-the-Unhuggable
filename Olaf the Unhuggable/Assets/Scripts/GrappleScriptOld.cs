@@ -11,19 +11,25 @@ public class GrappleScriptOld : MonoBehaviour
     public Transform grappleSpawn;
     public GameObject player;
     private SpringJoint joint;
-    private float maxDistance = 10f;
+    private float maxDistance = 100f;
+    private Vector3 mousePosition;
+    private Rigidbody myRB;
+    public float grappleSpeed;
 
 
     // Start is called before the first frame update
     void Awake()
     {
         lr = GetComponent<LineRenderer>();
-
+        myRB = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        mousePosition = Input.mousePosition;
+        mousePosition.z = 0f;
 
         if (Input.GetButtonDown("Fire1"))
         {
@@ -47,29 +53,35 @@ public class GrappleScriptOld : MonoBehaviour
     {
         Debug.Log("Start Grapple");
         RaycastHit hit;
-        if (Physics.Raycast(grappleSpawn.position, transform.forward, out hit, maxDistance, whatIsGrappleable))
+        if (Physics.Raycast(grappleSpawn.position, mousePosition, out hit, maxDistance, whatIsGrappleable))
         {
-            Debug.DrawRay(grappleSpawn.position, transform.forward * hit.distance, Color.yellow);
             grapplePoint = hit.point;
             joint = player.AddComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = grapplePoint;
 
-            float distanceFromPoint = Vector3.Distance(transform.position, grapplePoint);
+            float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint);
+
+            //joint.maxDistance = distanceFromPoint * 0.8f;
+            //joint.minDistance = distanceFromPoint * 0.25f;
 
             joint.maxDistance = distanceFromPoint * 0.8f;
             joint.minDistance = distanceFromPoint * 0.25f;
 
-            joint.spring = 4.5f;
-            joint.damper = 7f;
-            joint.massScale = 4.5f;
+            joint.spring = 6f;
+            joint.damper = 10f;
+            joint.massScale = 2.5f;
+
+            //I wanted to give the player a small burst of speed when they make a grapple but it really doesn't seem to be working out
+            myRB.velocity = new Vector3(grappleSpeed, myRB.velocity.y, 0);
 
             lr.positionCount = 2;
             Debug.Log("Ray Hit");
 
-        } else
+        }
+        else
         {
-            Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.yellow);
+
             Debug.Log("Ray didn't hit");
         }
 
