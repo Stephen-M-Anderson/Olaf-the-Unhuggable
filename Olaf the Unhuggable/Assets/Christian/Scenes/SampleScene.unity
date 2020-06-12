@@ -2534,13 +2534,8 @@ MonoBehaviour:
   crosshair: {fileID: 354782898}
   crosshairSprite: {fileID: 354782899}
   cameraTransform: {fileID: 963194228}
-  distance: 0.5
-  nodePrefab: {fileID: 5348690621814933953, guid: 397f67da97cc64549a750aa0c24eb2a9,
-    type: 3}
   lastNodePrefab: {fileID: 4774661519727406551, guid: ae29b18d9023869499c3dee74eff38e5,
     type: 3}
-  lastNode: {fileID: 0}
-  done: 0
 --- !u!1001 &2015757813
 PrefabInstance:
   m_ObjectHideFlags: 0

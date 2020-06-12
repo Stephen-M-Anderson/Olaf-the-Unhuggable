@@ -24,6 +24,9 @@ public class GrappleScriptNEW : MonoBehaviour
     public SpriteRenderer crosshairSprite;
     public Transform cameraTransform;
 
+    //These are variables for the Node method of grappling
+    public GameObject lastNodePrefab;
+    GameObject curLastNodePrefab;
 
     // Start is called before the first frame update
     void Awake()
@@ -130,7 +133,7 @@ public class GrappleScriptNEW : MonoBehaviour
 
             //The new code that should do all that shit is gonna go here:
 
-                                /* PsuedoCode Start! */
+            /* PsuedoCode Start! */
             /* Instantiate the Last Node Prefab into the grapplePoint position;
              * 
              * Create a Script to attach to the Last Node Prefab that instantiates more nodes;
@@ -141,6 +144,11 @@ public class GrappleScriptNEW : MonoBehaviour
              * Once it works on the first try celebrate with some wings at Femboy Hooters;
              */
 
+            //Instantiate(lastNodePrefab, grapplePoint, Quaternion.identity);
+
+            curLastNodePrefab = (GameObject)Instantiate(lastNodePrefab, grappleSpawn.transform.position, Quaternion.identity);
+            curLastNodePrefab.GetComponent<NodeConnectionScript>().grapplePoint = grapplePoint;
+
             // I'm gonna be real I kinda forgot what the fuck this does. I just remember without this 
             // the grapple stuff got fucked and then putting it here unfucked it.
             lr.positionCount = 2;
@@ -149,7 +157,6 @@ public class GrappleScriptNEW : MonoBehaviour
         }
         else
         {
-
             Debug.Log("Ray didn't hit");
         }
 
@@ -159,6 +166,13 @@ public class GrappleScriptNEW : MonoBehaviour
     {
         lr.positionCount = 0;
         Destroy(joint); // This MIGHT be defunct when the new grapple system is added? iunno
+
+        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Nodes");
+        for (var i = 0; i < gameObjects.Length; i++)
+        {
+            Destroy(gameObjects[i]);
+        }
+
         Debug.Log("Stop Grapple");
     }
 

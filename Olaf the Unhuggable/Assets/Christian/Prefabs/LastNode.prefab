@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3482494072006448985}
   - component: {fileID: 9066810725074511985}
   - component: {fileID: 3017879469969696720}
+  - component: {fileID: -5011522185450698749}
   m_Layer: 0
   m_Name: LastNode
   m_TagString: Nodes
@@ -146,3 +147,22 @@ HingeJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &-5011522185450698749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4774661519727406551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6a5ca8075c36044bce464cba851b17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distance: 1.16
+  speed: 1
+  grapplePoint: {x: 0, y: 0, z: 0}
+  player: {fileID: 0}
+  nodePrefab: {fileID: 5348690621814933953, guid: 397f67da97cc64549a750aa0c24eb2a9,
+    type: 3}
+  lastNode: {fileID: 0}
