@@ -31,7 +31,7 @@ public class GrappleScriptNEW : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        lr = lineRendererObject.GetComponent<LineRenderer>();
+        //lr = lineRendererObject.GetComponent<LineRenderer>();
         myRB = GetComponent<Rigidbody>();
     }
 
@@ -151,7 +151,7 @@ public class GrappleScriptNEW : MonoBehaviour
 
             // I'm gonna be real I kinda forgot what the fuck this does. I just remember without this 
             // the grapple stuff got fucked and then putting it here unfucked it.
-            lr.positionCount = 2;
+            //lr.positionCount = 2;
             Debug.Log("Ray Hit");
 
         }
@@ -164,8 +164,8 @@ public class GrappleScriptNEW : MonoBehaviour
 
     void StopGrapple()
     {
-        lr.positionCount = 0;
-        Destroy(joint); // This MIGHT be defunct when the new grapple system is added? iunno
+        //lr.positionCount = 0;
+       // Destroy(joint); // This MIGHT be defunct when the new grapple system is added? iunno
 
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Nodes");
         for (var i = 0; i < gameObjects.Length; i++)
