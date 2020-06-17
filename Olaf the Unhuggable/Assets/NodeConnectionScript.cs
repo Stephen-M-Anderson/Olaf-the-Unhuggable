@@ -22,6 +22,7 @@ public class NodeConnectionScript : MonoBehaviour
 
     public LineRenderer lr;
     public GameObject grappleSpawn;
+    Rigidbody rb;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +35,8 @@ public class NodeConnectionScript : MonoBehaviour
         Nodes.Add(transform.gameObject);
 
         lr = GetComponent<LineRenderer>();
+
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -66,6 +69,10 @@ public class NodeConnectionScript : MonoBehaviour
                 CreateNode();
                 Debug.Log("Too Fast Create Node");
             }
+
+            // I added this in an attempt to stop the nodes from going apeshit. It freezes the first node at the 
+            // top of the grapple in place.
+           // rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
 
             lastNode.GetComponent<HingeJoint>().connectedBody = player.GetComponent<Rigidbody>();
         }
