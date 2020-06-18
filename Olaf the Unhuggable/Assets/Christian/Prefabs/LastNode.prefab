@@ -160,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f6a5ca8075c36044bce464cba851b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distance: 0.5
+  distance: 1
   speed: 1
   grapplePoint: {x: 0, y: 0, z: 0}
   player: {fileID: 0}

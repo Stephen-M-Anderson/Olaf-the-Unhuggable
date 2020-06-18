@@ -72,7 +72,7 @@ public class NodeConnectionScript : MonoBehaviour
 
             // I added this in an attempt to stop the nodes from going apeshit. It freezes the first node at the 
             // top of the grapple in place.
-           // rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+            rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
 
             lastNode.GetComponent<HingeJoint>().connectedBody = player.GetComponent<Rigidbody>();
         }
