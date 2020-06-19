@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class playerHealth : MonoBehaviour
 {
 
-    public float fullHealth = 5f;
+    public float fullHealth = 6f;
     float currentHealth;
 
     private Rigidbody myRB;
@@ -36,6 +36,7 @@ public class playerHealth : MonoBehaviour
         myAnimator.SetBool("damaged", isDamaged);
         currentHealth -= damage;
         isDamaged = false;
+        Debug.Log("I took one hit of damage oh God oh fuck");
 
         //StartCoroutine(StillWaiting());
 

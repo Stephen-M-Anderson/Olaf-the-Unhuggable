@@ -107,5 +107,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  damageRate: 0.5
-  pushBackForce: 10
+  damageRate: 10
+  pushBackForce: 100

@@ -8,6 +8,8 @@ public class obstacleDamage : MonoBehaviour
     public float damageRate;
     public float pushBackForce;
 
+    private Rigidbody playerRB;
+
     float nextDamage;
 
     GameObject thePlayer;
@@ -19,7 +21,7 @@ public class obstacleDamage : MonoBehaviour
         nextDamage = Time.time;
         thePlayer = GameObject.FindGameObjectWithTag("Player");
         thePlayerHealth = thePlayer.GetComponent<playerHealth>();
-
+        playerRB = thePlayer.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -51,12 +53,19 @@ public class obstacleDamage : MonoBehaviour
 
     void pushBack(Transform pushedObject) 
     {
-        Vector3 pushDirection = new Vector3(0, (pushedObject.position.y - transform.position.y), 0).normalized;
+        // This was the old push back function, lets try to make a better one this time
+        /*Vector3 pushDirection = new Vector3(0, (pushedObject.position.y - transform.position.y), 0).normalized;
         pushDirection *= pushBackForce;
 
         Rigidbody pushedRB = pushedObject.GetComponent<Rigidbody>();
         pushedRB.velocity = Vector3.zero;
-        pushedRB.AddForce(pushDirection, ForceMode.Impulse);
+        pushedRB.AddForce(pushDirection, ForceMode.Impulse); */
+
+        Vector3 pushDirection = new Vector3((pushedObject.position.x - transform.position.x), 0, 0).normalized;
+        pushDirection *= pushBackForce;
+
+        playerRB.velocity = new Vector3(0, 0, 0);
+        playerRB.AddForce(pushDirection, ForceMode.Impulse);
 
         Debug.Log("The pushback was successful");
 

@@ -10,7 +10,7 @@ public class playerController : MonoBehaviour
     private Rigidbody myRB;
     private Animator myAnimator;
 
-    private bool facingRight; //Used for changing the direction the character is facing
+    public bool facingRight; //Used for changing the direction the character is facing
     
     //jumping variables
     bool isGrounded = false;
