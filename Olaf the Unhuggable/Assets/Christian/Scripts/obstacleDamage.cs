@@ -70,4 +70,12 @@ public class obstacleDamage : MonoBehaviour
         Debug.Log("The pushback was successful");
 
     }
+
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.tag == "Grappleable")
+        {
+            
+        }
+    }
 }

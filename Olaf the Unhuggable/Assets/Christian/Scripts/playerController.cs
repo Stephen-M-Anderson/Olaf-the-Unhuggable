@@ -19,7 +19,9 @@ public class playerController : MonoBehaviour
     public LayerMask groundLayer;
     public Transform groundCheck;
     public float jumpHeight;
-    
+
+    private bool isGrapplingController = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,6 +41,17 @@ public class playerController : MonoBehaviour
             Jump();
         }
 
+        if (Input.GetButtonDown("Fire1"))
+        {
+            isGrapplingController = true;
+            Debug.Log("Left Click Down");
+        }
+        else if (Input.GetButtonUp("Fire1"))
+        {
+            isGrapplingController = false;
+            Debug.Log("Left Click Up");
+        }
+
         DebugLogs();
     }
 
@@ -53,12 +66,12 @@ public class playerController : MonoBehaviour
         /* This was originally the previously a check for the commented out "flip()" function but I changed it
          * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
          * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
-        if (move > 0 && !facingRight)
+        if (move > 0 && !facingRight && !isGrapplingController)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
         }
-        else if(move < 0 && facingRight)
+        else if(move < 0 && facingRight && !isGrapplingController)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
@@ -100,4 +113,6 @@ public class playerController : MonoBehaviour
         flipVector.z *= -1;
         transform.localScale = flipVector;
     }*/
+
+    
 }

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Nodes
   - Grapple Spawn
+  - LastNodes
   layers:
   - Default
   - TransparentFX
