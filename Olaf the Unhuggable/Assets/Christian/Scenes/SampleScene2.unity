@@ -5980,6 +5980,30 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 2014865453}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2014865456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014865455}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52c53d739b634be40aeb7e8b9279f103, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whatIsGrappleable:
+    serializedVersion: 2
+    m_Bits: 512
+  grappleSpawn: {fileID: 2131645290}
+  player: {fileID: 2014865455}
+  lineRendererObject: {fileID: 327690738}
+  grappleSpeed: 1000
+  crosshair: {fileID: 354782898}
+  crosshairSprite: {fileID: 354782899}
+  cameraTransform: {fileID: 963194228}
+  lastNodePrefab: {fileID: 4774661519727406551, guid: ae29b18d9023869499c3dee74eff38e5,
+    type: 3}
 --- !u!114 &2014865457
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6041,6 +6065,9 @@ MonoBehaviour:
   lastNodePrefab: {fileID: 4774661519727406551, guid: ae29b18d9023869499c3dee74eff38e5,
     type: 3}
   isGrappling: 0
+  ropePositions: []
+  maxRopeLength: 6
+  currRopeLength: 0
 --- !u!136 &2014865460
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6139,7 +6166,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2131645289}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.741, y: 1.324, z: 0.031}
+  m_LocalPosition: {x: 0, y: 1.324, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2014865454}

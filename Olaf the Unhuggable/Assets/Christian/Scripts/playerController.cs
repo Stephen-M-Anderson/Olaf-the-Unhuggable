@@ -77,13 +77,13 @@ public class playerController : MonoBehaviour
          * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
          * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
         //if (move > 0 && !facingRight && !isGrapplingController)
-        if (move > 0 && !facingRight)
+        if (move > 0 && !facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
         }
         //else if(move < 0 && facingRight && !isGrapplingController)
-        else if (move < 0 && facingRight)
+        else if (move < 0 && facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
