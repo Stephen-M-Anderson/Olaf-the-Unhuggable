@@ -1,6 +1,15 @@
-﻿using System.Collections;
+﻿/* 
+ 
+Known glitches found that need to be fixed in this script:
+- If the player is too close to the grapple point they will clip into it.
+ 
+ */
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class GrappleScriptEvenNewer : MonoBehaviour
 {
@@ -29,12 +38,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public GameObject lastNodePrefab;
     GameObject curLastNodePrefab;
 
-    private bool isGrappling = false;
+    public bool isGrappling = false;
+    private List<Vector3> ropePositions = new List<Vector3>();
+    private bool distanceSet;
 
     // Start is called before the first frame update
     void Awake()
     {
-        //lr = lineRendererObject.GetComponent<LineRenderer>();
+        lr = lineRendererObject.GetComponent<LineRenderer>();
         myRB = GetComponent<Rigidbody>();
         myAnimator = GetComponent<Animator>();
     }
@@ -42,9 +53,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        // mousePosition = Input.mousePosition;
-        //mousePosition.z = 0f;
 
         // The following section is to handle the position of your mouse relative to the game world
         // as well as where to place the crosshair for the grapple. Atan is used here to make sure the
@@ -105,9 +113,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
                 hit.point = tempVector;
             }
+            ropePositions.Add(grapplePoint);
             grapplePoint = hit.point;
-
-            //float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint);
 
             // Okay so this big fucking chunk of code right here? This shit is the OLD SHIT and we want
             // the NEW SHIT. What this used to do was add a Spring Joint to our character, then connect
@@ -119,51 +126,59 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             
             joint = player.AddComponent<ConfigurableJoint>();
             joint.autoConfigureConnectedAnchor = false;
+            joint.xMotion = ConfigurableJointMotion.Limited;
+            joint.yMotion = ConfigurableJointMotion.Limited;
+            joint.zMotion = ConfigurableJointMotion.Limited;
+            //joint.connectedBody = grappleable surface;
+
+
+            //
             joint.connectedAnchor = grapplePoint;
+            GetComponent<playerController>().ropeHook = grapplePoint;
+            //
+
+
+            //joint.enableCollision = true;
 
             float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint);
+            //float halfDistanceFromPoint = distanceFromPoint / 2;
+
+
+            //set the anchor of the joint
+            //do we really need an anchor though? I'm not too sure. I feel like as long as we have the connected anchor
+            //we should be fine... I guess we'll see if it feels too unnatural to go a little bit past the grappleable
+            //surface while grappling. If this doesn't work we can also find other ways to restrict how far the player
+            //can grapple.
+            //joint.anchor = grapplePoint - grappleSpawn.position;
 
 
 
-            //joint.maxDistance = distanceFromPoint * 0.8f;
-            //joint.minDistance = distanceFromPoint * 0.25f;
+            if (distanceFromPoint > 6f && distanceFromPoint < 9f)
+            {
+                //set the linear limit
+                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
+                limit.limit = 6f; //set the value that we want to change
+                joint.linearLimit = limit; //set the joint's limit to our edited version.
 
-            //joint.spring = 6f;
-            //joint.damper = 10f;
-            //joint.massScale = 2.5f;
+            } else if (distanceFromPoint > 9f)
 
-            //I wanted to give the player a small burst of speed when they make a grapple but it really doesn't seem to be working out
-            //myRB.velocity = new Vector3(grappleSpeed, myRB.velocity.y, 0);
+            {
+                StopGrapple();
+            }
+              else
+            {
+                //set the linear limit
+                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
+                limit.limit = distanceFromPoint; //set the value that we want to change
+                joint.linearLimit = limit; //set the joint's limit to our edited version.
+            }
+
+            //I remember what this does now. This sets the number of points on the line renderer's line. I might
+            //need to adjust this because the position count will increase upon collision.
+            lr.positionCount = 2;
+
             
 
-            //The new code that should do all that shit is gonna go here:
-
-            /* PsuedoCode Start! */
-            /* Instantiate the Last Node Prefab into the grapplePoint position;
-             * 
-             * Create a Script to attach to the Last Node Prefab that instantiates more nodes;
-             * 
-             * Have the Nodes instantiate UNTIL the distance between player and the Last Node Prefab 
-             * is smaller than the arbitrary distance;
-             * 
-             * Once it works on the first try celebrate with some wings at Femboy Hooters;
-             */
-
-            //Instantiate(lastNodePrefab, grapplePoint, Quaternion.identity);
-
-
-
-
-            /*
-            curLastNodePrefab = (GameObject)Instantiate(lastNodePrefab, grappleSpawn.transform.position, Quaternion.identity);
-            curLastNodePrefab.GetComponent<NodeConnectionScript>().grapplePoint = grapplePoint;
-            */
-
-
-
-            // I'm gonna be real I kinda forgot what the fuck this does. I just remember without this 
-            // the grapple stuff got fucked and then putting it here unfucked it.
-            //lr.positionCount = 2;
             Debug.Log("Ray Hit");
 
         }
@@ -176,53 +191,32 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StopGrapple()
     {
-        //lr.positionCount = 0;
+        lr.positionCount = 0;
         Destroy(joint); 
         isGrappling = false;
         myAnimator.SetBool("grappling", isGrappling);
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Nodes");
-        GameObject[] gameObjects2 = GameObject.FindGameObjectsWithTag("LastNodes");
-        for (var i = 0; i < gameObjects.Length; i++)
-        {
-            Destroy(gameObjects[i]);
-        }
-
-        for (var i = 0; i < gameObjects2.Length; i++)
-        {
-            Destroy(gameObjects2[i]);
-        }
+        ropePositions.Clear();
 
         Debug.Log("Stop Grapple");
     }
 
     void DrawRope()
     {
-        // This whole function is designed to draw the line that goes from the player to the 
-        // grapple point BUT that shit won't be needed with the new system so I might have to
-        // comment this WHOLE bitch out baybeeeeeeeeeee.
 
         //This prevents the line of the grapple from being rendered when not grappling
-        //if (!joint) return;
+        if (!joint) return;
 
-       // lr.SetPosition(0, grappleSpawn.position);
-        //lr.SetPosition(1, grapplePoint);
+        lr.SetPosition(0, grappleSpawn.position);
+        lr.SetPosition(1, grapplePoint);
 
         Debug.Log("Rope Drawn");
     }
 
     private void SetCrosshairPosition(float aimAngle)
     {
-        /*if (!crosshairSprite.enabled)
-        {
-            crosshairSprite.enabled = true;
-        }*/
 
         var x = transform.position.x + 3f * Mathf.Cos(aimAngle);
         var y = transform.position.y + 3f * Mathf.Sin(aimAngle);
-
-        //var worldMousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, player.transform.position.z - cameraTransform.position.z));
-
-        //var crossHairPosition = worldMousePosition;
 
         var crossHairPosition = new Vector3(x, y, player.transform.position.z);
         crosshair.transform.position = crossHairPosition;

@@ -7,6 +7,7 @@ public class playerController : MonoBehaviour
 
     //movement variables
     public float runSpeed;
+    public float swingSpeed;
     private Rigidbody myRB;
     private Animator myAnimator;
 
@@ -20,7 +21,11 @@ public class playerController : MonoBehaviour
     public Transform groundCheck;
     public float jumpHeight;
 
-    private bool isGrapplingController = false;
+    public bool isGrapplingController = false;
+
+    private bool isGrappling;
+    public Vector3 ropeHook;
+    public float swingForce = 20f;
 
     // Start is called before the first frame update
     void Start()
@@ -28,11 +33,15 @@ public class playerController : MonoBehaviour
         myRB = GetComponent<Rigidbody>();
         myAnimator = GetComponent<Animator>();
         facingRight = true;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling;
+
         /* JUMPING */
         /* Checking for the jump button was moved from FixedUpdate to Update because for some reason when it was in 
          * fixed update it made every few jumps WAAAAAAY fuckin higher than they were supposed to be. */
@@ -41,37 +50,40 @@ public class playerController : MonoBehaviour
             Jump();
         }
 
-        if (Input.GetButtonDown("Fire1"))
-        {
-            isGrapplingController = true;
-            Debug.Log("Left Click Down");
-        }
-        else if (Input.GetButtonUp("Fire1"))
-        {
-            isGrapplingController = false;
-            Debug.Log("Left Click Up");
-        }
-
         DebugLogs();
     }
 
     void FixedUpdate()
     {
+
         /* MOVEMENT */
         float move = Input.GetAxis("Horizontal");
         myAnimator.SetFloat("speed", Mathf.Abs(move));
 
-        myRB.velocity = new Vector3(move * runSpeed, myRB.velocity.y, 0);
+
+        if (isGrappling == true)
+        {
+
+            myRB.velocity = new Vector3(move * swingSpeed, myRB.velocity.y, 0);
+
+
+
+        } else
+        {
+            myRB.velocity = new Vector3(move * runSpeed, myRB.velocity.y, 0);
+        }
 
         /* This was originally the previously a check for the commented out "flip()" function but I changed it
          * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
          * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
-        if (move > 0 && !facingRight && !isGrapplingController)
+        //if (move > 0 && !facingRight && !isGrapplingController)
+        if (move > 0 && !facingRight)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
         }
-        else if(move < 0 && facingRight && !isGrapplingController)
+        //else if(move < 0 && facingRight && !isGrapplingController)
+        else if (move < 0 && facingRight)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
