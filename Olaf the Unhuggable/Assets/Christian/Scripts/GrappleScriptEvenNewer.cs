@@ -106,7 +106,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     void StartGrapple()
     {
         Debug.Log("Start Grapple");
-        isGrappling = true;
         myAnimator.SetBool("grappling", isGrappling);
         RaycastHit hit;
         Ray tempRay;
@@ -156,6 +155,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             // change that fuckin 9 later dawg its unsightly
             if (distanceFromPoint > maxRopeLength && distanceFromPoint < 9f)
             {
+                isGrappling = true;
+
                 //set the linear limit
                 SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
                 limit.limit = maxRopeLength; //set the value that we want to change
@@ -169,6 +170,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             }
               else
             {
+                isGrappling = true;
+
                 //set the linear limit
                 SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
                 limit.limit = distanceFromPoint; //set the value that we want to change
