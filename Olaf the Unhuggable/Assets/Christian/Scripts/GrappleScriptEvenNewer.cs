@@ -162,7 +162,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
 
             // change that fuckin 9 later dawg its unsightly
-            if (distanceFromPoint > maxRopeLength && distanceFromPoint < 9f)
+            if (distanceFromPoint > maxRopeLength && distanceFromPoint < 15f)
             {
                 isGrappling = true;
 
@@ -172,7 +172,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 currRopeLength = maxRopeLength;
                 joint.linearLimit = limit; //set the joint's limit to our edited version.
 
-            } else if (distanceFromPoint > 9f)
+            } else if (distanceFromPoint >15f)
 
             {
                 StopGrapple();
