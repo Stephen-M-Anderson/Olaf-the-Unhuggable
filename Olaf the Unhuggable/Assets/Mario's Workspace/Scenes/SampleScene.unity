@@ -1321,12 +1321,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adeda702fd21a9b49a1bef46d0df940f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 2021308862}
   range: []
   point1: {fileID: 1353278658}
   point2: {fileID: 733040684}
+  target: {fileID: 2021308862}
   currentPoint: 0
+  jumpHeight: 60
+  minJumpTime: 3
+  maxJumpTime: 6
   player: {fileID: 542568885}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  groundCheck: {fileID: 2088251487}
 --- !u!54 &1497017850
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1714,6 +1721,36 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!1 &2088251486
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2088251487}
+  m_Layer: 0
+  m_Name: CheckGround
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2088251487
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088251486}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.34898183, y: 0.2526223, z: 0.48926687}
+  m_LocalScale: {x: 0.9708738, y: 0.9708738, z: 0.9708738}
+  m_Children: []
+  m_Father: {fileID: 1497017848}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2144588274
 GameObject:
   m_ObjectHideFlags: 0

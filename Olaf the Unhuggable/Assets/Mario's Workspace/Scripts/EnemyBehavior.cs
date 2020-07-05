@@ -6,19 +6,30 @@ using UnityEngine.AI;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    public Transform target;
     NavMeshAgent agent;
     public List<Transform> range;
+    Rigidbody rigid;
 
     Animator eAnimator;
 
     bool detected = false;
+    bool grounded;
 
     public Transform point1;
     public Transform point2;
+    public Transform target;
+
     public int currentPoint = 0;
+    public float jumpHeight;
+    public float minJumpTime = 5;
+    public float maxJumpTime = 10;
 
     public GameObject player;
+
+    public LayerMask groundLayer;
+    public Transform groundCheck;
+    Collider[] groundCollisions;
+    float groundCheckRadius = 0.2f;
 
     void Start()
     {
@@ -27,6 +38,7 @@ public class EnemyBehavior : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         eAnimator = GetComponentInParent<Animator>();
         eAnimator.SetBool("Start", true);
+        rigid = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -36,21 +48,38 @@ public class EnemyBehavior : MonoBehaviour
         {
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
-                nextPoint();
+                NextPoint();
             }
         }
         if (detected)
         {
             Chase();
         }
+
+        if (grounded)
+        {
+            StartCoroutine(JumpLogic());
+        }
+
+        groundCollisions = Physics.OverlapSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        if (groundCollisions.Length > 0)
+        {
+            grounded = true;
+        }
+        else
+        {
+            grounded = false;
+        }
+
+        eAnimator.SetBool("Grounded", grounded);
     }
 
-    public void nextPoint()
+    public void NextPoint()
     {
         //first you assign the range, +- 5.x from the enemy position
         point1.transform.position = new Vector3(agent.transform.position.x + 5, 0, 0);
         point2.transform.position = new Vector3(agent.transform.position.x - 5, 0, 0);
-        //then put it in the list, overwrites anything already in there
+        //then put it in the list, overwrites anything already in there, probably
         range.Insert(0, point1);
         range.Insert(1, point2);
         //go to the current point on that range and increment
@@ -84,5 +113,18 @@ public class EnemyBehavior : MonoBehaviour
             detected = false;
             eAnimator.SetBool("Detected", false);
         }
+    }
+
+    IEnumerator JumpLogic()
+    {
+        yield return new WaitForSeconds(Random.Range(minJumpTime, maxJumpTime));
+        Jump();
+    }
+
+    public void Jump()
+    {
+        grounded = false;
+        eAnimator.SetBool("Grounded", grounded);
+        rigid.AddForce(new Vector3(0, jumpHeight, 0));
     }
 }
