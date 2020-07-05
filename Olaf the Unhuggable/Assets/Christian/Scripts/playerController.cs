@@ -27,6 +27,8 @@ public class playerController : MonoBehaviour
     public Vector3 ropeHook;
     public float swingForce = 20f;
 
+    float dashes = 2f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -77,13 +79,13 @@ public class playerController : MonoBehaviour
          * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
          * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
         //if (move > 0 && !facingRight && !isGrapplingController)
-        if (move > 0 && !facingRight)
+        if (move > 0 && !facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
         }
         //else if(move < 0 && facingRight && !isGrapplingController)
-        else if (move < 0 && facingRight)
+        else if (move < 0 && facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
@@ -95,6 +97,11 @@ public class playerController : MonoBehaviour
         if(groundCollisions.Length > 0)
         {
             isGrounded = true;
+
+            if (dashes < 2f)
+            {
+                dashes = 2f;
+            }
         }
         else
         {
@@ -102,6 +109,11 @@ public class playerController : MonoBehaviour
         }
 
         myAnimator.SetBool("grounded", isGrounded);
+
+        if (Input.GetButtonDown("Fire2") && dashes > 0)
+        {
+            Dash();
+        }
 
 
     }
@@ -116,6 +128,11 @@ public class playerController : MonoBehaviour
     void DebugLogs()
     {
         Debug.Log("isGrounded = " + isGrounded);
+    }
+
+    void Dash()
+    {
+        Debug.Log("Oh God Oh Fuck I'm dashing");
     }
 
     /*void Flip()
