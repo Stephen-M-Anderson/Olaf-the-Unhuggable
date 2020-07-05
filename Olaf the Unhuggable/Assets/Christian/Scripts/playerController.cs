@@ -7,10 +7,11 @@ public class playerController : MonoBehaviour
 
     //movement variables
     public float runSpeed;
+    public float swingSpeed;
     private Rigidbody myRB;
     private Animator myAnimator;
 
-    private bool facingRight; //Used for changing the direction the character is facing
+    public bool facingRight; //Used for changing the direction the character is facing
     
     //jumping variables
     bool isGrounded = false;
@@ -19,18 +20,30 @@ public class playerController : MonoBehaviour
     public LayerMask groundLayer;
     public Transform groundCheck;
     public float jumpHeight;
-    
+
+    public bool isGrapplingController = false;
+
+    private bool isGrappling;
+    public Vector3 ropeHook;
+    public float swingForce = 20f;
+
+    float dashes = 2f;
+
     // Start is called before the first frame update
     void Start()
     {
         myRB = GetComponent<Rigidbody>();
         myAnimator = GetComponent<Animator>();
         facingRight = true;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling;
+
         /* JUMPING */
         /* Checking for the jump button was moved from FixedUpdate to Update because for some reason when it was in 
          * fixed update it made every few jumps WAAAAAAY fuckin higher than they were supposed to be. */
@@ -44,21 +57,35 @@ public class playerController : MonoBehaviour
 
     void FixedUpdate()
     {
+
         /* MOVEMENT */
         float move = Input.GetAxis("Horizontal");
         myAnimator.SetFloat("speed", Mathf.Abs(move));
 
-        myRB.velocity = new Vector3(move * runSpeed, myRB.velocity.y, 0);
+
+        if (isGrappling == true)
+        {
+
+            myRB.velocity = new Vector3(move * swingSpeed, myRB.velocity.y, 0);
+
+
+
+        } else
+        {
+            myRB.velocity = new Vector3(move * runSpeed, myRB.velocity.y, 0);
+        }
 
         /* This was originally the previously a check for the commented out "flip()" function but I changed it
          * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
          * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
-        if (move > 0 && !facingRight)
+        //if (move > 0 && !facingRight && !isGrapplingController)
+        if (move > 0 && !facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
         }
-        else if(move < 0 && facingRight)
+        //else if(move < 0 && facingRight && !isGrapplingController)
+        else if (move < 0 && facingRight && !isGrappling)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
@@ -70,6 +97,11 @@ public class playerController : MonoBehaviour
         if(groundCollisions.Length > 0)
         {
             isGrounded = true;
+
+            if (dashes < 2f)
+            {
+                dashes = 2f;
+            }
         }
         else
         {
@@ -77,6 +109,11 @@ public class playerController : MonoBehaviour
         }
 
         myAnimator.SetBool("grounded", isGrounded);
+
+        if (Input.GetButtonDown("Fire2") && dashes > 0)
+        {
+            Dash();
+        }
 
 
     }
@@ -93,6 +130,11 @@ public class playerController : MonoBehaviour
         Debug.Log("isGrounded = " + isGrounded);
     }
 
+    void Dash()
+    {
+        Debug.Log("Oh God Oh Fuck I'm dashing");
+    }
+
     /*void Flip()
     {
         facingRight = !facingRight;
@@ -100,4 +142,6 @@ public class playerController : MonoBehaviour
         flipVector.z *= -1;
         transform.localScale = flipVector;
     }*/
+
+    
 }
