@@ -1326,7 +1326,7 @@ MonoBehaviour:
   point2: {fileID: 733040684}
   target: {fileID: 2021308862}
   currentPoint: 0
-  jumpHeight: 60
+  jumpHeight: 80
   minJumpTime: 3
   maxJumpTime: 6
   player: {fileID: 542568885}

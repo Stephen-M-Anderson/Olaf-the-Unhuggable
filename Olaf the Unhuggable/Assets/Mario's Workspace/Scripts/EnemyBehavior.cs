@@ -21,8 +21,8 @@ public class EnemyBehavior : MonoBehaviour
 
     public int currentPoint = 0;
     public float jumpHeight;
-    public float minJumpTime = 5;
-    public float maxJumpTime = 10;
+    public float minJumpTime = 80;
+    public float maxJumpTime = 100;
 
     public GameObject player;
 
@@ -59,18 +59,22 @@ public class EnemyBehavior : MonoBehaviour
         if (grounded)
         {
             StartCoroutine(JumpLogic());
+            Debug.Log("StartCorutine");
+            Jump();
         }
 
         groundCollisions = Physics.OverlapSphere(groundCheck.position, groundCheckRadius, groundLayer);
         if (groundCollisions.Length > 0)
         {
             grounded = true;
+            Debug.Log("Grounded");
         }
         else
         {
             grounded = false;
+            Debug.Log("Not Grounded");
         }
-
+        grounded = true;
         eAnimator.SetBool("Grounded", grounded);
     }
 
@@ -118,6 +122,7 @@ public class EnemyBehavior : MonoBehaviour
     IEnumerator JumpLogic()
     {
         yield return new WaitForSeconds(Random.Range(minJumpTime, maxJumpTime));
+        Debug.Log("In Coroutine");
         Jump();
     }
 
