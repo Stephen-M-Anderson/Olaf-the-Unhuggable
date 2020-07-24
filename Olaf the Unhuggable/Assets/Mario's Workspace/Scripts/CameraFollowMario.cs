@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class CameraFollowMario : MonoBehaviour
 {
     public Transform target;
     public Vector3 offset;
