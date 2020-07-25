@@ -45,6 +45,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float currRopeLength;
     public float ropeMaxCastDistance = 9f;
 
+    public Vector3 aimDirection;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -63,13 +65,16 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         // Right now it isn't 1:1 with where the grapple shoots out but that might because the spawn of
         // the grapple is in the character's head, not at their center. 
         var worldMousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, player.transform.position.z - cameraTransform.position.z));
-        var facingDirection = worldMousePosition - transform.position;
+        var facingDirection = worldMousePosition - grappleSpawn.transform.position;
         var aimAngle = Mathf.Atan2(facingDirection.y, facingDirection.x);
         if (aimAngle < 0f)
         {
             aimAngle = Mathf.PI * 2 + aimAngle;
         }
-        var aimDirection = Quaternion.Euler(0, 0, aimAngle * Mathf.Rad2Deg) * Vector2.right;
+        aimDirection = Quaternion.Euler(0, 0, aimAngle * Mathf.Rad2Deg) * Vector2.right;
+
+        Debug.Log("aimAngle is: " + aimAngle);
+        Debug.Log("aimDirection is: " + aimDirection);
 
         if (Input.GetButtonDown("Fire1"))
         {
@@ -240,8 +245,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private void SetCrosshairPosition(float aimAngle)
     {
 
-        var x = transform.position.x + 3f * Mathf.Cos(aimAngle);
-        var y = transform.position.y + 3f * Mathf.Sin(aimAngle);
+        var x = grappleSpawn.transform.position.x + 2f * Mathf.Cos(aimAngle);
+        var y = grappleSpawn.transform.position.y + 2f * Mathf.Sin(aimAngle);
 
         var crossHairPosition = new Vector3(x, y, player.transform.position.z);
         crosshair.transform.position = crossHairPosition;

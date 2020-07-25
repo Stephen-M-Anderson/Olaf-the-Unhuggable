@@ -6122,6 +6122,7 @@ MonoBehaviour:
   isGrapplingController: 0
   ropeHook: {x: 0, y: 0, z: 0}
   swingForce: 20
+  crosshair: {fileID: 354782898}
 --- !u!114 &2014865458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6164,6 +6165,7 @@ MonoBehaviour:
   maxRopeLength: 6
   currRopeLength: 0
   ropeMaxCastDistance: 9
+  aimDirection: {x: 0, y: 0, z: 0}
 --- !u!136 &2014865460
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6275,7 +6277,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2131645289}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.324, z: 0}
+  m_LocalPosition: {x: 0, y: 0.935, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2014865454}
