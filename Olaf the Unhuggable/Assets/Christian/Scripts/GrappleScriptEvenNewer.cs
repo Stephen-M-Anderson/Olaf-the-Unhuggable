@@ -24,7 +24,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     //to the player was causing problems for the position of the model.
     public GameObject lineRendererObject;
     private ConfigurableJoint joint;
-    private float maxDistance = 100f;
+    private float maxDistance = 15f;
     private Vector3 mousePosition;
     private Rigidbody myRB;
     public float grappleSpeed;
@@ -76,7 +76,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Debug.Log("aimAngle is: " + aimAngle);
         Debug.Log("aimDirection is: " + aimDirection);
 
-        if (Input.GetButtonDown("Fire1"))
+        grappleCheck();
+
+            if (Input.GetButtonDown("Fire1"))
         {
             // Once you press down the grapple button it begins the grapple function.
             // This also disables your crosshair.
@@ -90,6 +92,23 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             // This re-enables the crosshair.
             Debug.Log("Left Click Up");
             StopGrapple();
+            crosshairSprite.enabled = true;
+        }
+
+        if (Input.GetKeyDown("q"))
+        {
+            // Once you press down the grapple button it begins the grapple function.
+            // This also disables your crosshair.
+            Debug.Log("Q Click Down");
+            StartGrappleZoom(aimDirection);
+            crosshairSprite.enabled = false;
+        }
+        else if (Input.GetKeyUp("q"))
+        {
+            // Letting go of the grapple button starts the function to end grappling.
+            // This re-enables the crosshair.
+            Debug.Log("Q Click Up");
+            StopGrappleZoom();
             crosshairSprite.enabled = true;
         }
 
@@ -223,6 +242,46 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Debug.Log("Stop Grapple");
     }
 
+    void StartGrappleZoom(Vector2 aimDirection)
+    {
+        Debug.Log("Start Grapple");
+        myAnimator.SetBool("grappling", isGrappling);
+        RaycastHit hit;
+        //Ray tempRay;
+        //tempRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (Physics.Raycast(grappleSpawn.position, mousePosition, out hit, maxDistance, whatIsGrappleable))
+        //if (Physics.Raycast(tempRay, out hit, maxDistance, whatIsGrappleable))
+
+
+        Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position;
+
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
+        {
+            if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
+            {
+                // This modifies the z value of where our grapple is shot out to be consistent with
+                // where our character is standing in 3D space.
+                Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
+                hit.point = tempVector;
+            }
+            grapplePoint = hit.point;
+
+            //myRB.AddForce(grapplePoint * 200);
+
+            Debug.Log("Ray Hit");
+
+        }
+        else
+        {
+            Debug.Log("Ray didn't hit");
+        }
+    }
+
+    void StopGrappleZoom()
+    {
+
+    }
+
     void DrawRope()
     {
 
@@ -318,5 +377,23 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         }
 
 
+    }
+
+    void grappleCheck()
+    {
+        /* The purpose of this function is that if something is grappleable within your reach then the crosshair changes color */
+
+
+        RaycastHit hit;
+        Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position;
+
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
+        {
+            crosshairSprite.color = Color.black;
+        }
+        else
+        {
+            crosshairSprite.color = Color.white;
+        }
     }
 }

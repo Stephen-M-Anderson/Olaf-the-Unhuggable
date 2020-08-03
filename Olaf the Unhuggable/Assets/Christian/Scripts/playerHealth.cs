@@ -63,6 +63,6 @@ public class playerHealth : MonoBehaviour
 
     public void makeDead()
     {
-        SceneManager.LoadScene("SampleScene2");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
