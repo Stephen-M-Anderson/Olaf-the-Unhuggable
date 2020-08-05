@@ -30,14 +30,14 @@ public class obstacleDamage : MonoBehaviour
         
     }
 
-    void OnTriggerEnter(Collider coll)
+    /*void OnTriggerEnter(Collider coll)
     {
         if (coll.gameObject.tag == "Player")
         {
             Attack();
-            Debug.Log("The Collision was Successful");
+            //Debug.Log("The Collision was Successful");
         }
-    }
+    }*/
 
     void Attack()
     {
@@ -45,7 +45,7 @@ public class obstacleDamage : MonoBehaviour
         //{
             thePlayerHealth.addDamage(damage);
             //nextDamage = Time.time + damageRate;
-            Debug.Log("The Attack was Successful");
+           Debug.Log("The Attack was Successful");
 
             //pushBack(thePlayer.transform);
         //}

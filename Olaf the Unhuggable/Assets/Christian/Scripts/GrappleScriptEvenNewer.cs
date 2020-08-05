@@ -79,8 +79,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         }
         aimDirection = Quaternion.Euler(0, 0, aimAngle * Mathf.Rad2Deg) * Vector2.right;
 
-        Debug.Log("aimAngle is: " + aimAngle);
-        Debug.Log("aimDirection is: " + aimDirection);
+        //Debug.Log("aimAngle is: " + aimAngle);
+       // Debug.Log("aimDirection is: " + aimDirection);
 
         grappleCheck();
 
@@ -88,7 +88,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             // Once you press down the grapple button it begins the grapple function.
             // This also disables your crosshair.
-            Debug.Log("Left Click Down");
+            //Debug.Log("Left Click Down");
             StartGrapple();
             //grappleBool = true;
             crosshairSprite.enabled = false;
@@ -97,7 +97,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             // Letting go of the grapple button starts the function to end grappling.
             // This re-enables the crosshair.
-            Debug.Log("Left Click Up");
+            //Debug.Log("Left Click Up");
             stopGrappleBool = true;
             //grappleBool = false;
             //StopGrapple();
@@ -108,7 +108,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             // Once you press down the grapple button it begins the grapple function.
             // This also disables your crosshair.
-            Debug.Log("Q Click Down");
+            //Debug.Log("Q Click Down");
             //StartGrappleZoom(aimDirection);
             grappleZoomBool = true;
             crosshairSprite.enabled = false;
@@ -117,7 +117,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             // Letting go of the grapple button starts the function to end grappling.
             // This re-enables the crosshair.
-            Debug.Log("Q Click Up");
+           // Debug.Log("Q Click Up");
             grappleZoomBool = false;
             StopGrappleZoom();
             crosshairSprite.enabled = true;
@@ -159,7 +159,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StartGrapple()
     {
-        Debug.Log("Start Grapple");
+        //Debug.Log("Start Grapple");
         myAnimator.SetBool("grappling", isGrappling);
         RaycastHit hit;
         //Ray tempRay;
@@ -179,7 +179,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             grappleZoomBool = true;
             crosshairSprite.enabled = false;
 
-            Debug.Log("Ray didn't hit");
+            //Debug.Log("Ray didn't hit");
         }
 
     }
@@ -194,7 +194,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         ropePositions.Clear();
         currRopeLength = maxRopeLength;
 
-        Debug.Log("Stop Grapple");
+        //Debug.Log("Stop Grapple");
     }
 
     void DoGrapple(RaycastHit hit)
@@ -272,12 +272,12 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //need to adjust this because the position count will increase upon collision.
         //lr.positionCount = 2;
 
-        Debug.Log("Ray Hit");
+        //Debug.Log("Ray Hit");
     }
 
     void StartGrappleZoom()
     {
-        Debug.Log("Start Grapple");
+        //Debug.Log("Start Grapple");
         myAnimator.SetBool("grappling", isGrappling);
         RaycastHit hit;
         //Ray tempRay;
@@ -292,6 +292,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
             {
+                //isGrappling = true;
                 // This modifies the z value of where our grapple is shot out to be consistent with
                 // where our character is standing in 3D space.
                 Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
@@ -303,18 +304,19 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             myRB.velocity = zoomDirection * 5;
 
-            Debug.Log("Ray Hit");
+           // Debug.Log("Ray Hit");
 
         }
         else
         {
-            Debug.Log("Ray didn't hit");
+            //Debug.Log("Ray didn't hit");
         }
     }
 
     void StopGrappleZoom()
     {
         grappleZoomBool = false;
+        //isGrappling = false;
     }
 
     void DrawRope()
@@ -333,7 +335,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         lr.SetPosition(ropePositions.Count, grappleSpawn.position);
 
-        Debug.Log("Rope Drawn");
+        //Debug.Log("Rope Drawn");
     }
 
     private void SetCrosshairPosition(float aimAngle)
@@ -353,7 +355,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Vector3 dir = new Vector3(ropePositions.Last().x - grappleSpawn.position.x, ropePositions.Last().y - grappleSpawn.position.y);
 
         Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable);
-        Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
+       // Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
 
         float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last());
 
