@@ -17,6 +17,7 @@ public class playerHealth : MonoBehaviour
     private bool canDie;
     private bool isDead;
     private bool isDamaged;
+    private bool currentlyDashing;
 
     private bool facingRight;
 
@@ -39,7 +40,9 @@ public class playerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        myAnimator.SetBool("damaged", isDamaged);
+        currentlyDashing = GetComponent<playerController>().isDashing;
+
+        //myAnimator.SetBool("damaged", isDamaged);
 
         healthText.text = currentHealth.ToString();
 
@@ -49,11 +52,12 @@ public class playerHealth : MonoBehaviour
     public void addDamage(float damage)
     {
 
+        //if (canTakeDamage == true && currentlyDashing == false)
         if (canTakeDamage == true)
         {
             canTakeDamage = false;
             isDamaged = true;
-            //myAnimator.SetBool("damaged", isDamaged);
+            myAnimator.SetBool("damaged", isDamaged);
             currentHealth -= damage;
             if (facingRight)
             {
@@ -82,6 +86,7 @@ public class playerHealth : MonoBehaviour
         }
 
         isDamaged = false;
+        myAnimator.SetBool("damaged", isDamaged);
     }
 
     IEnumerator StillWaiting()

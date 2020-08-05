@@ -16,6 +16,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private LineRenderer lr;
     private Vector3 grapplePoint;
     public LayerMask whatIsGrappleable;
+    public LayerMask whatIsZoomable;
+    public LayerMask whatIsAble;
     public Transform grappleSpawn;
     public GameObject player;
     private Animator myAnimator;
@@ -46,6 +48,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float ropeMaxCastDistance = 9f;
 
     public Vector3 aimDirection;
+
+    private bool grappleZoomBool;
+    private bool grappleBool;
+    private bool stopGrappleBool;
 
     // Start is called before the first frame update
     void Awake()
@@ -78,12 +84,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         grappleCheck();
 
-            if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1"))
         {
             // Once you press down the grapple button it begins the grapple function.
             // This also disables your crosshair.
             Debug.Log("Left Click Down");
-            StartGrapple(aimDirection);
+            StartGrapple();
+            //grappleBool = true;
             crosshairSprite.enabled = false;
         }
         else if (Input.GetButtonUp("Fire1"))
@@ -91,7 +98,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             // Letting go of the grapple button starts the function to end grappling.
             // This re-enables the crosshair.
             Debug.Log("Left Click Up");
-            StopGrapple();
+            stopGrappleBool = true;
+            //grappleBool = false;
+            //StopGrapple();
             crosshairSprite.enabled = true;
         }
 
@@ -100,7 +109,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             // Once you press down the grapple button it begins the grapple function.
             // This also disables your crosshair.
             Debug.Log("Q Click Down");
-            StartGrappleZoom(aimDirection);
+            //StartGrappleZoom(aimDirection);
+            grappleZoomBool = true;
             crosshairSprite.enabled = false;
         }
         else if (Input.GetKeyUp("q"))
@@ -108,6 +118,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             // Letting go of the grapple button starts the function to end grappling.
             // This re-enables the crosshair.
             Debug.Log("Q Click Up");
+            grappleZoomBool = false;
             StopGrappleZoom();
             crosshairSprite.enabled = true;
         }
@@ -123,12 +134,30 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     }
 
+    private void FixedUpdate()
+    {
+        if (grappleZoomBool == true)
+        {
+            StartGrappleZoom();
+        }
+
+        if (grappleBool == true)
+        {
+            StartGrapple();
+        }
+
+        if (stopGrappleBool == true)
+        {
+            StopGrapple();
+        }
+    }
+
     private void LateUpdate()
     {
         DrawRope();
     }
 
-    void StartGrapple(Vector2 aimDirection)
+    void StartGrapple()
     {
         Debug.Log("Start Grapple");
         myAnimator.SetBool("grappling", isGrappling);
@@ -143,88 +172,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
         {
-            if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
-            {
-                // This modifies the z value of where our grapple is shot out to be consistent with
-                // where our character is standing in 3D space.
-                Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
-                hit.point = tempVector;
-            }
-            grapplePoint = hit.point;
-            ropePositions.Add(grapplePoint);
-
-            //currHookPrefab = (GameObject)Instantiate(hookPrefab, grappleSpawn.transform.position, Quaternion.identity);
-            //currHookPrefab.GetComponent<NodeConnectionScript>().grapplePoint = grapplePoint;
-
-
-            joint = player.AddComponent<ConfigurableJoint>();
-            joint.autoConfigureConnectedAnchor = false;
-            joint.xMotion = ConfigurableJointMotion.Limited;
-            joint.yMotion = ConfigurableJointMotion.Limited;
-            joint.zMotion = ConfigurableJointMotion.Limited;
-            //joint.connectedBody = grappleable surface;
-
-
-            //
-            joint.connectedAnchor = grapplePoint;
-            GetComponent<playerController>().ropeHook = grapplePoint;
-            //
-
-            //joint.enableCollision = true;
-
-            float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint);
-            //float distanceFromPlayer = Vector3.Distance(transform.position, grapplePoint);
-            //float halfDistanceFromPoint = distanceFromPoint / 2;
-
-
-            //set the anchor of the joint
-            //do we really need an anchor though? I'm not too sure. I feel like as long as we have the connected anchor
-            //we should be fine... I guess we'll see if it feels too unnatural to go a little bit past the grappleable
-            //surface while grappling. If this doesn't work we can also find other ways to restrict how far the player
-            //can grapple.
-            //joint.anchor = grapplePoint - grappleSpawn.position;
-
-
-            // change that fuckin 9 later dawg its unsightly
-            if (distanceFromPoint > maxRopeLength && distanceFromPoint < 15f)
-            {
-                isGrappling = true;
-
-                //set the linear limit
-                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-                limit.limit = maxRopeLength; //set the value that we want to change
-                currRopeLength = maxRopeLength;
-                joint.linearLimit = limit; //set the joint's limit to our edited version.
-
-            } else if (distanceFromPoint >15f)
-
-            {
-                StopGrapple();
-            }
-              else
-            {
-                isGrappling = true;
-
-                //set the linear limit
-                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-                limit.limit = distanceFromPoint; //set the value that we want to change
-                joint.linearLimit = limit; //set the joint's limit to our edited version.
-            }
-
-            //I remember what this does now. This sets the number of points on the line renderer's line. I might
-            //need to adjust this because the position count will increase upon collision.
-            //lr.positionCount = 2;
-
-            
-
-
-
-
-            Debug.Log("Ray Hit");
-
-        }
-        else
+            DoGrapple(hit);
+        } 
+        else if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsZoomable))
         {
+            grappleZoomBool = true;
+            crosshairSprite.enabled = false;
+
             Debug.Log("Ray didn't hit");
         }
 
@@ -232,6 +186,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StopGrapple()
     {
+        stopGrappleBool = false;
         lr.positionCount = 0;
         Destroy(joint); 
         isGrappling = false;
@@ -242,7 +197,85 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Debug.Log("Stop Grapple");
     }
 
-    void StartGrappleZoom(Vector2 aimDirection)
+    void DoGrapple(RaycastHit hit)
+    {
+        if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
+        {
+            // This modifies the z value of where our grapple is shot out to be consistent with
+            // where our character is standing in 3D space.
+            Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
+            hit.point = tempVector;
+        }
+        grapplePoint = hit.point;
+        ropePositions.Add(grapplePoint);
+
+        //currHookPrefab = (GameObject)Instantiate(hookPrefab, grappleSpawn.transform.position, Quaternion.identity);
+        //currHookPrefab.GetComponent<NodeConnectionScript>().grapplePoint = grapplePoint;
+
+
+        joint = player.AddComponent<ConfigurableJoint>();
+        joint.autoConfigureConnectedAnchor = false;
+        joint.xMotion = ConfigurableJointMotion.Limited;
+        joint.yMotion = ConfigurableJointMotion.Limited;
+        joint.zMotion = ConfigurableJointMotion.Limited;
+        //joint.connectedBody = grappleable surface;
+
+
+        //
+        joint.connectedAnchor = grapplePoint;
+        GetComponent<playerController>().ropeHook = grapplePoint;
+        //
+
+        //joint.enableCollision = true;
+
+        float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint);
+        //float distanceFromPlayer = Vector3.Distance(transform.position, grapplePoint);
+        //float halfDistanceFromPoint = distanceFromPoint / 2;
+
+
+        //set the anchor of the joint
+        //do we really need an anchor though? I'm not too sure. I feel like as long as we have the connected anchor
+        //we should be fine... I guess we'll see if it feels too unnatural to go a little bit past the grappleable
+        //surface while grappling. If this doesn't work we can also find other ways to restrict how far the player
+        //can grapple.
+        //joint.anchor = grapplePoint - grappleSpawn.position;
+
+
+        // change that fuckin 9 later dawg its unsightly
+        if (distanceFromPoint > maxRopeLength && distanceFromPoint < 15f)
+        {
+            isGrappling = true;
+
+            //set the linear limit
+            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
+            limit.limit = maxRopeLength; //set the value that we want to change
+            currRopeLength = maxRopeLength;
+            joint.linearLimit = limit; //set the joint's limit to our edited version.
+
+        }
+        else if (distanceFromPoint > 15f)
+
+        {
+            StopGrapple();
+        }
+        else
+        {
+            isGrappling = true;
+
+            //set the linear limit
+            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
+            limit.limit = distanceFromPoint; //set the value that we want to change
+            joint.linearLimit = limit; //set the joint's limit to our edited version.
+        }
+
+        //I remember what this does now. This sets the number of points on the line renderer's line. I might
+        //need to adjust this because the position count will increase upon collision.
+        //lr.positionCount = 2;
+
+        Debug.Log("Ray Hit");
+    }
+
+    void StartGrappleZoom()
     {
         Debug.Log("Start Grapple");
         myAnimator.SetBool("grappling", isGrappling);
@@ -255,7 +288,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position;
 
-        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsZoomable))
         {
             if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
             {
@@ -266,7 +299,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             }
             grapplePoint = hit.point;
 
-            //myRB.AddForce(grapplePoint * 200);
+            Vector3 zoomDirection = grapplePoint - myRB.transform.position;
+
+            myRB.velocity = zoomDirection * 5;
 
             Debug.Log("Ray Hit");
 
@@ -279,7 +314,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StopGrappleZoom()
     {
-
+        grappleZoomBool = false;
     }
 
     void DrawRope()
@@ -387,7 +422,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         RaycastHit hit;
         Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position;
 
-        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsAble))
         {
             crosshairSprite.color = Color.black;
         }
@@ -395,5 +430,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             crosshairSprite.color = Color.white;
         }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+
+        if (grappleZoomBool == true)
+        {
+            StopGrappleZoom();
+        }
+
     }
 }

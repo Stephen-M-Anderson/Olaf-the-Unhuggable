@@ -2,46 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class playerController : MonoBehaviour
+public class DashScript : MonoBehaviour
 {
 
-    //movement variables
-    public float runSpeed;
-    public float swingSpeed;
     private Rigidbody myRB;
     private Animator myAnimator;
-    private Vector3 movementForce;
-    private Vector3 swingingForce;
 
-    //float moveX;
-    //float moveY;
-    //float moveXRaw;
-    //float moveYRaw;
-
-    private float tempXRaw;
-    private float tempYRaw;
-
-    //float test;
-    //private float moveX;
-
-    public bool facingRight; //Used for changing the direction the character is facing
-
-    //jumping variables
-    bool jumpBool;
-    bool isGrounded = false;
-    Collider[] groundCollisions;
-    float groundCheckRadius = 0.2f;
-    public LayerMask groundLayer;
-    public Transform groundCheck;
-    public float jumpHeight;
-
-    public bool isGrapplingController = false;
+    private bool facingRightDash;
 
     private bool isGrappling;
-    public Vector3 ropeHook;
-    public float swingForce = 20f;
 
-    float dashes = 2f;
+    //CHANGE THIS LATER TO NOT HAVE SO MANY DASHES
+    float dashes = 200f;
 
     public Transform crosshair;
 
@@ -49,65 +21,47 @@ public class playerController : MonoBehaviour
     private int dashDir;
     public float dashSpeed;
     public GameObject dashTowards;
+    private GameObject currDashTowards;
     private Vector3 dashTowardsVect;
     private Vector3 dashFromVect;
     private bool canDash;
     private bool dashBool;
     private bool buttonAxisDashBool;
     private bool movementBool;
-    public bool isDashing;
 
     private Vector3 dashPoint;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        facingRightDash = GetComponent<playerController>().facingRight;
+
         myRB = GetComponent<Rigidbody>();
-        myAnimator = GetComponent<Animator>();
-        //dashTowardsVect = new Vector3(0, 0, 0);
         canDash = true;
-        facingRight = true;
-        //movementBool = true;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
+
+        aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection;
+
         float moveXRaw = Input.GetAxisRaw("Horizontal");
         float moveYRaw = Input.GetAxisRaw("Vertical");
 
-        myAnimator.SetFloat("speed", Mathf.Abs(moveX));
-        movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0);
-        swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0);
-        //tempXRaw = moveXRaw;
-        //tempYRaw = moveYRaw;
-
         isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling;
-        aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection;
-
-        /* JUMPING */
-        /* Checking for the jump button was moved from FixedUpdate to Update because for some reason when it was in 
-         * fixed update it made every few jumps WAAAAAAY fuckin higher than they were supposed to be. */
-        if (isGrounded && Input.GetButtonDown("Jump"))
-        {
-            jumpBool = true;
-        }
-
-        if (isGrounded == true)
-        {
-            dashes = 2f;
-        }
 
         if (Input.GetButtonDown("Fire2") && dashes > 0 && canDash)
         {
+
             //canDash = false;
 
             /*if (isGrappling)
             {
                 //GrappleDash();
-            }*/ 
+            }*/
 
             if (!isGrappling)
             {
@@ -132,19 +86,12 @@ public class playerController : MonoBehaviour
             //canDash = true;
 
         }
-
-        DebugLogs();
     }
 
     void FixedUpdate()
     {
         float moveXRaw = Input.GetAxisRaw("Horizontal");
         float moveYRaw = Input.GetAxisRaw("Vertical");
-
-        if (jumpBool == true)
-        {
-            Jump();
-        }
 
         if (dashBool == true)
         {
@@ -157,76 +104,6 @@ public class playerController : MonoBehaviour
         {
             ButtonAxisDash(moveXRaw, moveYRaw);
         }
-
-
-        //if (movementBool == true)
-        //{
-            Movement();
-        //}
-
-        groundedCheck();
-
-
-    }
-
-    void Movement()
-    {
-        if (isGrappling == true)
-        {
-            myRB.velocity = swingingForce;
-        }
-        else
-        {
-            myRB.velocity = movementForce;
-        }
-
-        /* This was originally the previously a check for the commented out "flip()" function but I changed it
-        * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
-        * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
-        //if (move > 0 && !facingRight && !isGrapplingController)
-        //if (move > 0 && !facingRight && !isGrappling)
-        if (movementForce.x > 0 && !facingRight)
-        {
-            transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
-            facingRight = !facingRight;
-        }
-        //else if(move < 0 && facingRight && !isGrapplingController)
-        //else if (move < 0 && facingRight && !isGrappling)
-        else if (movementForce.x < 0 && facingRight)
-        {
-            transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
-            facingRight = !facingRight;
-        }
-    }
-
-    void groundedCheck()
-    {
-        /* CHECKING IF THE PLAYER IS GROUNDED FOR LANDING */
-
-        groundCollisions = Physics.OverlapSphere(groundCheck.position, groundCheckRadius, groundLayer);
-        if (groundCollisions.Length > 0)
-        {
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-
-        myAnimator.SetBool("grounded", isGrounded);
-    }
-
-    void Jump()
-    {
-        myAnimator.SetBool("grounded", isGrounded);
-        myRB.AddForce(new Vector3(0, jumpHeight, 0));
-        isGrounded = false;
-        jumpBool = false;
-    }
-
-    void DebugLogs()
-    {
-        Debug.Log("isGrounded = " + isGrounded);
     }
 
     void Dash()
@@ -237,14 +114,11 @@ public class playerController : MonoBehaviour
          * This is where the final dash mechanic we go with will be placed.
          */
 
-        isDashing = true;
-
         EightDirectionDash();
 
         dashBool = false;
     }
 
-    //void ButtonAxisDash()
     void ButtonAxisDash(float x, float y)
     {
         //myRB.velocity = Vector3.zero;
@@ -258,27 +132,6 @@ public class playerController : MonoBehaviour
         buttonAxisDashBool = false;
     }
 
-    IEnumerator DashWait()
-    {
-        //StartCoroutine(GroundDash());
-
-        //myRB.useGravity = false;
-        yield return new WaitForSeconds(.5f);
-        //myRB.useGravity = true;
-        isDashing = false;
-        canDash = true;
-
-        Debug.Log("DashWait Happened");
-    }
-
-    IEnumerator GroundDash()
-    {
-        yield return new WaitForSeconds(.15f);
-        Debug.Log("GroundDash Happened");
-        //if (isGrounded)
-        //hasDashed = false;
-    }
-
     void TwoDirectionDash()
     {
         Debug.Log("Oh God Oh Fuck I'm two directional dashing");
@@ -288,11 +141,12 @@ public class playerController : MonoBehaviour
          * Using the facingRight bool we can determine the direction to dash in. Then we give an impulse force in that direction.
          */
 
-        if (facingRight == true)
+        if (facingRightDash == true)
         {
             myRB.AddForce(new Vector3(300, 0, 0), ForceMode.Impulse);
             //myRB.AddForce(new Vector3(10000, myRB.velocity.y, 0));
-        } else
+        }
+        else
         {
             myRB.AddForce(new Vector3(-300, 0, 0), ForceMode.Impulse);
             //myRB.AddForce(new Vector3(-10000, myRB.velocity.y, 0));
@@ -415,7 +269,7 @@ public class playerController : MonoBehaviour
         //dashDirection = new Vector3(crosshair.position.x, crosshair.position.y);
 
         myRB.AddForce(dashDir * 10, ForceMode.Impulse);
-       
+
         //crosshair.position
 
     }
@@ -624,11 +478,20 @@ public class playerController : MonoBehaviour
                 //myRB.AddForce((dashTowardsVect).normalized * myRB.mass * dashSpeed);
 
                 //myRB.velocity = new Vector3(0, 1, 0) * 5;
+
                 //dashPoint = new Vector3(0, 1, 0);
                 //myRB.velocity = dashPoint * 15;
 
-                dashPoint = new Vector3(0, 0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+
+                //dashTowardsVect = myRB.position + new Vector3(0, 3, 0);
+                //Instantiate(dashTowards, dashTowardsVect, myRB.rotation);
+                //currDashTowards = GameObject.Find("DashTowards(Clone)");
+                //Vector3 dashHere = currDashTowards.transform.position;
+                //dashHere = dashTowardsVect - myRB.position;
+                //myRB.velocity = dashHere * 5;
+
+                //dashPoint = new Vector3(0, 0.1f, 0);
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -648,7 +511,8 @@ public class playerController : MonoBehaviour
                 //myRB.AddForce((dashTowardsVect).normalized * myRB.mass * dashSpeed);
 
                 dashPoint = new Vector3(1, 0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
+
 
                 //myRB.velocity = dashPoint * 15;
 
@@ -669,7 +533,7 @@ public class playerController : MonoBehaviour
                 //myRB.velocity = dashPoint * 15;
 
                 dashPoint = new Vector3(1, 0, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -683,7 +547,7 @@ public class playerController : MonoBehaviour
                 //myRB.MovePosition(transform.position + new Vector3(5, -5, 0));
 
                 dashPoint = new Vector3(1, -0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -697,7 +561,7 @@ public class playerController : MonoBehaviour
                 //myRB.MovePosition(transform.position + new Vector3(0, -5, 0));
 
                 dashPoint = new Vector3(0, -0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -711,7 +575,7 @@ public class playerController : MonoBehaviour
                 //myRB.MovePosition(transform.position + new Vector3(-5, -5, 0));
 
                 dashPoint = new Vector3(-1, -0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -725,7 +589,7 @@ public class playerController : MonoBehaviour
                 //myRB.MovePosition(transform.position + myRB.velocity + new Vector3(-500, 0, 0) * Time.deltaTime);
 
                 dashPoint = new Vector3(-1, 0, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -739,7 +603,7 @@ public class playerController : MonoBehaviour
                 //myRB.MovePosition(transform.position + myRB.velocity + new Vector3(-5, 5, 0) * Time.deltaTime);
 
                 dashPoint = new Vector3(-1, 0.1f, 0);
-                movementForce = dashPoint * dashSpeed;
+                //movementForce = dashPoint * dashSpeed;
 
                 StartCoroutine(DashWait());
                 break;
@@ -751,45 +615,25 @@ public class playerController : MonoBehaviour
 
     }
 
-    void GrappleDash()
+    IEnumerator DashWait()
     {
-        Debug.Log("Oh God Oh Fuck I'm dashing while also fucking grappling hooooooly fuck");
+        //StartCoroutine(GroundDash());
 
-        if (facingRight == true)
-        {
-            myRB.AddForce(new Vector3(100, myRB.velocity.y, 0), ForceMode.Impulse);
-            //myRB.AddForce(new Vector3(10000, myRB.velocity.y, 0));
-        }
-        else
-        {
-            myRB.AddForce(new Vector3(-100, myRB.velocity.y, 0), ForceMode.Impulse);
-            //myRB.AddForce(new Vector3(-10000, myRB.velocity.y, 0));
-        }
+        //myRB.useGravity = false;
+        //isDashing = true;
+        yield return new WaitForSeconds(.5f);
+        //myRB.useGravity = true;
+        //isDashing = false;
+        canDash = true;
 
-        /* Description Start!
-         * 
-         * Using the facingRight bool we can determine the direction to dash in. Then we give an impulse force in that direction. Make
-         * sure this only works while grappling. 
-         */
+        Debug.Log("DashWait Happened");
     }
 
-    IEnumerator WaitFiveSeconds()
+    IEnumerator GroundDash()
     {
-        print("Start waiting");
-
-        yield return new WaitForSeconds(5);
-
-        print("5 seconds has passed");
+        yield return new WaitForSeconds(.15f);
+        Debug.Log("GroundDash Happened");
+        //if (isGrounded)
+        //hasDashed = false;
     }
-
-    /*void Flip()
-    {
-        facingRight = !facingRight;
-        Vector3 flipVector = transform.localScale;
-        flipVector.z *= -1;
-        transform.localScale = flipVector;
-    }*/
-
-
-
 }
