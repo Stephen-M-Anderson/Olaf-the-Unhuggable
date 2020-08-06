@@ -13,10 +13,14 @@ public class playerHealth : MonoBehaviour
     private Rigidbody myRB;
     private Animator myAnimator;
 
-    private bool canTakeDamage;
+    public bool canTakeDamage;
     private bool canDie;
     private bool isDead;
     private bool isDamaged;
+    private bool currentlyDashing;
+
+    public float damageRate;
+    float nextDamage;
 
     private bool facingRight;
 
@@ -26,6 +30,7 @@ public class playerHealth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        nextDamage = Time.time;
         isDead = false;
         isDamaged = false;
         canTakeDamage = true;
@@ -39,7 +44,9 @@ public class playerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        myAnimator.SetBool("damaged", isDamaged);
+        currentlyDashing = GetComponent<playerController>().isDashing;
+
+        //myAnimator.SetBool("damaged", isDamaged);
 
         healthText.text = currentHealth.ToString();
 
@@ -49,11 +56,14 @@ public class playerHealth : MonoBehaviour
     public void addDamage(float damage)
     {
 
+        //if (canTakeDamage == true && currentlyDashing == false)
+        //if (canTakeDamage == true && nextDamage <= Time.time)
         if (canTakeDamage == true)
         {
+            nextDamage = Time.time + damageRate;
             canTakeDamage = false;
             isDamaged = true;
-            //myAnimator.SetBool("damaged", isDamaged);
+            myAnimator.SetBool("damaged", isDamaged);
             currentHealth -= damage;
             if (facingRight)
             {
@@ -64,13 +74,14 @@ public class playerHealth : MonoBehaviour
                 myRB.velocity = Vector3.zero;
                 myRB.AddForce(new Vector3(100, 0, 0), ForceMode.Impulse);
             }
-            StartCoroutine(StillWaiting());
-            Debug.Log("I took one hit of damage oh God oh fuck");
+            
+            //Debug.Log("I took one hit of damage oh God oh fuck");
         }
 
         if (currentHealth <= 0)
         {
             isDead = true;
+            myAnimator.SetFloat("speed", 0);
             myRB.constraints = RigidbodyConstraints.FreezeAll;
             myAnimator.SetBool("dead", isDead);
             StartCoroutine(StillWaitingDeath());
@@ -82,12 +93,14 @@ public class playerHealth : MonoBehaviour
         }
 
         isDamaged = false;
+        myAnimator.SetBool("damaged", isDamaged);
+        StartCoroutine(StillWaiting());
     }
 
     IEnumerator StillWaiting()
     {
         //Print the time of when the function is first called.
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        //Debug.Log("Started Coroutine at timestamp : " + Time.time);
 
         //yield on a new YieldInstruction that waits however many seconds. 
         yield return new WaitForSeconds(2);
@@ -95,13 +108,13 @@ public class playerHealth : MonoBehaviour
         canTakeDamage = true;
 
         //After we have waited 5 seconds print the time again.
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
 
     IEnumerator StillWaitingDeath()
     {
         //Print the time of when the function is first called.
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+       // Debug.Log("Started Coroutine at timestamp : " + Time.time);
 
         //yield on a new YieldInstruction that waits however many seconds. 
         yield return new WaitForSeconds(3);
@@ -109,7 +122,7 @@ public class playerHealth : MonoBehaviour
         canDie = true;
 
         //After we have waited 5 seconds print the time again.
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+       // Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
 
     public void makeDead()

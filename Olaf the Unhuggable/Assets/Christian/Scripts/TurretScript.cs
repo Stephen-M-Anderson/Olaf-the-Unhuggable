@@ -22,7 +22,7 @@ public class TurretScript : MonoBehaviour
         {
             canSpawn = false;
             Instantiate(bulletPrefab, spawnLocation.position, spawnLocation.rotation);
-            Debug.Log("OH FUUUUUUCK BBY I'M SPAWNING!!");
+            //Debug.Log("OH FUUUUUUCK BBY I'M SPAWNING!!");
             StartCoroutine(TurretWaiting());
         }
     }
@@ -30,7 +30,7 @@ public class TurretScript : MonoBehaviour
     IEnumerator TurretWaiting()
     {
         //Print the time of when the function is first called.
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        //Debug.Log("Started Coroutine at timestamp : " + Time.time);
 
         //yield on a new YieldInstruction that waits however many seconds. 
         yield return new WaitForSeconds(1);
@@ -38,6 +38,6 @@ public class TurretScript : MonoBehaviour
         canSpawn = true;
 
         //After we have waited 5 seconds print the time again.
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
 }

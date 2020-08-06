@@ -11,6 +11,8 @@ public class BulletScript : MonoBehaviour
     GameObject thePlayer;
     playerHealth thePlayerHealth;
 
+    bool vulnerable;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,18 +21,20 @@ public class BulletScript : MonoBehaviour
 
         thePlayer = GameObject.FindGameObjectWithTag("Player");
         thePlayerHealth = thePlayer.GetComponent<playerHealth>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
         bulletRB.velocity = bulletForce;
+        vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
     }
 
     void OnCollisionEnter(Collision collision)
     {
 
-        if (collision.gameObject.tag == "Player")
+        if (collision.gameObject.tag == "Player" && vulnerable)
         {
             thePlayerHealth.addDamage(damage);
             Debug.Log("The Attack was Successful");
