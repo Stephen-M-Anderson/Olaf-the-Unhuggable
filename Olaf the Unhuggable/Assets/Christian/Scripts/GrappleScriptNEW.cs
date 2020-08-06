@@ -9,7 +9,8 @@ public class GrappleScriptNEW : MonoBehaviour
     public LayerMask whatIsGrappleable;
     public Transform grappleSpawn;
     public GameObject player;
-    
+    private Animator myAnimator;
+
     //This game object was added because having a line renderer attached 
     //to the player was causing problems for the position of the model.
     public GameObject lineRendererObject; 
@@ -28,11 +29,14 @@ public class GrappleScriptNEW : MonoBehaviour
     public GameObject lastNodePrefab;
     GameObject curLastNodePrefab;
 
+    private bool isGrappling = false;
+
     // Start is called before the first frame update
     void Awake()
     {
         //lr = lineRendererObject.GetComponent<LineRenderer>();
         myRB = GetComponent<Rigidbody>();
+        myAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -85,6 +89,8 @@ public class GrappleScriptNEW : MonoBehaviour
     void StartGrapple()
     {
         Debug.Log("Start Grapple");
+        isGrappling = true;
+        myAnimator.SetBool("grappling", isGrappling);
         RaycastHit hit;
         Ray tempRay;
         tempRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -165,12 +171,19 @@ public class GrappleScriptNEW : MonoBehaviour
     void StopGrapple()
     {
         //lr.positionCount = 0;
-       // Destroy(joint); // This MIGHT be defunct when the new grapple system is added? iunno
-
+        // Destroy(joint); // This MIGHT be defunct when the new grapple system is added? iunno
+        isGrappling = false;
+        myAnimator.SetBool("grappling", isGrappling);
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Nodes");
+        GameObject[] gameObjects2 = GameObject.FindGameObjectsWithTag("LastNodes");
         for (var i = 0; i < gameObjects.Length; i++)
         {
             Destroy(gameObjects[i]);
+        }
+
+        for (var i = 0; i < gameObjects2.Length; i++)
+        {
+            Destroy(gameObjects2[i]);
         }
 
         Debug.Log("Stop Grapple");

@@ -18,7 +18,7 @@ public class obstacleDamage : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        nextDamage = Time.time;
+        //nextDamage = Time.time;
         thePlayer = GameObject.FindGameObjectWithTag("Player");
         thePlayerHealth = thePlayer.GetComponent<playerHealth>();
         playerRB = thePlayer.GetComponent<Rigidbody>();
@@ -41,25 +41,26 @@ public class obstacleDamage : MonoBehaviour
 
     void Attack()
     {
-        if(nextDamage <= Time.time)
-        {
+        //if(nextDamage <= Time.time)
+        //{
             thePlayerHealth.addDamage(damage);
-            nextDamage = Time.time + damageRate;
+            //nextDamage = Time.time + damageRate;
             Debug.Log("The Attack was Successful");
 
-            pushBack(thePlayer.transform);
-        }
+            //pushBack(thePlayer.transform);
+        //}
     }
 
-    void pushBack(Transform pushedObject) 
+    //Why the fuck is the pushback in this script and not playerHealth? Get this the fuck outta here!
+    /*void pushBack(Transform pushedObject) 
     {
         // This was the old push back function, lets try to make a better one this time
-        /*Vector3 pushDirection = new Vector3(0, (pushedObject.position.y - transform.position.y), 0).normalized;
-        pushDirection *= pushBackForce;
+        //Vector3 pushDirection = new Vector3(0, (pushedObject.position.y - transform.position.y), 0).normalized;
+        //pushDirection *= pushBackForce;
 
-        Rigidbody pushedRB = pushedObject.GetComponent<Rigidbody>();
-        pushedRB.velocity = Vector3.zero;
-        pushedRB.AddForce(pushDirection, ForceMode.Impulse); */
+        //Rigidbody pushedRB = pushedObject.GetComponent<Rigidbody>();
+        //pushedRB.velocity = Vector3.zero;
+        //pushedRB.AddForce(pushDirection, ForceMode.Impulse);
 
         Vector3 pushDirection = new Vector3((pushedObject.position.x - transform.position.x), 0, 0).normalized;
         pushDirection *= pushBackForce;
@@ -69,5 +70,13 @@ public class obstacleDamage : MonoBehaviour
 
         Debug.Log("The pushback was successful");
 
-    }
+    }*/
+
+    /*void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.tag == "Grappleable")
+        {
+            
+        }
+    }*/
 }
