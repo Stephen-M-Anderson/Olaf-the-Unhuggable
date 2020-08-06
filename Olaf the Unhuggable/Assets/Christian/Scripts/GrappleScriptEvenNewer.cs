@@ -53,6 +53,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private bool grappleBool;
     private bool stopGrappleBool;
 
+    public Vector3 grappleVect;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -207,6 +209,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             hit.point = tempVector;
         }
         grapplePoint = hit.point;
+        grappleVect = grapplePoint - transform.position;
+
         ropePositions.Add(grapplePoint);
 
         //currHookPrefab = (GameObject)Instantiate(hookPrefab, grappleSpawn.transform.position, Quaternion.identity);

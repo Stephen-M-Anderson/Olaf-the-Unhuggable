@@ -81,6 +81,11 @@ public class playerController : MonoBehaviour
 
     public float verticalEquilizer;
 
+    private Vector3 grappleVectController;
+    private Vector3 invertedGrappleVectController;
+    public float grappleSpeed;
+    private bool grappleMove;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -91,6 +96,7 @@ public class playerController : MonoBehaviour
         facingRight = true;
         //movementBool = true;
         checkSpeed = true;
+        movementBool = true;
 
         whichDash = 1;
         dashText.text = "Button Axis Dash";
@@ -118,6 +124,15 @@ public class playerController : MonoBehaviour
 
         isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling;
         aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection;
+
+        if (isGrappling == true)
+        {
+            grappleMove = true;
+            movementBool = false;
+        } else
+        {
+            movementBool = true;
+        }
 
         /* JUMPING */
         /* Checking for the jump button was moved from FixedUpdate to Update because for some reason when it was in 
@@ -246,11 +261,17 @@ public class playerController : MonoBehaviour
 
     void Movement()
     {
-        if (isGrappling == true)
+        if (isGrappling == true && grappleMove == true)
         {
+            /*grappleMove = false;
+            grappleVectController = GetComponent<GrappleScriptEvenNewer>().grappleVect;
+            invertedGrappleVectController = new Vector3(-grappleVectController.x, -grappleVectController.y, grappleVectController.z);
+            myRB.AddForce(invertedGrappleVectController * grappleSpeed);
+            StartCoroutine(grappleMoveWait());*/
+
             myRB.velocity = swingingForce;
         }
-        else
+        else if (movementBool == true)
         {
             myRB.velocity = movementForce;
         }
@@ -1023,6 +1044,12 @@ public class playerController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.05f);
         checkSpeed = true;
+    }
+
+    IEnumerator grappleMoveWait()
+    {
+        yield return new WaitForSeconds(0.1f);
+        grappleMove = true;
     }
 
     void PickAGrapple()

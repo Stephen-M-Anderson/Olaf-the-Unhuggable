@@ -5089,6 +5089,11 @@ PrefabInstance:
       propertyPath: verticalEquilizer
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3560109128527717086, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: grappleSpeed
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 3560109128527717087, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: lineRendererObject
