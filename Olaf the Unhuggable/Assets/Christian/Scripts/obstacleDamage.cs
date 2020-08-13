@@ -1,82 +1,49 @@
-﻿using System.Collections;
+﻿/* Description: A script to attach to an obstacle that would do minor damage to the player.
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class obstacleDamage : MonoBehaviour
 {
-    public float damage = 1;
-    public float damageRate;
-    public float pushBackForce;
+    [Header("Dealing Damage")]
 
-    private Rigidbody playerRB;
-
-    float nextDamage;
-
-    GameObject thePlayer;
-    playerHealth thePlayerHealth;
+    public float damage = 1; //The amount of damage the obstacle deals.
+    GameObject thePlayer; //The player character's gameObject
+    playerHealth thePlayerHealth; //The player's health script
+    bool vulnerable; //A bool that determines of the player can be hurt or not.
 
     // Start is called before the first frame update
     void Start()
     {
-        //nextDamage = Time.time;
+        //recognizing the player game object to call its scripts' functions
         thePlayer = GameObject.FindGameObjectWithTag("Player");
+        //the player's health script, we want to reference this later for the obstacle to deal damage
         thePlayerHealth = thePlayer.GetComponent<playerHealth>();
-        playerRB = thePlayer.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //We use this bool to determine if the player can take damage. It updates in accordance 
+        //with the bool in the player health script that does the same thing.
+        vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
     }
 
-    /*void OnTriggerEnter(Collider coll)
+    // OnCollisionEnter is called on the frame that the attached object's collider makes contact with another collider
+    void OnCollisionEnter(Collision collision)
     {
-        if (coll.gameObject.tag == "Player")
+        //If the collision that occurred is with a gameObject with the "Player" tag AND the player is capable of taking
+        //damage (not in the "post damage invulnerability" state) then this code is executed.
+        if (collision.gameObject.tag == "Player" && vulnerable)
         {
-            Attack();
-            //Debug.Log("The Collision was Successful");
-        }
-    }*/
-
-    void Attack()
-    {
-        //if(nextDamage <= Time.time)
-        //{
+            //We call the function from the playerHealth script that damages the player and pass the amount of damage a bullet does
+            //into this function.
             thePlayerHealth.addDamage(damage);
-            //nextDamage = Time.time + damageRate;
-           Debug.Log("The Attack was Successful");
 
-            //pushBack(thePlayer.transform);
-        //}
+            //Debug.Log("I'll tell yah the REAL obstacle is my ex-wife huh? Thank you thank you I'll be here all week.");
+        }
     }
 
-    //Why the fuck is the pushback in this script and not playerHealth? Get this the fuck outta here!
-    /*void pushBack(Transform pushedObject) 
-    {
-        // This was the old push back function, lets try to make a better one this time
-        //Vector3 pushDirection = new Vector3(0, (pushedObject.position.y - transform.position.y), 0).normalized;
-        //pushDirection *= pushBackForce;
-
-        //Rigidbody pushedRB = pushedObject.GetComponent<Rigidbody>();
-        //pushedRB.velocity = Vector3.zero;
-        //pushedRB.AddForce(pushDirection, ForceMode.Impulse);
-
-        Vector3 pushDirection = new Vector3((pushedObject.position.x - transform.position.x), 0, 0).normalized;
-        pushDirection *= pushBackForce;
-
-        playerRB.velocity = new Vector3(0, 0, 0);
-        playerRB.AddForce(pushDirection, ForceMode.Impulse);
-
-        Debug.Log("The pushback was successful");
-
-    }*/
-
-    /*void OnCollisionEnter(Collision col)
-    {
-        if (col.gameObject.tag == "Grappleable")
-        {
-            
-        }
-    }*/
 }
