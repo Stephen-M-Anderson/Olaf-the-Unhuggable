@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/* Description:  
+ */
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,16 +18,8 @@ public class playerController : MonoBehaviour
     private Vector3 movementForce;
     private Vector3 swingingForce;
 
-    //float moveX;
-    //float moveY;
-    //float moveXRaw;
-    //float moveYRaw;
-
     private float tempXRaw;
     private float tempYRaw;
-
-    //float test;
-    //private float moveX;
 
     public bool facingRight; //Used for changing the direction the character is facing
 
@@ -118,9 +114,6 @@ public class playerController : MonoBehaviour
         {
             SpeedCalc();
         }
-
-        //tempXRaw = moveXRaw;
-        //tempYRaw = moveYRaw;
 
         isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling;
         aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection;
