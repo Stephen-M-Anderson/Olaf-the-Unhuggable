@@ -15,7 +15,7 @@ public class playerController : MonoBehaviour
     public float swingSpeed;
     private Rigidbody myRB;
     private Animator myAnimator;
-    private Vector3 movementForce;
+    public Vector3 movementForce;
     private Vector3 swingingForce;
 
     private float tempXRaw;
@@ -85,12 +85,10 @@ public class playerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        myRB = GetComponent<Rigidbody>();
-        myAnimator = GetComponent<Animator>();
-        //dashTowardsVect = new Vector3(0, 0, 0);
+        myRB = GetComponent<Rigidbody>(); //setting myRB to reference the rigidbody component of our player
+        myAnimator = GetComponent<Animator>(); //setting myAnimator to reference the animator component of our player
         canDash = true;
         facingRight = true;
-        //movementBool = true;
         checkSpeed = true;
         movementBool = true;
 

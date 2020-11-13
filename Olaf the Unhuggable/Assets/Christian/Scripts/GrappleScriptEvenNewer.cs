@@ -79,7 +79,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         grappleZoomBool = false;
         stopGrappleBool = false;
 
-
         lr = lineRendererObject.GetComponent<LineRenderer>(); //setting lr to become a reference to the line renderer component held in
                                                               //our lineRendererObject
         myRB = GetComponent<Rigidbody>(); //setting myRB to reference the rigidbody component of our player
@@ -89,6 +88,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // The following section is to handle the position of your mouse relative to the game world
         // as well as where to place the crosshair for the grapple. Atan is used here to make sure the
         // crosshair rotates in a circle around the player sort of relative to where you move the mouse.
@@ -306,24 +306,23 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Debug.Log("Ray Hit BAYBEEEEEEEEE");
     }
 
-    void StartGrappleZoom(RaycastHit hit) //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
+    void StartGrappleZoom(RaycastHit zoomHit) //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
     {
 
-        if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
+        if (zoomHit.point.z != player.transform.position.z - cameraTransform.position.z)
         {
             //Our character never moves on the z axis but all of our calculations still factor in the z axis given that this is Unity 
             //3D. Because of this we use this function to make sure every single component of the player and the grappling hook stay
             //at the same z value.
 
             //isGrappling = true; //Do we want the grappling animation to play while zooming? Plus it'll run the swinging calculations
-            Vector3 tempVector = new Vector3(hit.point.x, hit.point.y, player.transform.position.z);
-            hit.point = tempVector;
+            Vector3 tempVector = new Vector3(zoomHit.point.x, zoomHit.point.y, player.transform.position.z);
+            zoomHit.point = tempVector;
         }
 
-        grapplePoint = hit.point; //The point we want to zoom toward.
+        grapplePoint = zoomHit.point; //The point we want to zoom toward.
         Vector3 zoomDirection = grapplePoint - myRB.transform.position; //The direction we want to zoom
         myRB.velocity = zoomDirection * 5; //The zoomin itself
-
 
         //Debug.Log("Start Grapple Zoom is all according to Keikaku. TL note: Keikaku means plan");
 
@@ -353,71 +352,97 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Debug.Log("Fuuuuug I'm shooting (drawing) Ropes dawg");
     }
 
-    private void SetCrosshairPosition(float aimAngle)
+    private void SetCrosshairPosition(float aimAngle) //This function determines the position of the crosshair on screen
     {
-
-        var x = grappleSpawn.transform.position.x + 2f * Mathf.Cos(aimAngle);
+        //The two following lines create a distance from the grapple spawn along a circle that the crosshair travels:
+        var x = grappleSpawn.transform.position.x + 2f * Mathf.Cos(aimAngle); 
         var y = grappleSpawn.transform.position.y + 2f * Mathf.Sin(aimAngle);
 
-        var crossHairPosition = new Vector3(x, y, player.transform.position.z);
-        crosshair.transform.position = crossHairPosition;
+        var crossHairPosition = new Vector3(x, y, player.transform.position.z); //The value we store the position of the crosshair
+        crosshair.transform.position = crossHairPosition; //Actually setting the crosshair to the value we just determined above
     }
 
-    void SwingCheck()
+    void SwingCheck() //This function handles the rope swinging mechanics for wrapping and unwrapping the grapple rope. 
     {
-        RaycastHit hitMeBabyOneMoreTime;
-        RaycastHit grappleUnwind;
-        Vector3 dir = new Vector3(ropePositions.Last().x - grappleSpawn.position.x, ropePositions.Last().y - grappleSpawn.position.y);
+        RaycastHit hitMeBabyOneMoreTime; //We didn't want to just name this one 'hit' also. Stephen let me name it, his mistake.
+                                         //Specifically, this Raycast is used to help us wrap our rope around 
+        RaycastHit grappleUnwind; //Another RaycastHit we will use in the calculations for unwrapping the grapple rope
+        Vector3 dir = new Vector3(ropePositions.Last().x - grappleSpawn.position.x, 
+                                  ropePositions.Last().y - grappleSpawn.position.y); //Creates a direction to shoot out our wrapping 
+                                                                                     //Raycast from the end of our rope to where the 
+                                                                                     //rope spawns.
 
-        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable);
-       // Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
+        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable); //Shoot out our wrapping Raycast
+        //Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
 
-        float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last());
+        float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last()); //The distance between the end of
+                                                                                           //our rope and the point of our RaycastHit.
 
-        //if (hitMeBabyOneMoreTime.point.x != ropePositions.Last().x || hitMeBabyOneMoreTime.point.y != ropePositions.Last().y)
-        if (anchorDifference >= 0.01f)
+        if (anchorDifference >= 0.01f) //I kinda forgot why we made this the if statement condition. Stephen help meeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
         {
-            ropePositions.Add(hitMeBabyOneMoreTime.point);
+            //This whole section is for wrapping the rope around something. The logic behind this is that we shoot a Raycast out from
+            //the grappleSpawn object in the same direction the rope shoots out from. If the raycast hits an object (which happens
+            //each time the player's rope wraps around an object) then it creates a new temporary end of the rope. We still keep the
+            //rope rendered in full so this gives the illusion of a rope wrapping around an object. 
 
-            float ropeSegLength = Vector3.Distance(hitMeBabyOneMoreTime.point, joint.connectedAnchor);
+            ropePositions.Add(hitMeBabyOneMoreTime.point); //Add the point of our RaycastHit to the list of grapple rope positions.
 
-            float angleDiff = Vector3.Angle(joint.axis, hitMeBabyOneMoreTime.normal);
+            float ropeSegLength = Vector3.Distance(hitMeBabyOneMoreTime.point, joint.connectedAnchor); //The length of the current 
+                                                                //segment of rope that will be removed in this portion of code.
 
-            joint.connectedAnchor = ropePositions.Last();
+            float angleDiff = Vector3.Angle(joint.axis, hitMeBabyOneMoreTime.normal); //Stephen what the fuck does this mean?
 
-            joint.axis = hitMeBabyOneMoreTime.normal;
+            joint.connectedAnchor = ropePositions.Last(); //Set the connected anchor of the configurable joint to the last element in 
+                                                          //the ropePositions list.
 
-            currRopeLength -= ropeSegLength;
+            joint.axis = hitMeBabyOneMoreTime.normal; //We set the axis of our configurable joint to the normal value of our wrapping 
+                                                      //RaycastHit. Idk why we did this, Stephen tell me what this shit does
+
+            currRopeLength -= ropeSegLength; //Set the length of our rope to the distance between the wrap around RaycastHit and the 
+                                             //anchor of our configurable joint.
 
             //set the linear limit
             SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
             limit.limit = currRopeLength; //set the value that we want to change
             joint.linearLimit = limit; //set the joint's limit to our edited version.
 
-
         }
-        else if (ropePositions.Count > 1)
+        else if (ropePositions.Count > 1) //Y tho Stephen, y tho?
         {
-            dir = new Vector3(ropePositions[ropePositions.Count - 2].x - grappleSpawn.position.x, ropePositions[ropePositions.Count - 2].y - grappleSpawn.position.y);
+            //This section here is for unwrapping the grapple rope back around objects. Boy was this shit hard. We thought we could 
+            //just do what we did for wrapping around but you know... backwards? Shit doesn't work that way, we had to do some
+            //slerpin' ( ͡° ͜ʖ ͡°) to get it to work. 
 
-            Physics.Raycast(grappleSpawn.position, dir, out grappleUnwind, whatIsGrappleable);
+            dir = new Vector3(ropePositions[ropePositions.Count - 2].x - grappleSpawn.position.x, 
+                              ropePositions[ropePositions.Count - 2].y - grappleSpawn.position.y); //give a direction to shoot out our
+                                                                                                   //Unwind RaycastHit
 
-            anchorDifference = Vector3.Distance(grappleUnwind.point, ropePositions[ropePositions.Count - 2]);
+            Physics.Raycast(grappleSpawn.position, dir, out grappleUnwind, whatIsGrappleable); //Shoot out our Unwind RaycastHit
 
-            //if (grappleUnwind.point.x == ropePositions[ropePositions.Count - 2].x && grappleUnwind.point.y == ropePositions[ropePositions.Count - 2].y)
-            if (anchorDifference <= 0.001f)
+            anchorDifference = Vector3.Distance(grappleUnwind.point, ropePositions[ropePositions.Count - 2]); //The distance between 
+                                                                //the point of contact in our unwind RaycastHit and the third to last 
+                                                                //element in our ropePositions. Why that element? I forget, ask Stephen
+
+            if (anchorDifference <= 0.001f) 
             {
-                float ropeSegLength = Vector3.Distance(grappleUnwind.point, joint.connectedAnchor);
+                float ropeSegLength = Vector3.Distance(grappleUnwind.point, joint.connectedAnchor); //The length of the current 
+                                                                    //segment of rope that will be added back in this portion of code.
 
-                joint.connectedAnchor = ropePositions[ropePositions.Count - 2];
+                joint.connectedAnchor = ropePositions[ropePositions.Count - 2]; //Set the connected anchor back to what it was before 
+                                                                                //the rope wrapped around something.
 
-                Vector3 slerpVal = Vector3.Slerp(joint.axis, grappleUnwind.normal, 1f);
+                Vector3 slerpVal = Vector3.Slerp(joint.axis, grappleUnwind.normal, 1f); //slerpin' ( ͡° ͜ʖ ͡°) is pretty complicated and 
+                                                                             //I kind of forget what it does every time. But if this
+                                                                             //makes sense to you I know it is spherically
+                                                                             //interpolates between two vectors. 
 
-                joint.axis = grappleUnwind.normal;
+                joint.axis = grappleUnwind.normal; //We set the axis of our configurable joint to the normal value of our unwrapping 
+                                                   //RaycastHit
 
-                ropePositions.RemoveAt(ropePositions.Count - 1);
+                ropePositions.RemoveAt(ropePositions.Count - 1); //Get rid of the wrap around RaycastHit point that was added to the 
+                                                                 //ropePositions list.
 
-                currRopeLength += ropeSegLength;
+                currRopeLength += ropeSegLength; //Add back the segment of rope length from unwrapping
 
                 //set the linear limit
                 SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
@@ -425,32 +450,28 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 joint.linearLimit = limit; //set the joint's limit to our edited version.
             }
 
-
         }
-
 
     }
 
-    void grappleCheck()
+    void grappleCheck() //This function changes the color of the crosshair when a grappleable object is within your reach.
     {
-        /* The purpose of this function is that if something is grappleable within your reach then the crosshair changes color */
+        RaycastHit grappleCheckhit; //A RaycastHit for determining whether or not a grappleable object is within reach.
+        Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position; //The direction to shoot the raycast out
 
-
-        RaycastHit hit;
-        Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position;
-
-        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsAble))
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out grappleCheckhit, maxDistance, whatIsAble))
         {
-            crosshairSprite.color = Color.black;
+            crosshairSprite.color = Color.black; //if there is something grappleable within reach then it turns black
         }
         else
         {
-            crosshairSprite.color = Color.white;
+            crosshairSprite.color = Color.white; //if there isn't something grappleable within reach then it stays white
         }
     }
 
     void OnCollisionEnter(Collision collision)
     {
+        //This is to make sure that once the player collides with anything then it interrupts their grapple zoom. 
 
         if (grappleZoomBool == true)
         {
