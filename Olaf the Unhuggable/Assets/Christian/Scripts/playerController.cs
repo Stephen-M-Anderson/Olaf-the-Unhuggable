@@ -18,14 +18,6 @@ public class playerController : MonoBehaviour
     public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
     private Vector3 swingingForce; //Speed of movement plus a direction given by user input (dpad) while swinging
 
-    [Header("Movement Variables")]
-    public bool facingRight = true; //Used for changing the direction the character is facing
-    private bool movementBool = true; //If this bool is true then the regular movement function is called
-    public float runSpeed; //This variable correlates to the movement speed of the player
-    public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
-    public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
-    private Vector3 swingingForce; //Speed of movement plus a direction given by user input (dpad) while swinging
-
     [Header("Outside Components")]
     private Rigidbody myRB; //A reference to the player's rigidbody component
     private Animator myAnimator; //A reference to the player's animator component
@@ -77,9 +69,10 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-                                            /* Collecting Inputs */
+                                                /* Collecting Inputs */
+
         //Collecting directional inputs:
-        float moveX = Input.GetAxis("Horizontal");
+        float moveX = Input.GetAxis("Horizontal"); 
         float moveY = Input.GetAxis("Vertical");
 
         myAnimator.SetFloat("speed", Mathf.Abs(moveX)); //The vertical input we collected determines the speed of the 
@@ -87,23 +80,24 @@ public class playerController : MonoBehaviour
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
         swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
 
-                                            /* SPEEDO CHEKKU */
-        if (checkSpeed)
-        {
-            SpeedCalc(); //This function calculates the player's current speed and runs when the checkSpeed bool flips
-        }
-
-                                            /* Referencing Other Scripts */
+                                                /* Referencing Other Scripts */
 
         isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling; //Reference the grappling script to see if we're
                                                                           //grapplin'
         aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection; //Reference the direction the player is aiming.
                                                                       //This is used for any dashes that use the crosshair
 
-                                            /* Determining What Movement Type to Use */
+        /* SPEEDO CHEKKU */
+
+        if (checkSpeed)
+        {
+            SpeedCalc(); //This function calculates the player's current speed and runs when the checkSpeed bool flips
+        }
+
+                                                /* Determining What Movement Type to Use */
 
         //If we're grappling we use grapple movement, if not then we use regular movement. That's it dawg
-        if (isGrappling == true) 
+        if (isGrappling == true)
         {
             grappleMove = true;
             movementBool = false;
@@ -111,11 +105,9 @@ public class playerController : MonoBehaviour
         {
             movementBool = true;
         }
-
-                                             /* JUMPING */
+                                                /* JUMPING */
         /* Checking for the jump button was moved from FixedUpdate to Update because for some reason when it was in 
          * fixed update it made every few jumps WAAAAAAY fuckin higher than they were supposed to be. */
-
 
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
@@ -124,9 +116,8 @@ public class playerController : MonoBehaviour
 
         //Debug.Log("isGrounded = " + isGrounded);
 
-        //Debug.Log("isGrounded = " + isGrounded);
+                                                /* Dashing */
 
-                                            /* Dashing */
 
         if (Input.GetButtonDown("Fire2") && dashes > 0 && canDash)
         {
@@ -136,15 +127,20 @@ public class playerController : MonoBehaviour
             {
                 canDash = false; //we flip this bool to prevent you from dashing again on the immediate next frame
                 dashBool = true; //this calls the dash function on the next FixedUpdate
-
-            } else
+            }
+            else
             { //if you are grappling then do the grapple dash (doesn't currently work sry)
+
                 GrappleDashBool = true; //This tells us to use the grapple dash
             }
 
             dashes--; //You just dashed bro so I gotta take one of your dashes sorry bro
         }
 
+        if (isGrounded == true)
+        {
+            dashes = 2f; //Touching ground resets your dashes
+        }
     }
 
     void FixedUpdate()
@@ -154,7 +150,7 @@ public class playerController : MonoBehaviour
          * to do with physics in FixedUpdate. Because of this the player controller should (in terms of physics shit)
          * flip a bool on Update and have that bool determine if a function is called on FixedUpdate.*/
 
-                                            /* Collecting Inputs */
+        /* Collecting Inputs */
 
         //We need that RAW data for Button Axis Dashing so we collect those inputs too. Non raw inputs smooth the values
         //but raw inputs are ALWAYS 1, 0, or -1 meaning they are PERFECT for determining the 8 cardinal directions.
@@ -162,29 +158,25 @@ public class playerController : MonoBehaviour
         float moveXRaw = Input.GetAxisRaw("Horizontal");
         float moveYRaw = Input.GetAxisRaw("Vertical");
 
-                                            /* Jumping */
+
+        /* Jumping */
         if (jumpBool == true)
         {
             Jump(); 
         }
 
-                                            /* Dashing */
-        if (dashBool == true && (moveXRaw != 0 || moveYRaw != 0))
-        {
-            ButtonAxisDash(moveXRaw, moveYRaw);
-        }
-
-        if (GrappleDashBool == true && moveXRaw != 0)
-        {
-            GrappleDash(moveXRaw);
-        }
-
-                                            /* Movement */
+                                                /* Movement */
 
         Movement();
 
         groundedCheck();
 
+                                                /* Dashing */
+
+        if (dashBool == true && (moveXRaw != 0 || moveYRaw != 0))
+        {
+            ButtonAxisDash(moveXRaw, moveYRaw);
+        }
 
     }
 
@@ -201,10 +193,10 @@ public class playerController : MonoBehaviour
             myRB.velocity = movementForce; //Apply velocity to our rigidbody to move it
         }
 
-        /* This was originally the previously a check for the commented out "flip()" function but I changed it
-        * because the flip function stupidly tried to flip the scaling into the negative but that IMMEDIATELY
-        * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
-
+        /* This was originally a check for a function that would flip the character's 3D model depending on facing
+        * direction but we got rid of that because that function function stupidly tried to flip the scaling into the 
+        * negative but that IMMEDIATELY fucked with all collision and facing left suddenly also meant sinking under 
+        * the floor.*/
 
                                             /* Direction Check */
                 /* This function makes the player's character model face the correct direction */
@@ -249,65 +241,7 @@ public class playerController : MonoBehaviour
         jumpBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
     }
 
-    void ButtonAxisDash(float x, float y)
-    {
-        /* Description Start!
-         * Button Axis Dashing takes the last directional input you gave in any of the 8 cardinal directions and 
-         * dashes in that direction. 
-         */
-
-        isDashing = true; //You are currently dashing my friend
-        dashBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
-
-        Vector3 dir = new Vector3(x, y/verticalEquilizer, myRB.velocity.z); //The direction we are about to dash in
-        movementForce += dir * dashSpeed; //Modifying the movementForce value is how we give velocity to our player
-                                          //outside of the movement function.
-
-        //Debug.Log("buttonAxisDash is fucking happening boi");
-
-        StartCoroutine(DashWait()); //This coroutine is a cooldown between dashes
-    }
-
-    IEnumerator DashWait() //The cooldown between dash uses
-    {
-        //myRB.useGravity = false; //disabling gravity during dash is something we're considering but I can't recall if it
-        //actually made a difference.
-        yield return new WaitForSeconds(.5f);
-        //myRB.useGravity = true;
-        isDashing = false;
-        canDash = true;
-
-        //Debug.Log("DashWait Happened");
-    }
-
-    void GrappleDash(float x)
-    {
-        Debug.Log("Oh God Oh Fuck I'm dashing while also fucking grappling hooooooly fuck");
-
-        //if (facingRight == true)
-        //{
-            //myRB.AddForce(new Vector3(100, myRB.velocity.y, 0), ForceMode.Impulse);
-            //myRB.AddForce(new Vector3(10000, myRB.velocity.y, 0));
-        //}
-        //else
-        //{
-            //myRB.AddForce(new Vector3(-100, myRB.velocity.y, 0), ForceMode.Impulse);
-            //myRB.AddForce(new Vector3(-10000, myRB.velocity.y, 0));
-        //}
-
-        //Vector3 dir = new Vector3(x, myRB.velocity.y, myRB.velocity.z);
-        Vector3 dir = new Vector3(x, 0, myRB.velocity.z);
-        movementForce += dir * dashSpeed;
-
-        StartCoroutine(DashWait());
-        GrappleDashBool = false;
-
-        /* Description Start!
-         * 
-         * Using the facingRight bool we can determine the direction to dash in. Then we give an impulse force in that direction. Make
-         * sure this only works while grappling. 
-         */
-    }
+    
 
     void SpeedCalc()
     {
@@ -329,5 +263,38 @@ public class playerController : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
         checkSpeed = true;
     }
+
+    void ButtonAxisDash(float x, float y)
+    {
+        /* Description Start!
+         * Button Axis Dashing takes the last directional input you gave in any of the 8 cardinal directions and 
+         * dashes in that direction. 
+         */
+
+        isDashing = true; //You are currently dashing my friend
+        dashBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
+
+        Vector3 dir = new Vector3(x, y / verticalEquilizer, myRB.velocity.z); //The direction we are about to dash in
+        movementForce += dir * dashSpeed; //Modifying the movementForce value is how we give velocity to our player
+                                          //outside of the movement function.
+
+        //Debug.Log("buttonAxisDash is fucking happening boi");
+
+        StartCoroutine(DashWait()); //This coroutine is a cooldown between dashes
+
+    }
+
+    IEnumerator DashWait() //The cooldown between dash uses
+    {
+        //myRB.useGravity = false; //disabling gravity during dash is something we're considering but I can't recall if it
+        //actually made a difference.
+        yield return new WaitForSeconds(.5f);
+        //myRB.useGravity = true;
+        isDashing = false;
+        canDash = true;
+
+        //Debug.Log("DashWait Happened");
+    }
+
 
 }
