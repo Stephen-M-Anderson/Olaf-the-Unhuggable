@@ -43,6 +43,22 @@ public class playerController : MonoBehaviour
                                     //goddamn second. Because of this we flip this bool at a regular interval to tell
                                     //the program to update our speed value.
 
+    [Header("Dash Variables")]
+    public float dashes = 2f; //How many dashes are you allowed to use in a row? This replenishes after touching ground
+    private bool canDash = true; //If true, the player can dash
+    private bool dashBool = false; //If true, the dash function is called
+    public bool isDashing = false; //If this bool is true then the player is currently dashing
+    public Transform crosshair; //The location of the crosshair (used in some dashes)
+    private Vector3 aimDir; //A vector representing the direction the player is currently aiming their mouse
+    private int dashDir; //This integer is used in the switch cases for dashing. Each number correlates to a direction.
+    public float dashSpeed; //How fast you can dash
+    private Vector3 dashPoint; //This variable holds the direction we want the player to dash to
+    public float verticalEquilizer; //This one is a bit complicated. For some weird reason the way we're implementing
+                                    //movement, vertical and horizontal forces are not created equal. It takes WAY more
+                                    //force to move something vertically than horizontally. I used this value as an offset
+                                    //to try and balance those out a little better.
+    private bool GrappleDashBool = false; //This is meant to be a special dash you can do while grappling... shits busted
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,8 +84,10 @@ public class playerController : MonoBehaviour
 
         isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling; //Reference the grappling script to see if we're
                                                                           //grapplin'
+        aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection; //Reference the direction the player is aiming.
+                                                                      //This is used for any dashes that use the crosshair
 
-                                                /* SPEEDO CHEKKU */
+        /* SPEEDO CHEKKU */
 
         if (checkSpeed)
         {
@@ -98,6 +116,31 @@ public class playerController : MonoBehaviour
 
         //Debug.Log("isGrounded = " + isGrounded);
 
+                                                /* Dashing */
+
+
+        if (Input.GetButtonDown("Fire2") && dashes > 0 && canDash)
+        {
+            //Debug.Log("Dash Button Pressed!");
+
+            if (!isGrappling) //if you aren't grappling do whatever normal dash you selected
+            {
+                canDash = false; //we flip this bool to prevent you from dashing again on the immediate next frame
+                dashBool = true; //this calls the dash function on the next FixedUpdate
+            }
+            else
+            { //if you are grappling then do the grapple dash (doesn't currently work sry)
+
+                GrappleDashBool = true; //This tells us to use the grapple dash
+            }
+
+            dashes--; //You just dashed bro so I gotta take one of your dashes sorry bro
+        }
+
+        if (isGrounded == true)
+        {
+            dashes = 2f; //Touching ground resets your dashes
+        }
     }
 
     void FixedUpdate()
@@ -107,7 +150,16 @@ public class playerController : MonoBehaviour
          * to do with physics in FixedUpdate. Because of this the player controller should (in terms of physics shit)
          * flip a bool on Update and have that bool determine if a function is called on FixedUpdate.*/
 
-                                                /* Jumping */
+        /* Collecting Inputs */
+
+        //We need that RAW data for Button Axis Dashing so we collect those inputs too. Non raw inputs smooth the values
+        //but raw inputs are ALWAYS 1, 0, or -1 meaning they are PERFECT for determining the 8 cardinal directions.
+        //We need this because we want a Button Axis Dash in a specific direction to be the same EVERY time.
+        float moveXRaw = Input.GetAxisRaw("Horizontal");
+        float moveYRaw = Input.GetAxisRaw("Vertical");
+
+
+        /* Jumping */
         if (jumpBool == true)
         {
             Jump(); 
@@ -118,7 +170,14 @@ public class playerController : MonoBehaviour
         Movement();
 
         groundedCheck();
-                                                
+
+                                                /* Dashing */
+
+        if (dashBool == true && (moveXRaw != 0 || moveYRaw != 0))
+        {
+            ButtonAxisDash(moveXRaw, moveYRaw);
+        }
+
     }
 
     void Movement()
@@ -203,6 +262,38 @@ public class playerController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.05f);
         checkSpeed = true;
+    }
+
+    void ButtonAxisDash(float x, float y)
+    {
+        /* Description Start!
+         * Button Axis Dashing takes the last directional input you gave in any of the 8 cardinal directions and 
+         * dashes in that direction. 
+         */
+
+        isDashing = true; //You are currently dashing my friend
+        dashBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
+
+        Vector3 dir = new Vector3(x, y / verticalEquilizer, myRB.velocity.z); //The direction we are about to dash in
+        movementForce += dir * dashSpeed; //Modifying the movementForce value is how we give velocity to our player
+                                          //outside of the movement function.
+
+        //Debug.Log("buttonAxisDash is fucking happening boi");
+
+        StartCoroutine(DashWait()); //This coroutine is a cooldown between dashes
+
+    }
+
+    IEnumerator DashWait() //The cooldown between dash uses
+    {
+        //myRB.useGravity = false; //disabling gravity during dash is something we're considering but I can't recall if it
+        //actually made a difference.
+        yield return new WaitForSeconds(.5f);
+        //myRB.useGravity = true;
+        isDashing = false;
+        canDash = true;
+
+        //Debug.Log("DashWait Happened");
     }
 
 
