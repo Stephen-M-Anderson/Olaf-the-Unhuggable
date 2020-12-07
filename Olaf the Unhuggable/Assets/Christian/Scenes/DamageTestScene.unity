@@ -583,6 +583,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 415446237}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &419054787 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9208316865133289959, guid: dd4c5754ba18a304a836f73470391d8d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1090447101232451784}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &421099188
 GameObject:
   m_ObjectHideFlags: 0
@@ -1284,6 +1290,32 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 545924808}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &582738470 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2724322163028865095, guid: dd4c5754ba18a304a836f73470391d8d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1090447101232451784}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &582738480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582738470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 103125c3641a86f43adf79526b87e8c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementForce: {x: 0, y: 0, z: 0}
+  facingRight: 1
+  dashes: 2
+  isDashing: 0
+  crosshair: {fileID: 419054787}
+  dashSpeed: 25
+  verticalEquilizer: 1
+  dashText: {fileID: 1364893072}
 --- !u!1 &594127361
 GameObject:
   m_ObjectHideFlags: 0
