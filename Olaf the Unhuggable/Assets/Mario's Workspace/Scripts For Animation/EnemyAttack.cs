@@ -7,9 +7,10 @@ public class EnemyAttack : MonoBehaviour
     Animator enAnimation;
     Rigidbody rb;
     public GameObject Player;
+    //public GameObject gameObject;
 
-    bool distanceChecker = false;
-    float time = 2.0f;
+    //bool distanceChecker = false;
+    //float time = 2.0f;
 
     void Start()
     {
@@ -22,11 +23,12 @@ public class EnemyAttack : MonoBehaviour
     {
         
     }
-    public void OnTriggerStay(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            enAnimation.SetBool("Attack", true);
+            //enAnimation.SetBool("Attack", true);
+            enAnimation.Play("Male Attack 1");
             Debug.Log("Enter");
         }
     }
@@ -34,7 +36,7 @@ public class EnemyAttack : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            enAnimation.SetBool("Attack", false);
+            //enAnimation.SetBool("Attack", false);
             Debug.Log("Exit");
         }
     }
