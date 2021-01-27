@@ -40,12 +40,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     [Header("Bools")]
 
-    public bool isGrappling; //This bool dictates whether or not the player is currently grappling.
-    //private bool grappleBool; //This bool was an attempt at getting the grapple function to work the same way as the dash script:
+    public bool isGrappling = false; //This bool dictates whether or not the player is currently grappling.
+    //private bool grappleBool = false; //This bool was an attempt at getting the grapple function to work the same way as the dash script:
                                 //flipping bools on update then calling the function itself on fixed update. Something went wrong 
                                 //with it so we may need to work on this.
-    private bool grappleZoomBool; //This bool dictates whether or not the player is currently zoomin' https://youtu.be/dfrlUNgaFLQ 
-    private bool stopGrappleBool; //This bool is flipped in order to start the function that ends grappling.
+    private bool grappleZoomBool = false; //This bool dictates whether or not the player is currently zoomin' https://youtu.be/dfrlUNgaFLQ 
+    private bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
+    private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
+    private bool isZooming = false; //Tells us if the player is currently zooming!
 
 
     [Header("Grapple Rope")]
@@ -69,16 +71,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
                                      //to be the best fit as every other joint we tried ended in a fucking mess of spaghetti code.
                                      //The joint is configured ( ͡° ͜ʖ ͡°) to help simulate how a character would fling around on a rope.
+    Vector3 zoomDirection; //This is the last recorded direction of a grapple zoom. It can be a global variable because only one zoom should
+                           //occur at a time.
+    public float zoomMagnitude;
 
 
     // Start is called before the first frame update
     void Awake()
     {
-        //Setting all of our bools to their default positions
-        isGrappling = false;
-        grappleZoomBool = false;
-        stopGrappleBool = false;
-
         lr = lineRendererObject.GetComponent<LineRenderer>(); //setting lr to become a reference to the line renderer component held in
                                                               //our lineRendererObject
         myRB = GetComponent<Rigidbody>(); //setting myRB to reference the rigidbody component of our player
@@ -134,7 +134,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //Debug.Log("Left Click Up");
 
             stopGrappleBool = true;
-            //grappleBool = false;
+            StopGrappleZoom();
             crosshairSprite.enabled = true;
         }
 
@@ -159,19 +159,29 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //bool dictates whether or not the function runs on FixedUpdate. This should minimize crazy fucked up bullshit happening with 
         //the physics. I hope...
 
-        /*if (grappleZoomBool == true)
+        if (grappleZoomBool == true)
         {
             StartGrappleZoom(); //This function is for grapple zoomin!
-        }*/
+        }
 
-        //if (grappleBool == true)
-        //{
-           // StartGrapple();
-        //}
+        if (isZooming == true)
+        {
+            AddZoomVelocity(); //This function continually adds velocity for grapple zooming until collision occurs
+        }
+
+        /*if (grappleBool == true)
+        {
+           StartGrapple();
+        }*/
 
         if (stopGrappleBool == true)
         {
             StopGrapple(); //If there was a war on grappling, this function would be the fuckin DEA.
+        }
+
+        if (stopGrappleZoomBool == true)
+        {
+            StopGrappleZoom(); //This function stops grapple zooming by zeroing out your velocity
         }
     }
 
@@ -203,30 +213,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             //Debug.Log("Ray hit Grapple... motherfucker");
         }
-        else if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsZoomable))
+        else
         {
-            //If our raycast instead hits something zoomable, then we call the StartGrappleZoom function
+            //Our raycast MIGHT be hitting something zoomable so let's try a Grapple Zoom raycast just in case!
 
-            StartGrappleZoom(hit);
+            grappleZoomBool = true;
 
-            //Debug.Log("Ray hit Grapplezoom... bitch");
+            //Debug.Log("Ray might have hit Grapplezoom... bitch");
         }
 
-    }
-
-    void StopGrapple() //This function stops grappling in its tracks. All grapples get killed dead or your money back.
-    {
-        
-        lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
-        Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
-        isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
-                             //not the SwingCheck() function that handles all swinging mechanics is being called.
-        myAnimator.SetBool("grappling", isGrappling); //We run this to make sure the animator knows the animation should end.
-        ropePositions.Clear(); //We clear the list of rope positions we created so that it won't be full of stuff next time we need it.
-        currRopeLength = maxRopeLength; //Reset the currRopeLength value to the maximum for the next time we need it.
-        stopGrappleBool = false; //Flip this bool to show that the stopGrapple has uh... stopped.
-
-        //Debug.Log("Stop Grapple");
     }
 
     void DoGrapple(RaycastHit hit) //The function that actually does all the grapple shit
@@ -306,33 +301,81 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Debug.Log("Ray Hit BAYBEEEEEEEEE");
     }
 
-    void StartGrappleZoom(RaycastHit zoomHit) //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
+    void StopGrapple() //This function stops grappling in its tracks. All grapples get killed dead or your money back.
     {
 
-        if (zoomHit.point.z != player.transform.position.z - cameraTransform.position.z)
+        lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
+        Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
+        isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
+                             //not the SwingCheck() function that handles all swinging mechanics is being called.
+        myAnimator.SetBool("grappling", isGrappling); //We run this to make sure the animator knows the animation should end.
+        ropePositions.Clear(); //We clear the list of rope positions we created so that it won't be full of stuff next time we need it.
+        currRopeLength = maxRopeLength; //Reset the currRopeLength value to the maximum for the next time we need it.
+        stopGrappleBool = false; //Flip this bool to show that the stopGrapple has uh... stopped.
+
+        //Debug.Log("Stop Grapple");
+    }
+
+    void StartGrappleZoom() //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
+    {
+        grappleZoomBool = false;
+        RaycastHit zoomHit; //We are declaring a RayCastHit type variable here that we're just gonna call hit. Unity's TOTALLY DESCRIPTIVE
+                        //AND NOT AWFUL documentation refers to a RayCastHit as a "Structure used to get information back from a 
+                        //raycast".
+
+        Vector3 grappleDir = crosshair.transform.position - grappleSpawn.transform.position; //A Vector3 representing the direction
+                                                                                             //the grapple will shoot out to
+
+
+        if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out zoomHit, maxDistance, whatIsZoomable))
+        {
+            DoGrappleZoom(zoomHit);
+            //Debug.Log("Ray hit Grapplezoom... bitch");
+        }
+        else
+        {
+            stopGrappleZoomBool = true;
+        }
+
+    }
+
+    void DoGrappleZoom(RaycastHit grappleZoomHit)
+    {
+        if (grappleZoomHit.point.z != player.transform.position.z - cameraTransform.position.z)
         {
             //Our character never moves on the z axis but all of our calculations still factor in the z axis given that this is Unity 
             //3D. Because of this we use this function to make sure every single component of the player and the grappling hook stay
             //at the same z value.
 
             //isGrappling = true; //Do we want the grappling animation to play while zooming? Plus it'll run the swinging calculations
-            Vector3 tempVector = new Vector3(zoomHit.point.x, zoomHit.point.y, player.transform.position.z);
-            zoomHit.point = tempVector;
+            Vector3 tempVector = new Vector3(grappleZoomHit.point.x, grappleZoomHit.point.y, player.transform.position.z);
+            grappleZoomHit.point = tempVector;
         }
 
-        grapplePoint = zoomHit.point; //The point we want to zoom toward.
-        Vector3 zoomDirection = grapplePoint - myRB.transform.position; //The direction we want to zoom
-        myRB.velocity = zoomDirection * 5; //The zoomin itself
+        grapplePoint = grappleZoomHit.point; //The point we want to zoom toward.
+        zoomDirection = grapplePoint - myRB.transform.position; //The direction we want to zoom
+                                                                        //zoomDirection = new Vector3 (zoomDirection.x, zoomDirection.y/verticalEquilizer, zoomDirection.z);
+        isZooming = true;
 
-        //Debug.Log("Start Grapple Zoom is all according to Keikaku. TL note: Keikaku means plan");
+        //myRB.velocity = zoomDirection * 5; //The zoomin itself
 
+        //Debug.Log("Do Grapple Zoom is all according to Keikaku. TL note: Keikaku means plan");
     }
 
     void StopGrappleZoom() //The function what which stops the zoomin 
     {
         //Add code here to stop the player's momentum
-
+        myRB.velocity = new Vector3 (0,0,0); //zeroing out our velocity, stopping us in our tracks.
+        stopGrappleZoomBool = false; //Gotta flip that bool so this doesn't run on the next FixedUpdate
+        isZooming = false; //We are, in fact, no longer zooming sadly...
         //isGrappling = false;
+
+        //Debug.Log("Fucking killed my zoom... and harshed my mellow");
+    }
+
+    void AddZoomVelocity()
+    {
+        myRB.velocity = zoomDirection * zoomMagnitude; //The zoomin itself
     }
 
     void DrawRope() //This function draws the grapple rope as a physical line.
@@ -473,9 +516,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     {
         //This is to make sure that once the player collides with anything then it interrupts their grapple zoom. 
 
-        if (grappleZoomBool == true)
+        if (isZooming == true)
         {
-            StopGrappleZoom();
+            stopGrappleZoomBool = true;
         }
 
     }

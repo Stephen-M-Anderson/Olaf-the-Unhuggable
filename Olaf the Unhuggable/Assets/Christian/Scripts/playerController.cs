@@ -140,6 +140,8 @@ public class playerController : MonoBehaviour
             dashes--; //You just dashed bro so I gotta take one of your dashes sorry bro
         }
 
+        //DirectionCheck();
+
     }
 
     void FixedUpdate()
@@ -201,8 +203,12 @@ public class playerController : MonoBehaviour
         * fucked with all collision and facing left suddenly also meant sinking under the floor.*/
 
 
-                                            /* Direction Check */
-                /* This function makes the player's character model face the correct direction */
+        DirectionCheck();
+    }
+
+    void DirectionCheck()
+    {
+        /* This function makes the player's character model face the correct direction */
 
         if (movementForce.x > 0 && !facingRight)
         {
