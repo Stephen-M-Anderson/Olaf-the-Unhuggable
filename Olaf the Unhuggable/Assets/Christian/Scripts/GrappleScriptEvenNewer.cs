@@ -48,6 +48,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
     private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
     private bool isZooming = false; //Tells us if the player is currently zooming!
+    private bool canZoom = true; //Can the player currently zoom or is that ability still in cooldown? Only this bool truly knows!
+    private bool isCooldownHappening = false; //This bool is used to prevent multiple of the same coroutine from happening
 
 
     [Header("Grapple Rope")]
@@ -74,6 +76,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     Vector3 zoomDirection; //This is the last recorded direction of a grapple zoom. It can be a global variable because only one zoom should
                            //occur at a time.
     public float zoomMagnitude;
+    public float zoomCooldown;
 
 
     // Start is called before the first frame update
@@ -214,7 +217,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             //Debug.Log("Ray hit Grapple... motherfucker");
         }
-        else
+        else if (canZoom)
         {
             //Our raycast MIGHT be hitting something zoomable so let's try a Grapple Zoom raycast just in case!
 
@@ -227,6 +230,12 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void DoGrapple(RaycastHit hit) //The function that actually does all the grapple shit
     {
+        if (GetComponent<playerController>().ballManBool == false)
+        {
+            GetComponent<playerController>().BallModeActive(); //Activate BALL MAN MODE
+            //Debug.Log("Ball Mode Engage from grappling?");
+        }
+
                                                 /* Fixing out Z Values */
 
         if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
@@ -319,7 +328,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StartGrappleZoom() //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
     {
+        //flip them bools!
         grappleZoomBool = false;
+
         RaycastHit zoomHit; //We are declaring a RayCastHit type variable here that we're just gonna call hit. Unity's TOTALLY DESCRIPTIVE
                         //AND NOT AWFUL documentation refers to a RayCastHit as a "Structure used to get information back from a 
                         //raycast".
@@ -342,6 +353,16 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void DoGrappleZoom(RaycastHit grappleZoomHit)
     {
+        canZoom = false;
+
+        Debug.Log("zooming priveleges have been revoked since zooming has just begun.");
+
+        if (GetComponent<playerController>().ballManBool == false)
+        {
+            GetComponent<playerController>().BallModeActive(); //Activate BALL MAN MODE
+            //Debug.Log("Ball Mode Engage from zooming?");
+        }
+
         if (grappleZoomHit.point.z != player.transform.position.z - cameraTransform.position.z)
         {
             //Our character never moves on the z axis but all of our calculations still factor in the z axis given that this is Unity 
@@ -370,12 +391,27 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         isZooming = false; //We are, in fact, no longer zooming sadly...
         //isGrappling = false;
 
+        //As long as the cooldown hasn't already started then we start the cooldown
+        if (!isCooldownHappening && !canZoom)
+        {
+            StartCoroutine(GrappleZoomCooldown()); 
+        }
+
         //Debug.Log("Fucking killed my zoom... and harshed my mellow");
     }
 
     void AddZoomVelocity()
     {
         myRB.velocity = zoomDirection * zoomMagnitude; //The zoomin itself
+    }
+
+    IEnumerator GrappleZoomCooldown()
+    {
+        isCooldownHappening = true; //A cooldown is happening
+        yield return new WaitForSeconds(zoomCooldown); 
+        canZoom = true; //We regain use of our grapple zoom
+        isCooldownHappening = false; //The cooldown has finished
+        Debug.Log("Zooming priveleges have returned. All is right in the world.");
     }
 
     void DrawRope() //This function draws the grapple rope as a physical line.

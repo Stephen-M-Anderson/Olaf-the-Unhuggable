@@ -5326,8 +5326,6 @@ MonoBehaviour:
   runSpeed: 8
   swingSpeed: 12
   movementForce: {x: 0, y: 0, z: 0}
-  olafDummy: {fileID: 3089853276147257006}
-  ballDummy: {fileID: 823006531}
   isGrounded: 0
   groundLayer:
     serializedVersion: 2
@@ -5335,10 +5333,14 @@ MonoBehaviour:
   groundCheck: {fileID: 6591051192244984147}
   jumpHeight: 800
   speedText: {fileID: 594127363}
+  olafDummy: {fileID: 3089853276147257006}
+  ballDummy: {fileID: 823006531}
+  ballManBool: 0
   dashes: 2
   isDashing: 0
   crosshair: {fileID: 8135903063028445487}
   dashSpeed: 25
+  dashCooldown: 0.5
   verticalEquilizer: 1
 --- !u!4 &830224027050502245
 Transform:
@@ -6860,6 +6862,7 @@ MonoBehaviour:
   grappleSpawn: {fileID: 3466755758487560071}
   grappleVect: {x: 0, y: 0, z: 0}
   zoomMagnitude: 5
+  zoomCooldown: 0.5
 --- !u!4 &6712364722006938054
 Transform:
   m_ObjectHideFlags: 0
