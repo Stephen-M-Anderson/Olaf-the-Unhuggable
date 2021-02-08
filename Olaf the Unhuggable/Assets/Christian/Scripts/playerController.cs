@@ -21,6 +21,10 @@ public class playerController : MonoBehaviour
     [Header("Outside Components")]
     private Rigidbody myRB; //A reference to the player's rigidbody component
     private Animator myAnimator; //A reference to the player's animator component
+    public GameObject olafDummy; //The mesh for Olaf's regular body
+    public GameObject ballDummy; //The mesh for Olaf's ball form
+    CapsuleCollider olafBodyCollider; //The collider component used in Olaf's regular form
+    SphereCollider olafBallCollider; //The collider component used in Olaf's ball mode
 
     [Header("Jumping Variables")]
     bool jumpBool = false; //Determines whether or not the player is jumping
@@ -64,6 +68,9 @@ public class playerController : MonoBehaviour
     {
         myRB = GetComponent<Rigidbody>(); //setting myRB to reference the rigidbody component of our player
         myAnimator = GetComponent<Animator>(); //setting myAnimator to reference the animator component of our player
+        olafBallCollider = GetComponent<SphereCollider>();
+        olafBodyCollider = GetComponent<CapsuleCollider>();
+
     }
 
     // Update is called once per frame
@@ -231,10 +238,12 @@ public class playerController : MonoBehaviour
         if (groundCollisions.Length > 0)
         {
             isGrounded = true;
+            BallModeInactive(); //When we are grounded we want to make sure our character model is in regular form
         }
         else
         {
             isGrounded = false;
+            BallModeActive(); //When we aren't grounded we want to make sure our character model is in ball form
         }
 
         myAnimator.SetBool("grounded", isGrounded); //The animator determines whether or not the jumping animation plays
@@ -261,10 +270,17 @@ public class playerController : MonoBehaviour
         dashBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
 
         Vector3 dir = new Vector3(x, y/verticalEquilizer, myRB.velocity.z); //The direction we are about to dash in
-        movementForce += dir * dashSpeed; //Modifying the movementForce value is how we give velocity to our player
-                                          //outside of the movement function.
 
-        //Debug.Log("buttonAxisDash is fucking happening boi");
+        movementForce += dir * dashSpeed; //Modifying the movementForce value is how we give velocity to our player
+                                            //outside of the movement function.
+
+        //This block of commented out code is my attempt at dashing by just using the rigidbody but it's fucked for some reason. 
+        //So instead we modify the movementForce variable that then determines velocity in the rididbody. It's roundabout but it works
+        //I guess...
+        //Vector3 dir2 = new Vector3(x, y, myRB.velocity.z);
+        //myRB.velocity += dir2 * dashSpeed;
+
+        Debug.Log("buttonAxisDash is fucking happening boi");
 
         StartCoroutine(DashWait()); //This coroutine is a cooldown between dashes
     }
@@ -329,6 +345,31 @@ public class playerController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.05f);
         checkSpeed = true;
+    }
+
+    void BallModeActive() //This function turns the player into a ball
+    {
+        //Setting the correct mesh renderer active
+        olafDummy.SetActive(false); 
+        ballDummy.SetActive(true);
+
+        //Setting the correct collider active
+        olafBallCollider.enabled = true;
+        olafBodyCollider.enabled = false;
+
+        //Debug.Log("Ball mode has FUCKING ENGAGED MOTHERFUCKER");
+    }
+    void BallModeInactive() //This function turns the player into his regular game model
+    {
+        //Setting the correct mesh renderer active
+        olafDummy.SetActive(true);
+        ballDummy.SetActive(false);
+
+        //Setting the correct collider active
+        olafBallCollider.enabled = false;
+        olafBodyCollider.enabled = true;
+
+        //Debug.Log("Ball mode is no longer FUCKING ENGAGED MOTHERFUCKER");
     }
 
 }

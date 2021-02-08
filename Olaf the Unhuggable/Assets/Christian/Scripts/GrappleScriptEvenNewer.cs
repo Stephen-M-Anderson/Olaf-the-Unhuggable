@@ -134,7 +134,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //Debug.Log("Left Click Up");
 
             stopGrappleBool = true;
-            StopGrappleZoom();
+            stopGrappleZoomBool = true;
+            //StopGrappleZoom();
             crosshairSprite.enabled = true;
         }
 
@@ -354,8 +355,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         grapplePoint = grappleZoomHit.point; //The point we want to zoom toward.
         zoomDirection = grapplePoint - myRB.transform.position; //The direction we want to zoom
-                                                                        //zoomDirection = new Vector3 (zoomDirection.x, zoomDirection.y/verticalEquilizer, zoomDirection.z);
-        isZooming = true;
+
+        isZooming = true; //We flip this bool so that on the next FixedUpdate we know to actually do the zoomin'
 
         //myRB.velocity = zoomDirection * 5; //The zoomin itself
 
@@ -364,8 +365,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StopGrappleZoom() //The function what which stops the zoomin 
     {
-        //Add code here to stop the player's momentum
-        myRB.velocity = new Vector3 (0,0,0); //zeroing out our velocity, stopping us in our tracks.
+        //myRB.velocity = new Vector3 (0,0,0); //zeroing out our velocity, stopping us in our tracks.
         stopGrappleZoomBool = false; //Gotta flip that bool so this doesn't run on the next FixedUpdate
         isZooming = false; //We are, in fact, no longer zooming sadly...
         //isGrappling = false;
@@ -518,6 +518,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         if (isZooming == true)
         {
+            myRB.velocity = new Vector3(0, 0, 0); //zeroing out our velocity, stopping us in our tracks.
             stopGrappleZoomBool = true;
         }
 
