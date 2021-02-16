@@ -1,4 +1,9 @@
-﻿/* Description:  
+﻿/* Description:  It controls the player. Done...
+ * ...
+ * ...
+ * ...
+ * ...
+ * Okay fuck, uh this handles movement, jumping, dashing, any other basic shit the player needs to do. Ye.
  */
 
 
@@ -381,7 +386,7 @@ public class playerController : MonoBehaviour
 
     IEnumerator BallModeWait() //This coroutine is used to give us some buffer time between the next ground check.
     {
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForSeconds(0.05f);
         ballManBool = true; //Ball Made Mode is active so we must flip the almighty bool to reflect that
     }
     void BallModeInactive() //This function turns the player into his regular game model

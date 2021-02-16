@@ -47,7 +47,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private bool grappleZoomBool = false; //This bool dictates whether or not the player is currently zoomin' https://youtu.be/dfrlUNgaFLQ 
     private bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
     private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
-    private bool isZooming = false; //Tells us if the player is currently zooming!
+    public bool isZooming = false; //Tells us if the player is currently zooming!
     private bool canZoom = true; //Can the player currently zoom or is that ability still in cooldown? Only this bool truly knows!
     private bool isCooldownHappening = false; //This bool is used to prevent multiple of the same coroutine from happening
 
@@ -73,10 +73,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
                                      //to be the best fit as every other joint we tried ended in a fucking mess of spaghetti code.
                                      //The joint is configured ( ͡° ͜ʖ ͡°) to help simulate how a character would fling around on a rope.
+
+    [Header("Zooming")]
     Vector3 zoomDirection; //This is the last recorded direction of a grapple zoom. It can be a global variable because only one zoom should
                            //occur at a time.
     public float zoomMagnitude;
+    public float zoomMagnitudeDouble;
+    public float zoomMagnitudeOriginal;
     public float zoomCooldown;
+    public GameObject whatAmIZoomingTo;
 
 
     // Start is called before the first frame update
@@ -343,6 +348,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             DoGrappleZoom(zoomHit);
             //Debug.Log("Ray hit Grapplezoom... bitch");
+            whatAmIZoomingTo = zoomHit.collider.gameObject;
         }
         else
         {
@@ -396,6 +402,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             StartCoroutine(GrappleZoomCooldown()); 
         }
+
+        //We are no longer zooming to something so we need to null this out
+        whatAmIZoomingTo = null;
+        //If we had double zoom speed for this zoom we don't have it anymore
+        ReturnZoomSpeed(); 
 
         //Debug.Log("Fucking killed my zoom... and harshed my mellow");
     }
@@ -546,6 +557,16 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             crosshairSprite.color = Color.white; //if there isn't something grappleable within reach then it stays white
         }
+    }
+
+    void DoubleZoomSpeed() //This function doubles the speed of our zooming
+    {
+        zoomMagnitude = zoomMagnitudeDouble;
+    }
+
+    void ReturnZoomSpeed() //This function returns the speed of our zooming to the original value
+    {
+        zoomMagnitude = zoomMagnitudeOriginal;
     }
 
     void OnCollisionEnter(Collision collision)

@@ -10,11 +10,14 @@ public class TurretScript : MonoBehaviour
     public GameObject bulletPrefab; //In the inspector we drag the bullet prefab for this gameObject
     public Transform spawnLocation; //The location we want the bullet to spawn from
     private bool canSpawn; //A bool that determines whether or not a bullet can be spawned.
+    public Transform trueParent; //This is the parent of the bullet spawner object. We want our bullet to be the child of it so that we can
+                                 //refer to the parent object during parrying.
 
     // Start is called before the first frame update
     void Start()
     {
         canSpawn = true; //By default the turret can spawn a bullet on its first frame.
+        trueParent = this.transform.parent;
     }
 
     // Update is called once per frame
@@ -26,7 +29,7 @@ public class TurretScript : MonoBehaviour
             //We set this bool to false right away so that bullets only spawn on the frames we want them to.
             canSpawn = false;
             //This code spawns the bullet prefab into existance at the location and rotation we specified.
-            Instantiate(bulletPrefab, spawnLocation.position, spawnLocation.rotation);
+            Instantiate(bulletPrefab, spawnLocation.position, spawnLocation.rotation, trueParent);
             //Debug.Log("OH FUUUUUUCK BBY I'M SPAWNING!!");
 
             //This coroutine is called so that we can delay how often bullets spawn.

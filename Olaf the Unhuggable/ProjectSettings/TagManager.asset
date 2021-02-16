@@ -7,6 +7,8 @@ TagManager:
   - Nodes
   - Grapple Spawn
   - LastNodes
+  - Enemy
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -21,8 +23,8 @@ TagManager:
   - NoCollision
   - Rope
   - Zoomable
-  - 
-  - 
+  - Parryable
+  - Player
   - 
   - 
   - 
