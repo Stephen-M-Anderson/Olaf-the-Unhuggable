@@ -8,10 +8,12 @@ public class EnemyAttack : MonoBehaviour
     Rigidbody rb;
     public GameObject Player;
 
-    public int waitTimeMin = 0;
-    public int waitTimeMax = 2;
-    //public GameObject gameObject;
+    private int waitTimeMin = 1;
+    private int waitTimeMax = 5;
 
+    bool InCoR = false;
+    public int RanNum;
+    //public GameObject gameObject;
     //bool distanceChecker = false;
     //float time = 2.0f;
 
@@ -27,14 +29,18 @@ public class EnemyAttack : MonoBehaviour
         
     }
 
-    public void OnTriggerEnter(Collider other)
+    public void OnTriggerStay(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
             //enAnimation.SetBool("Attack", true);
             //enAnimation.Play("Male Attack 1");
             //Attack();
-            StartCoroutine(AttackPattern());
+            if (InCoR == false)
+            {
+                StartCoroutine(AttackPattern());
+            }
+            
             Debug.Log("Enter");
         }
     }
@@ -43,6 +49,7 @@ public class EnemyAttack : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             //enAnimation.SetBool("Attack", false);
+            InCoR = false;
             StopCoroutine(AttackPattern());
             Debug.Log("Exit");
         }
@@ -50,9 +57,13 @@ public class EnemyAttack : MonoBehaviour
 
     IEnumerator AttackPattern()
     {
-        yield return new WaitForSeconds(Random.Range(waitTimeMin, waitTimeMax));
-        Debug.Log("In Coroutine");
+        InCoR = true;
+        RanNum = Random.Range(waitTimeMin, waitTimeMax);
+        Debug.Log(RanNum);
+        yield return new WaitForSeconds(RanNum);
         Attack();
+        Debug.Log("In Coroutine");
+        InCoR = false;
     }
 
     public void Attack()

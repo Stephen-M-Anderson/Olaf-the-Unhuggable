@@ -23,6 +23,8 @@ public class EnemyBehavior : MonoBehaviour
     public float jumpHeight;
     public float minJumpTime = 80;
     public float maxJumpTime = 100;
+    public int XRight;
+    public int XLeft;
 
     public GameObject player;
 
@@ -81,8 +83,8 @@ public class EnemyBehavior : MonoBehaviour
     public void NextPoint()
     {
         //first you assign the range, +- 5.x from the enemy position
-        point1.transform.position = new Vector3(agent.transform.position.x + 5, 0, 0);
-        point2.transform.position = new Vector3(agent.transform.position.x - 5, 0, 0);
+        point1.transform.position = new Vector3(agent.transform.position.x + XRight, 0, 0);
+        point2.transform.position = new Vector3(agent.transform.position.x - XLeft, 0, 0);
         //then put it in the list, overwrites anything already in there, probably
         range.Insert(0, point1);
         range.Insert(1, point2);
