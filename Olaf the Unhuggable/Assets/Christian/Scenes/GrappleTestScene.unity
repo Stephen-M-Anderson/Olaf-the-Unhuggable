@@ -434,8 +434,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
-  damageRate: 0.5
-  pushBackForce: 0
 --- !u!65 &165470390
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5332,8 +5330,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
-  damageRate: 0.5
-  pushBackForce: 0
 --- !u!65 &1954065887
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5679,8 +5675,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  damageRate: 0.5
-  pushBackForce: 75
 --- !u!65 &2006717297
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5703,7 +5697,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100120, guid: 5917c0e93d180a842b61d1ebc62a195c, type: 3}
       propertyPath: m_Name
-      value: Basic Motions Dummy
+      value: Olaf
       objectReference: {fileID: 0}
     - target: {fileID: 100120, guid: 5917c0e93d180a842b61d1ebc62a195c, type: 3}
       propertyPath: m_TagString
@@ -5839,6 +5833,7 @@ MonoBehaviour:
   speedText: {fileID: 0}
   dashText: {fileID: 0}
   verticalEquilizer: 0
+  grappleSpeed: 0
 --- !u!114 &2014865458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5851,9 +5846,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120709fb6531dbc4aa8eec64029f72c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fullHealth: 5
   canTakeDamage: 0
-  damageRate: 0
+  fullHealth: 5
   healthText: {fileID: 0}
 --- !u!114 &2014865459
 MonoBehaviour:
@@ -5876,21 +5870,18 @@ MonoBehaviour:
   whatIsAble:
     serializedVersion: 2
     m_Bits: 0
-  grappleSpawn: {fileID: 2131645290}
-  player: {fileID: 2014865455}
   lineRendererObject: {fileID: 327690738}
-  grappleSpeed: 1000
+  aimDirection: {x: 0, y: 0, z: 0}
   crosshair: {fileID: 354782898}
   crosshairSprite: {fileID: 354782899}
   cameraTransform: {fileID: 963194228}
-  hookPrefab: {fileID: 5781967190377744794, guid: e5c6018b17e4d6c4caf2a1f1a4030380,
-    type: 3}
   isGrappling: 0
   ropePositions: []
   maxRopeLength: 6
   currRopeLength: 0
-  ropeMaxCastDistance: 9
-  aimDirection: {x: 0, y: 0, z: 0}
+  player: {fileID: 2014865455}
+  grappleSpawn: {fileID: 2131645290}
+  grappleVect: {x: 0, y: 0, z: 0}
 --- !u!136 &2014865460
 CapsuleCollider:
   m_ObjectHideFlags: 0
