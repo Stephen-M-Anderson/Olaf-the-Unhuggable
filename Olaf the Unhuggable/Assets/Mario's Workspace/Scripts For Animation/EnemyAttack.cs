@@ -10,9 +10,12 @@ public class EnemyAttack : MonoBehaviour
 
     private int waitTimeMin = 1;
     private int waitTimeMax = 5;
+    private int AttackVMin = 1;
+    private int AttackVMax = 3;
 
     bool InCoR = false;
     public int RanNum;
+    private int AttackVersion;
     //public GameObject gameObject;
     //bool distanceChecker = false;
     //float time = 2.0f;
@@ -68,6 +71,18 @@ public class EnemyAttack : MonoBehaviour
 
     public void Attack()
     {
-        enAnimation.Play("Male Attack 1");
+        AttackVersion = Random.Range(AttackVMin, AttackVMax);
+        switch (AttackVersion)
+        {
+            case 1:
+                enAnimation.Play("Male Attack 1");
+                break;
+            case 2:
+                enAnimation.Play("Male Attack 2");
+                break;
+            case 3:
+                enAnimation.Play("Male Attack 3");
+                break;
+        }
     }
 }
