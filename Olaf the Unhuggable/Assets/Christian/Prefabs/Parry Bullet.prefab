@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2602276249740005152}
   - component: {fileID: 8312530085724630428}
   - component: {fileID: 8946117191686651886}
-  - component: {fileID: 4057758352125880919}
   - component: {fileID: 7597496334201472563}
   - component: {fileID: 1958031262987693872}
   m_Layer: 13
@@ -92,24 +91,10 @@ SphereCollider:
   m_GameObject: {fileID: 2145331599052683821}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4057758352125880919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2145331599052683821}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3af86c6f2ff11c54f8a009cabfd4323d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletSpeed: 10
-  damage: 1
 --- !u!54 &7597496334201472563
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -138,3 +123,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d40932aeb0bbbe4f9b6b9fb9c862691, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletForce: {x: 0, y: 0, z: 0}
+  bulletSpeed: 10
+  damage: 1
+  BulletTargets: []
+  bulletSphereRadius: 0
+  whatIsPlayer:
+    serializedVersion: 2
+    m_Bits: 0

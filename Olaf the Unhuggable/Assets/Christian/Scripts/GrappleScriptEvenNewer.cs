@@ -82,7 +82,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float zoomMagnitudeOriginal;
     public float zoomCooldown;
     public GameObject whatAmIZoomingTo;
-
+        
 
     // Start is called before the first frame update
     void Awake()
@@ -406,7 +406,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //We are no longer zooming to something so we need to null this out
         whatAmIZoomingTo = null;
         //If we had double zoom speed for this zoom we don't have it anymore
-        ReturnZoomSpeed(); 
+        ReturnZoomSpeed();
 
         //Debug.Log("Fucking killed my zoom... and harshed my mellow");
     }

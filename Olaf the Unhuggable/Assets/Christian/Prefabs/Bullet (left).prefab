@@ -110,6 +110,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: -10
   damage: 1
+  BulletTargets: []
+  bulletSphereRadius: 0.135
+  whatIsPlayer:
+    serializedVersion: 2
+    m_Bits: 16384
 --- !u!54 &4276540281605898700
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -139,3 +144,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   amIBullet: 1
+  parentObj: {fileID: 0}
