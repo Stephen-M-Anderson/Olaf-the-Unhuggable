@@ -11,7 +11,7 @@ public class BulletScript : MonoBehaviour
     [Header("Movement Variables")]
 
     private Rigidbody bulletRB; //The bullet's rigidbody
-    private Vector3 bulletForce; //The direction and force applied to move the bullet
+    public Vector3 bulletForce; //The direction and force applied to move the bullet
     public float bulletSpeed; //The speed at which the bullet moves, this influences the bulletForce Vector3.
 
 
@@ -27,9 +27,16 @@ public class BulletScript : MonoBehaviour
     public float bulletSphereRadius; //The radius of the spherical hurtbox of this attack
     public LayerMask whatIsPlayer; //A layermask only for the player
 
+    GameObject bulletParent;
+    public Vector3 backwardsDirection;
+    public bool bulletParried = false;
+
     // Start is called before the first frame update
     void Start()
     {
+        //The parent object of the bullet
+        bulletParent = transform.parent.gameObject;
+
         //getting the rigidbody attached to the bullet prefab
         bulletRB = GetComponent<Rigidbody>();
         // A vector 3 representing the magnitude in the x direction the bullet will move
@@ -52,6 +59,14 @@ public class BulletScript : MonoBehaviour
         //with the bool in the player health script that does the same thing.
         vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
 
+        if (bulletParried == true)
+        {
+            BulletParried();
+            bulletParried = false;
+        }
+
+        //Debug.Log("bullet force is: " + bulletForce);
+
         //BulletHitbox();
     }
     void BulletHitbox()
@@ -72,6 +87,16 @@ public class BulletScript : MonoBehaviour
 
             Destroy(this.gameObject);
         }
+    }
+
+    void BulletParried()
+    {
+        //Make bullet no longer hurt Olaf but stun enemies
+        //Not implemented Yet 9/12/2021
+
+        //Change direction of bullet
+        backwardsDirection = bulletParent.gameObject.GetComponent<UniversalEnemyBehavior>().gameObjectMe.transform.position - bulletRB.transform.position;
+        bulletForce = backwardsDirection;
     }
 
     void OnDrawGizmos()

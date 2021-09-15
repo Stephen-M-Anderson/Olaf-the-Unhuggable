@@ -189,6 +189,7 @@ MonoBehaviour:
   stunDuration: 3
   attackDuration: 3
   stunnedBool: 0
+  parryStun: 0
 --- !u!1 &60717336
 GameObject:
   m_ObjectHideFlags: 0
@@ -6401,7 +6402,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7df59c465796e7c4b95b3acab00efb47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parrySuccessful: 0
   parryDuration: 3
   parryCooldown: 2
   parriedThings: []

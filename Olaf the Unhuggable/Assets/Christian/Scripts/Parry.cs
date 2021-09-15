@@ -10,24 +10,24 @@ using UnityEngine;
 
 public class Parry : MonoBehaviour
 {
-    public bool parrySuccessful = false;
+    bool canParry = true; //If this bool is true then you are able to parry
+    bool parryBool = false; //If this bool is true then you have begun to attempt to parry
+    bool currentlyParrying = false; //If this bool is true then the parry function is currently being called
+    bool cooldownIsHappening = false; //If this bool is true then the parry is currently in cooldown
+    public float parryDuration; //The length of time that the parry lasts
+    public float parryCooldown; //The length of time that it takes for the parry ability to cooldown
 
-    bool canParry = true;
-    bool parryBool = false;
-    bool currentlyParrying = false;
-    bool cooldownIsHappening = false;
-    public float parryDuration;
-    public float parryCooldown;
+    public Collider[] parriedThings; //An array filled with the colliders of the objects being parried
+    public LayerMask whatIsParryable; //The layermask that determines if an object can be parried
+    public float parrySphereRadius; //The radius of this sphere determines the amount of distance an object can be parried from the player upon activating the parry
 
-    public Collider[] parriedThings;
-    public LayerMask whatIsParryable;
-    public float parrySphereRadius;
+    [Header("Parry Types")]
 
-    public bool ballManParry;
-    public bool zoomingParry;
-    public bool bulletParry;
-    public bool dangerZoneParry;
-    GameObject whoAttackThisIs;
+    public bool ballManParry; //If you parried while Olaf is a ball but not zooming then it should give you double speed on your next zoom
+    public bool zoomingParry; //If you parried while you were zooming to the enemy then you should yo-yo back to the enemy
+    public bool bulletParry; //If you parried a bullet then you should reflect that bullet back to the enemy it belongs to
+    public bool dangerZoneParry; //If you parried in an enemy's danger zone while not zooming then you should stun the enemy
+    GameObject whoAttackThisIs; //The game object that the bullet being parried belongs to
 
     public int parryType;
 
@@ -45,10 +45,10 @@ public class Parry : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire3") && canParry)
+        if (Input.GetButtonDown("Fire3") && canParry) //We've pressed the parry button and are currently able to parry
         {
-            parryBool = true;
-            canParry = false;
+            parryBool = true; //A parry is being attempted so we flip this bool
+            canParry = false; //We flip this bool to begin the process of the parry's cooldown
 
             //A coroutine is called to determine the duration of the sphere
             StartCoroutine(ParryOverlapDuration());
@@ -56,19 +56,19 @@ public class Parry : MonoBehaviour
             Debug.Log("Fuckin Pressed that parry button didn't I?");
         }
 
-        if(parryBool == true)
+        if(parryBool == true) //A parry is being attempted so we will do the following code:
         {
-            ParryFunction();
-            currentlyParrying = true;
+            ParryFunction(); //Calling the function that the parry itself is held
+            currentlyParrying = true; //We flip this bool to tell us the parry function itself has been called
         } else
         {
-            currentlyParrying = false;
+            currentlyParrying = false; //We flip this bool to tell us the parry function itself is not being called
             //Debug.Log("Fuckin stopped Parryin every frame dint I?");
         }
 
         if (currentlyParrying == false && canParry == false && cooldownIsHappening == false)
         {
-            StartCoroutine(ParryCooldown());
+            StartCoroutine(ParryCooldown()); //If we are not currently parrying, are unable to parry, and a cooldown is not happening then we start the cooldown for the parry
         }
 
     }
@@ -80,13 +80,19 @@ public class Parry : MonoBehaviour
         //The object holding the physics overlap sphere is called
         parriedThings = Physics.OverlapSphere(this.transform.position, parrySphereRadius, whatIsParryable);
 
-        Debug.Log(parriedThings[0].gameObject.name);
+        if (parriedThings.Length > 0) //Debug message to let us know what objects are being parried
+        {
+            Debug.Log("Holy fuck dude, I'm parrying: " + parriedThings[0].gameObject.name);
+        }
 
         //Did something Parryable enter the overlap sphere? Begin a for loop for every entry of the array. For each entry gather the following
         //information: Ball Man? Zooming? Bullet? Danger Zone Attack? What enemy does the attack belong to? Then execute the correct switch case.
 
         ballManParry = this.gameObject.GetComponent<playerController>().ballManBool; //Are we in ball man?
         zoomingParry = this.gameObject.GetComponent<GrappleScriptEvenNewer>().isZooming; //Are we zooming?
+
+        
+
 
         for (int i = 0; i < parriedThings.Length; i++)
         {
@@ -99,10 +105,13 @@ public class Parry : MonoBehaviour
                 Debug.Log("1.) Reflect, Destroy Bullet, Double Zoom");
 
                 //Reflect the bullet
-                ReflectBullet(whoAttackThisIs, parriedThings[i].gameObject);
+                parriedThings[i].gameObject.GetComponent<BulletScript>().bulletParried = true;
 
                 //Get rid of the bullet being deflected
-                Destroy(parriedThings[i].gameObject);
+                //Destroy(parriedThings[i].gameObject);
+
+                //Double Next Zoom
+                this.gameObject.GetComponent<GrappleScriptEvenNewer>().DoubleZoomSpeed();
 
                 //Stop parrying
                 parryBool = false;
@@ -111,6 +120,15 @@ public class Parry : MonoBehaviour
             else if (bulletParry == false && dangerZoneParry == true && ballManParry == true)
             {
                 Debug.Log("2.) Bounce up like Cuphead Parry, give double speed to next Zoom, Stun enemy");
+
+                //Bounce like Cuphead Parry
+
+
+                //Double Next Zoom
+                this.gameObject.GetComponent<GrappleScriptEvenNewer>().DoubleZoomSpeed();
+
+                //Stun Enemy
+                whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().parryStun = true;
 
                 //Stop parrying
                 parryBool = false;
@@ -121,10 +139,17 @@ public class Parry : MonoBehaviour
                 Debug.Log("3.) Reflect, Bounce, Double Zoom. Also Destroy bullet");
 
                 //Reflect the bullet
-                ReflectBullet(whoAttackThisIs, parriedThings[i].gameObject);
+                //ReflectBullet(whoAttackThisIs, parriedThings[i].gameObject);
+                parriedThings[i].gameObject.GetComponent<BulletScript>().bulletParried = true;
 
                 //Get rid of the bullet being deflected
-                Destroy(parriedThings[i].gameObject);
+                //Destroy(parriedThings[i].gameObject);
+
+                //Bounce like Cuphead Parry
+
+
+                //Double Zoom
+                this.gameObject.GetComponent<GrappleScriptEvenNewer>().DoubleZoomSpeed();
 
                 //Stop parrying
                 parryBool = false;
@@ -133,6 +158,17 @@ public class Parry : MonoBehaviour
             else if (bulletParry == false && dangerZoneParry == true && zoomingParry == true)
             {
                 Debug.Log("4.) Yo-Yo Zoom");
+
+                //Stun Enemy
+                whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().parryStun = true;
+
+                //Zoom backwards
+                //The plan for this is to have it be implemented in the Grapple Script with regular zooming. Essentially the idea is to set
+                //up an imaginary object to zoom to in the exact opposite direction the player was zooming to begin with, then when they either
+                //"hit" the invisible object or actually hit anything else (without taking damage) then they zoom back to the enemy.
+
+                //Zoom back to enemy
+
 
                 //Stop parrying
                 parryBool = false;
@@ -168,28 +204,35 @@ public class Parry : MonoBehaviour
         //3.) Reflect, Bounce, Double Zoom. Also Destroy bullet (if Bullet = true, Danger Zone = false, Ball man = True)
         //4.) Yo-Yo Zoom (if Bullet = false, Danger Zone = True, and Zooming = true)
     }
+
+    //ReflectBullet Doesn't work yet
     void ReflectBullet(GameObject whoDidThisComeFrom, GameObject theBulletBeingDeflected)
     {
-        //We determine the direction we want the bullet to go based on where the enemy is that shot it relative to our player. I hope I didn't
+        /*//We determine the direction we want the bullet to go based on where the enemy is that shot it relative to our player. I hope I didn't
         //do the math backwords...
-        //parryBulletDirection = this.transform.position - whoDidThisComeFrom.transform.position;
         parryBulletDirection = whoDidThisComeFrom.transform.position;
-
-        GameObject go = (GameObject)Instantiate(parryBulletPrefab, theBulletBeingDeflected.transform.position, Quaternion.identity);
+ 
+        GameObject go = (GameObject)Instantiate(parryBulletPrefab, whoDidThisComeFrom.transform.position, Quaternion.identity);
 
         go.transform.SetParent(transform);
 
         //Deflecting works by detroying the enemy bullet and instantiating a new prefab in it's place called a "parry bullet". We want this
         //instantiated prefab to be a local variable so we can mess with some values in one of it's scripts.
 
-        //var currentParryBullet = Instantiate(parryBulletPrefab, theBulletBeingDeflected.transform.position, 
-                                 //theBulletBeingDeflected.transform.rotation, this.gameObject.transform);
+
 
         var parryBulletScript = go.GetComponent<ParryBulletScript>();
         parryBulletDirection = parryBulletScript.bulletForce;
+        
 
-        //When a new parry bullet is instantiated we need to tell it which direction to go.
-        //parryBulletDirection = currentParryBullet.GetComponent<ParryBulletScript>().bulletForce;
+        //When a new parry bullet is instantiated we need to tell it which direction to go.*/
+
+        //Rigidbody arbies = theBulletBeingDeflected.GetComponent<Rigidbody>();
+        //Vector3 backwards = -arbies.velocity;
+        //arbies.AddForce(backwards * Time.deltaTime, ForceMode.Impulse);
+
+
+
     }
 
     IEnumerator ParryOverlapDuration()

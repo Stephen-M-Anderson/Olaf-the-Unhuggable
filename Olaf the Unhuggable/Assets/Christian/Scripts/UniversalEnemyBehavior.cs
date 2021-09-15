@@ -27,6 +27,7 @@ public class UniversalEnemyBehavior : MonoBehaviour
     public float attackDuration; //The duration in seconds that the Danger Zone Attack itself lasts
     bool dangerZoneBool = false; //When this bool is active then the danger zone attack is underway
     public bool stunnedBool = false;
+    public bool parryStun = false;
 
     // Start is called before the first frame update
     void Start()
@@ -43,9 +44,10 @@ public class UniversalEnemyBehavior : MonoBehaviour
         NotSoDangerZoneTargets = Physics.OverlapSphere(spherePosition, doubleSphereRadius, whatIsPlayer);
 
         //if player parries inside of the overlap sphere the stunned function is called
-        if(player.GetComponent<Parry>().parrySuccessful == true && enemyIsStunned == false) //glitch: Find a way to make this activate ONLY if the thing parried came from this enemy
+        if(parryStun == true && enemyIsStunned == false) 
         {
-            stunnedBool = true;
+            stunnedBool = true; //This will call the stun function in Update
+            parryStun = false; //Setting this bool back to false so that it won't be infinitely fucking stunning the enemy
         }
 
         //These are the conditions by which a Danger Zone Attack is initiated

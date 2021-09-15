@@ -559,13 +559,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         }
     }
 
-    void DoubleZoomSpeed() //This function doubles the speed of our zooming
+    public void DoubleZoomSpeed() //This function doubles the speed of our zooming
     {
+        Debug.Log("Oh shid oh fugg my soom sbeed :DD is doubled :DD");
         zoomMagnitude = zoomMagnitudeDouble;
     }
 
     void ReturnZoomSpeed() //This function returns the speed of our zooming to the original value
     {
+        Debug.Log("Aw man my soom sbeed :DD is bagg do normal DD:");
         zoomMagnitude = zoomMagnitudeOriginal;
     }
 
