@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9054255536017614876}
   m_Layer: 0
   m_Name: Turret Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -360,3 +360,5 @@ MonoBehaviour:
   bulletPrefab: {fileID: 5761044739354344914, guid: 92ec10ca859624a43abb4994eafe7a7b,
     type: 3}
   spawnLocation: {fileID: 9054255536054615382}
+  trueParent: {fileID: 0}
+  setBulletSpeed: 0

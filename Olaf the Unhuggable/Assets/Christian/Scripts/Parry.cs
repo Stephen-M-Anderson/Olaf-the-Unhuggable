@@ -117,18 +117,21 @@ public class Parry : MonoBehaviour
                 parryBool = false;
             }
 
-            else if (bulletParry == false && dangerZoneParry == true && ballManParry == true)
+            else if (bulletParry == false && dangerZoneParry == true && ballManParry == true && zoomingParry == false)
             {
                 Debug.Log("2.) Bounce up like Cuphead Parry, give double speed to next Zoom, Stun enemy");
 
                 //Bounce like Cuphead Parry
-
+                this.gameObject.GetComponent<playerController>().ParryJump();
 
                 //Double Next Zoom
                 this.gameObject.GetComponent<GrappleScriptEvenNewer>().DoubleZoomSpeed();
 
                 //Stun Enemy
                 whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().parryStun = true;
+
+                //Get Rid of Danger Zone attack
+                whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().RemoveRed();
 
                 //Stop parrying
                 parryBool = false;
@@ -146,7 +149,7 @@ public class Parry : MonoBehaviour
                 //Destroy(parriedThings[i].gameObject);
 
                 //Bounce like Cuphead Parry
-
+                this.gameObject.GetComponent<playerController>().ParryJump();
 
                 //Double Zoom
                 this.gameObject.GetComponent<GrappleScriptEvenNewer>().DoubleZoomSpeed();
@@ -166,9 +169,13 @@ public class Parry : MonoBehaviour
                 //The plan for this is to have it be implemented in the Grapple Script with regular zooming. Essentially the idea is to set
                 //up an imaginary object to zoom to in the exact opposite direction the player was zooming to begin with, then when they either
                 //"hit" the invisible object or actually hit anything else (without taking damage) then they zoom back to the enemy.
-
                 //Zoom back to enemy
 
+                //Get Rid of Danger Zone attack
+                //whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().RemoveRed();
+
+                //Begin the Yo-Yo Zoom
+                this.gameObject.GetComponent<GrappleScriptEvenNewer>().yoyoZoom = true;
 
                 //Stop parrying
                 parryBool = false;

@@ -276,6 +276,16 @@ public class playerController : MonoBehaviour
         BallModeActive(); //Activate BALL MAN MODE
     }
 
+    public void ParryJump()
+    {
+        myAnimator.SetBool("grounded", isGrounded); //The animator determines whether or not the jumping animation plays
+                                                    //based on if the character is grounded.
+        myRB.AddForce(new Vector3(0, jumpHeight, 0)); //Add some fucking force to make the character jump
+        isGrounded = false; //If we're in the air we ain't grounded
+        jumpBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
+        BallModeActive(); //Activate BALL MAN MODE
+    }
+
     void ButtonAxisDash(float x, float y)
     {
         /* Description Start!

@@ -72,6 +72,7 @@ public class playerHealth : MonoBehaviour
             myAnimator.SetBool("damaged", isDamaged); //Actually set the bool damaged to influence the animator
             currentHealth -= damage; //subtract the damage value from the player's current health
             healthText.text = currentHealth.ToString(); //Send the current health to the UI element on the screen
+            this.gameObject.GetComponent<GrappleScriptEvenNewer>().stopGrappleBool = true; //Getting hit should stop grappling
 
             Knockback(); //This function knocks the player back after getting hit
             

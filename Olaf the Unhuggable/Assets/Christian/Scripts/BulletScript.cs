@@ -30,6 +30,7 @@ public class BulletScript : MonoBehaviour
     GameObject bulletParent;
     public Vector3 backwardsDirection;
     public bool bulletParried = false;
+    bool parryCollision = false;
 
     // Start is called before the first frame update
     void Start()
@@ -57,7 +58,7 @@ public class BulletScript : MonoBehaviour
 
         //We use this bool to determine if the player can take damage. It updates in accordance 
         //with the bool in the player health script that does the same thing.
-        vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
+        //vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
 
         if (bulletParried == true)
         {
@@ -69,7 +70,8 @@ public class BulletScript : MonoBehaviour
 
         //BulletHitbox();
     }
-    void BulletHitbox()
+
+    /*void BulletHitbox()
     {
         //This sets elements of our array as objects with the player tag that enter the overlap sphere
         BulletTargets = Physics.OverlapSphere(this.transform.position, bulletSphereRadius);
@@ -87,7 +89,7 @@ public class BulletScript : MonoBehaviour
 
             Destroy(this.gameObject);
         }
-    }
+    }*/
 
     void BulletParried()
     {
@@ -96,7 +98,8 @@ public class BulletScript : MonoBehaviour
 
         //Change direction of bullet
         backwardsDirection = bulletParent.gameObject.GetComponent<UniversalEnemyBehavior>().gameObjectMe.transform.position - bulletRB.transform.position;
-        bulletForce = backwardsDirection;
+        bulletForce = backwardsDirection * 2;
+        parryCollision = true;
     }
 
     void OnDrawGizmos()
@@ -111,13 +114,29 @@ public class BulletScript : MonoBehaviour
     {
         //If the collision that occurred is with a gameObject with the "Player" tag AND the player is capable of taking
         //damage (not in the "post damage invulnerability" state) then this code is executed.
-        if (collision.gameObject.tag == "Player" && vulnerable)
+        if (collision.gameObject.tag == "Player")
         {
-            //We call the function from the playerHealth script that damages the player and pass the amount of damage a bullet does
-            //into this function.
-            thePlayerHealth.addDamage(damage);
+            //We use this bool to determine if the player can take damage. It updates in accordance 
+            //with the bool in the player health script that does the same thing.
+            vulnerable = thePlayer.GetComponent<playerHealth>().canTakeDamage;
+
+            if(vulnerable == true)
+            {
+                //We call the function from the playerHealth script that damages the player and pass the amount of damage a bullet does
+                //into this function.
+                thePlayerHealth.addDamage(damage);
+            }
             
             //Debug.Log("Bullets don't hurt as bad as I thought they would");
+        } 
+        else if (parryCollision == true && collision.gameObject.tag == "Enemy")
+        {
+            collision.transform.parent.gameObject.GetComponent<UniversalEnemyBehavior>().stunnedBool = true;
+            Debug.Log("Collided enemy is: " + collision.gameObject);
+        }
+        else if (collision.gameObject.tag == "Bullet")
+        {
+            return;
         }
 
         //the bullet destroys itself upon any collision.

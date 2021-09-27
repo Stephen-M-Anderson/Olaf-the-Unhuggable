@@ -45,11 +45,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                 //flipping bools on update then calling the function itself on fixed update. Something went wrong 
                                 //with it so we may need to work on this.
     private bool grappleZoomBool = false; //This bool dictates whether or not the player is currently zoomin' https://youtu.be/dfrlUNgaFLQ 
-    private bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
+    public bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
     private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
     public bool isZooming = false; //Tells us if the player is currently zooming!
     private bool canZoom = true; //Can the player currently zoom or is that ability still in cooldown? Only this bool truly knows!
     private bool isCooldownHappening = false; //This bool is used to prevent multiple of the same coroutine from happening
+    public bool yoyoZoom = false; //When this bool is true a YoYo Zoom is initiated
+    bool currentlyYoYoing = false; //When this bool is true a YoYo Zoom is currently underway
 
 
     [Header("Grapple Rope")]
@@ -77,11 +79,18 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     [Header("Zooming")]
     Vector3 zoomDirection; //This is the last recorded direction of a grapple zoom. It can be a global variable because only one zoom should
                            //occur at a time.
-    public float zoomMagnitude;
-    public float zoomMagnitudeDouble;
-    public float zoomMagnitudeOriginal;
-    public float zoomCooldown;
-    public GameObject whatAmIZoomingTo;
+    public float zoomMagnitude; //The magnitude of velocity given while zooming. Essentially your speed
+    public float zoomMagnitudeDouble; //When your Zoom is doubled from a parry, this is the magnitude it gets set to
+    public float zoomMagnitudeOriginal; //So that the math doesn't get fucky when we double and then halve the zoom again, we just keep track 
+                                        //of the original Magnitude to set it back to that value
+    public float zoomCooldown; //The amount of time between finishing a zoom and being able to do it again
+    public GameObject whatAmIZoomingTo; //The Game Object the player is zooming towards when they do a zoom
+
+    //These values are used in the "Yo-Yo Zoom" ability. At one point in the ability we need to know how far the player has traveled.
+    [Header("Tracking Distance")]
+    Vector3 oldPos; //The original position of the player before we began tracking their distance traveled
+    public float totalDistance = 0; //The amount of distance the player has traveled once we start tracking that information
+    public float maxDistanceYoYo; //The maximum amount of distance we want a player to travel while yo-yo zooming before they reverse direction
         
 
     // Start is called before the first frame update
@@ -145,6 +154,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             stopGrappleZoomBool = true;
             //StopGrappleZoom();
             crosshairSprite.enabled = true;
+        }
+
+        if(Input.GetKeyDown("q"))
+        {
+            yoyoZoom = true;
         }
 
         if (isGrappling)
@@ -263,7 +277,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         ropePositions.Add(grapplePoint); //We add the end of our grapple rope to a list called ropePositions. We will use this list to
                                          //determine the points along our rope for line renderer and wrapping/unwrapping mechanics.
 
-        float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint); //The float value of distance between the
+        float distanceFromPoint = Vector3.Distance(grappleSpawn.position, grapplePoint); //The float value of distance between the player and 
+                                                                                         //the thing they want to grapple to
                                                                                          
 
                                                 /* Configuring our Configurable joint */
@@ -285,6 +300,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         if (distanceFromPoint > maxRopeLength && distanceFromPoint < 15f) 
         {
+            //Debug.Log("distanceFromPoint is: " + distanceFromPoint);
             //We do this calculation if the player is grappling a distance longer than the max length the rope can stretch,
             //but still long enough for the game to register they are grappling.
 
@@ -305,6 +321,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         }
         else
         {
+            //Debug.Log("distanceFromPoint is: " + distanceFromPoint);
+
             isGrappling = true; //let the world know... that we grapplin' tonight boiz
 
             //setting the linear limit:
@@ -405,6 +423,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         //We are no longer zooming to something so we need to null this out
         whatAmIZoomingTo = null;
+
+        //If we are yoyo zooming we want that shit to stop
+        yoyoZoom = false; 
+
         //If we had double zoom speed for this zoom we don't have it anymore
         ReturnZoomSpeed();
 
@@ -414,6 +436,51 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     void AddZoomVelocity()
     {
         myRB.velocity = zoomDirection * zoomMagnitude; //The zoomin itself
+
+        //If Parrying has enabled a YoYo Zoom to happen this is where it goes down
+        if (yoyoZoom == true)
+        {
+            //Reverse direction
+            zoomDirection.y = 0;
+            zoomDirection.x = -(zoomDirection.x);
+
+            //Add a little speed
+            zoomMagnitude = zoomMagnitude * 1.5f;
+
+            //We only want this reversal to happen once so we flip the bool
+            yoyoZoom = false;
+
+            //We want to start tracking the distance traveled by the player after a YoYo Zoom has started, to determine when the player
+            //will reverse direction again.
+            oldPos = transform.position;
+
+            //We flip this bool to activate the next if condition so that we can track distance traveled every frame.
+            currentlyYoYoing = true;
+        }
+
+        //If we are currently in the middle of YoYo Zooming we want to do the following code
+        if (currentlyYoYoing == true)
+        {
+            //Calculating distance traveled since yoyo zooming began:
+            Vector3 distanceVector = transform.position - oldPos;
+            float distanceThisFrame = distanceVector.magnitude;
+            totalDistance += distanceThisFrame;
+            oldPos = transform.position;
+
+            //If we exceed the arbitrary value of distance traveled, then we want to hit reverse
+            if (totalDistance > maxDistanceYoYo)
+            {
+                //Flip this bool to stop tracking our distance
+                currentlyYoYoing = false;
+
+                //Reverse direction
+                zoomDirection.y = 0;
+                zoomDirection.x = -(zoomDirection.x);
+
+                //Zero out the total distance so it will be ready for the next time we need it.
+                totalDistance = 0;
+            }
+        }
     }
 
     IEnumerator GrappleZoomCooldown()
@@ -462,7 +529,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                                                      //Raycast from the end of our rope to where the 
                                                                                      //rope spawns.
 
-        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable); //Shoot out our wrapping Raycast
+        //Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable); //Shoot out our wrapping Raycast
+        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, maxRopeLength, whatIsGrappleable); //Shoot out our wrapping Raycast
         //Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
 
         float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last()); //The distance between the end of

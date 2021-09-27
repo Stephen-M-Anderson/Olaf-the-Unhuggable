@@ -26,8 +26,9 @@ public class UniversalEnemyBehavior : MonoBehaviour
     public float stunDuration; //The duration in seconds that the stun state lasts
     public float attackDuration; //The duration in seconds that the Danger Zone Attack itself lasts
     bool dangerZoneBool = false; //When this bool is active then the danger zone attack is underway
-    public bool stunnedBool = false;
+    public bool stunnedBool = false; 
     public bool parryStun = false;
+    bool inCoroutine = false; //We use this bool to make sure multiple coroutines aren't called at once
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +40,8 @@ public class UniversalEnemyBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log("Stunned Bool is: " + stunnedBool);
+
         //Initializing our overlap spheres
         DangerZoneTargets = Physics.OverlapSphere(spherePosition, sphereRadius, whatIsPlayer);
         NotSoDangerZoneTargets = Physics.OverlapSphere(spherePosition, doubleSphereRadius, whatIsPlayer);
@@ -48,6 +51,7 @@ public class UniversalEnemyBehavior : MonoBehaviour
         {
             stunnedBool = true; //This will call the stun function in Update
             parryStun = false; //Setting this bool back to false so that it won't be infinitely fucking stunning the enemy
+            RemoveRed();
         }
 
         //These are the conditions by which a Danger Zone Attack is initiated
@@ -59,19 +63,20 @@ public class UniversalEnemyBehavior : MonoBehaviour
             dangerZoneBool = false;
         }
 
+        if (stunnedBool == true && enemyIsStunned == false)
+        {
+            Stunned();
+        }
+
+
         //We use bools to do the Danger Zone Attack because it can be canceled out of at any time
-        if(dangerZoneBool == true)
+        if (dangerZoneBool == true && enemyIsStunned == false)
         {
             DangerZoneAttack();
         } 
         else
         {
             RemoveLights();
-        }
-
-        if (stunnedBool == true && enemyIsStunned == false)
-        {
-            Stunned();
         }
 
     }
@@ -81,8 +86,11 @@ public class UniversalEnemyBehavior : MonoBehaviour
         Debug.Log("Oh fuck " + this.name + " can't move because that bitch is STUNNED!");
 
         stunnedBool = false;
+        enemyIsStunned = true;
 
         //Disable Movement function goes here
+
+        //Disable attacking and general damage being done
 
         //Coroutine to flip the stunned bool
         StartCoroutine(StunWait());
@@ -108,8 +116,12 @@ public class UniversalEnemyBehavior : MonoBehaviour
             yellowLight.SetActive(false);
             redLight.SetActive(true);
 
-            //The red light stays until a coroutine is over
-            StartCoroutine(RedLightWait());
+
+            if(inCoroutine == false)
+            {
+                //The red light stays until a coroutine is over
+                StartCoroutine(RedLightWait());
+            }
         }
         else
         {
@@ -129,9 +141,15 @@ public class UniversalEnemyBehavior : MonoBehaviour
         //redLight.SetActive(false);
     }
 
+    public void RemoveRed()
+    {
+        redLight.SetActive(false);
+
+        Debug.Log("redLight is active bitchfunkenre... or at least it fucking should be if this shit would work correctly");
+    }
+
     IEnumerator StunWait() //The coroutine that dictates how long the Stun function lasts
     {
-        enemyIsStunned = true;
         yield return new WaitForSeconds(stunDuration);
         enemyIsStunned = false;
 
@@ -142,8 +160,10 @@ public class UniversalEnemyBehavior : MonoBehaviour
 
     IEnumerator RedLightWait() //The coroutine that dictates how long the red light stays out
     {
+        inCoroutine = true;
         yield return new WaitForSeconds(attackDuration);
         redLight.SetActive(false);
+        inCoroutine = false;
 
         Debug.Log("Ding-dong, the red light is dead! Which old light? The red light!");
         //undo other stun stuff goes here
