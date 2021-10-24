@@ -6026,8 +6026,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120709fb6531dbc4aa8eec64029f72c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canTakeDamage: 0
+  canTakeDamage: 1
+  isDamaged: 0
   fullHealth: 6
+  damageFreezeWaitTime: 1
+  postDamageWaitTime: 2
   healthText: {fileID: 1773259304}
 --- !u!135 &336218377965007373
 SphereCollider:
@@ -6304,6 +6307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   facingRight: 1
+  inputDisabled: 0
   runSpeed: 8
   swingSpeed: 12
   movementForce: {x: 0, y: 0, z: 0}

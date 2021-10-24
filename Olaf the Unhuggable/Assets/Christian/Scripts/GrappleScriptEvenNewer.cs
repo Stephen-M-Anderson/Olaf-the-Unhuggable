@@ -132,7 +132,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         grappleCheck(); //This function is run every frame to determine if something you're aiming at can be grappled to.
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && GetComponent<playerController>().inputDisabled == false)
         {
             //Once you press down the grapple button it begins the grapple function.
             //This also disables your crosshair.
@@ -156,10 +156,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             crosshairSprite.enabled = true;
         }
 
-        if(Input.GetKeyDown("q"))
+        //This was here for testing purposes only
+        /*if(Input.GetKeyDown("q"))
         {
             yoyoZoom = true;
-        }
+        }*/
 
         if (isGrappling)
         {

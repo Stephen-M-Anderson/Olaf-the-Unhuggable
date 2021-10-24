@@ -18,6 +18,7 @@ public class playerController : MonoBehaviour
     [Header("Movement Variables")]
     public bool facingRight = true; //Used for changing the direction the character is facing
     private bool movementBool = true; //If this bool is true then the regular movement function is called
+    public bool inputDisabled = false; //If this bool is true then all player input has been disabled
     public float runSpeed; //This variable correlates to the movement speed of the player
     public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
     public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
@@ -113,13 +114,17 @@ public class playerController : MonoBehaviour
                                             /* Determining What Movement Type to Use */
 
         //If we're grappling we use grapple movement, if not then we use regular movement. That's it dawg
-        if (isGrappling == true) 
+        if (isGrappling == true && inputDisabled == false) 
         {
             grappleMove = true;
             movementBool = false;
-        } else
+        } else if (inputDisabled == false)
         {
             movementBool = true;
+        } else
+        {
+            movementBool = false;
+            grappleMove = false;
         }
 
                                              /* JUMPING */
@@ -127,7 +132,7 @@ public class playerController : MonoBehaviour
          * fixed update it made every few jumps WAAAAAAY fuckin higher than they were supposed to be. */
 
 
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        if (isGrounded && Input.GetButtonDown("Jump") && inputDisabled == false)
         {
             jumpBool = true;
         }
@@ -141,7 +146,7 @@ public class playerController : MonoBehaviour
 
                                             /* Dashing */
 
-        if (Input.GetButtonDown("Fire2") && dashes > 0 && canDash && !(moveX == 0 && moveY == 0))
+        if (Input.GetButtonDown("Fire2") && dashes > 0 && canDash && !(moveX == 0 && moveY == 0) && inputDisabled == false)
         {
             //Debug.Log("Dash Button Pressed!");
 
@@ -228,12 +233,12 @@ public class playerController : MonoBehaviour
     {
         /* This function makes the player's character model face the correct direction */
 
-        if (movementForce.x > 0 && !facingRight)
+        if (movementForce.x > 0 && !facingRight && inputDisabled == false)
         {
             transform.eulerAngles = new Vector3(0, 90, 0); // Facing Right
             facingRight = !facingRight;
-        }
-        else if (movementForce.x < 0 && facingRight)
+        } 
+        else if (movementForce.x < 0 && facingRight && inputDisabled == false)
         {
             transform.eulerAngles = new Vector3(0, 270, 0); // Facing Left
             facingRight = !facingRight;
@@ -399,7 +404,7 @@ public class playerController : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
         ballManBool = true; //Ball Made Mode is active so we must flip the almighty bool to reflect that
     }
-    void BallModeInactive() //This function turns the player into his regular game model
+    public void BallModeInactive() //This function turns the player into his regular game model
     {
         ballManBool = false; //Ball Made Mode is NOT active so we must flip the almighty bool to reflect that
 
