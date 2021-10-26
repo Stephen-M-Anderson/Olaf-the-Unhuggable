@@ -25,6 +25,8 @@ public class playerHealth : MonoBehaviour
     public bool isDamaged = false; //This bool is true when the player takes damage
     private bool facingRight; //This bool is used to determine the direction the player is facing.
     bool invulnerabilityBool = false; //When this bool is true we want to run the "Invulnerability" function every frame
+    bool blinkingBool = false; //When this bool is true then we are currently in a blinking coroutine
+    bool damageFrozenBool = false; //When this bool is true we are currently in the coroutine that freezes movement after damage
 
 
     [Header("Float Values")]
@@ -34,6 +36,7 @@ public class playerHealth : MonoBehaviour
     public float damageFreezeWaitTime = 1f; //The amount of time for the Coroutine that disables player input to flip its bool
     public float postDamageWaitTime = 2f; //The amount of time for the Coroutine that handles invulnerability to flip its bool
     public float deathWaitTime = 3f; //The amount of time for the Coroutine that tells the player when it can die to flip its bool
+    public float blinkTime = 0.1f; //The amount of time between each post damage blink
 
 
     [Header("UI Elements")]
@@ -62,9 +65,9 @@ public class playerHealth : MonoBehaviour
 
         facingRight = GetComponent<playerController>().facingRight; //Every frame we check if the character is facing right
 
-        if (invulnerabilityBool == true)
+        if (invulnerabilityBool == true) 
         {
-                Invulnerability(); //This function makes the player invulnerable while the "Damage" animation plays
+            Invulnerability(); //This function makes the player invulnerable while the "Damage" animation plays
         }
 
         //Once the coroutine ends it flips this bool and this condition is met
@@ -72,6 +75,16 @@ public class playerHealth : MonoBehaviour
         {
             makeDead(); //Call the function that reloads the game upon death
         }
+
+        //This doesn't work for some reason. The idea was that if we're currently frozen after taking damage we want to be able to cancel out of the 
+        //hurt animation AS SOON as we regain control but not a moment before then. Since the running animation is triggered by speed I figured setting the
+        //"speed" value in the animator every frame that we're in this condition would prevent us from being able to trigger the running animation. No clue
+        //why this shit doesn't work but I'm sure it'll come to me later and I'll feel like a fucking moron.
+        if (damageFrozenBool == true) 
+        {
+            myAnimator.SetFloat("speed", 0); //Set the speed variable in the animator to 0 to prevent the movement animation from playing while in hitstun
+        }
+        
     }
 
     //This function is called when the player takes damage. It accepts a float value which is the amount of damage the player takes.
@@ -84,16 +97,18 @@ public class playerHealth : MonoBehaviour
         {
             canTakeDamage = false; //This enters the player into the post damage invulnerability state
             isDamaged = true; //Use this bool to tell the animator you are in a state of being damaged
-            if (GetComponent<playerController>().ballManBool == true)
+
+            if (GetComponent<playerController>().ballManBool == true) //Are we in ball man form?
             {
-                GetComponent<playerController>().BallModeInactive();
+                GetComponent<playerController>().BallModeInactive(); //If we are a ball man the hurt animation won't play so we want to knock that shit off
             }
             myAnimator.SetBool("damagedTrigger", isDamaged); //Actually set the bool damaged to influence the animator
             currentHealth -= damage; //subtract the damage value from the player's current health
             healthText.text = currentHealth.ToString(); //Send the current health to the UI element on the screen
             this.gameObject.GetComponent<GrappleScriptEvenNewer>().stopGrappleBool = true; //Getting hit should stop grappling
 
-            StartCoroutine(DamageFreezeWait()); //Freeze player movement for a bit
+            StartCoroutine(DamageFreezeMovementWait()); //Freeze player movement for a bit
+            damageFrozenBool = true; //This bool tells us we are currently inside the coroutine for freezing character movement
 
             Knockback(); //This function knocks the player back after getting hit
 
@@ -110,7 +125,7 @@ public class playerHealth : MonoBehaviour
             Death(); //Call the function that kills the player
         } else
         {
-            StartCoroutine(PostDamageWait()); //Start the Coroutine for Post Damage Invulnerability
+            StartCoroutine(PostDamageInvulnerabilityWait()); //Start the Coroutine for Post Damage Invulnerability
         }
 
     }
@@ -118,8 +133,6 @@ public class playerHealth : MonoBehaviour
     //This function knocks the character back after taking damage
     void Knockback()
     {
-        
-
         //If the player is facing right they get knocked back to the left
         if (facingRight)
         {
@@ -134,6 +147,7 @@ public class playerHealth : MonoBehaviour
         }
     }
 
+    //This function handles the temporary invulnerability that comes with 
     void Invulnerability()
     {
 
@@ -142,13 +156,24 @@ public class playerHealth : MonoBehaviour
         Physics.IgnoreLayerCollision(14, 13, true); //The player layer and parryable layer will now ignore collision
         Physics.IgnoreLayerCollision(14, 15, true); //The player layer and non-parryable layer will now ignore collision
 
-        //Blinking
-        if (GetComponent<playerController>().ballManBool == true)
+        //This next section is for the character model to blink while in Post Damage invulnerability
+        if (blinkingBool == false) //First we check that we aren't already in a coroutine
         {
-            //ballman blinking
+            blinkingBool = true; //Flip this bool to show we are currently in the BlinkingWait Coroutine
+            StartCoroutine(BlinkingWait()); //Actually start the coroutine that handles the blinking itself
+
         } else
         {
-            //non ballman blinking
+            //The idea behind doing all this shit under the condition that a coroutine is going on is that without this shit if you enter/exit ball man form
+            //In the middle of a coroutine then both models might be shown at the same time and we DO NOT want that. This is Olaf the Unhuggable, not 
+            //Schrodinger the Unhuggable.
+            if (GetComponent<playerController>().ballManBool == true) 
+            {
+                GetComponent<playerController>().olafDummy.SetActive(false); //If we're ball man then make sure the regular olaf model doesn't turn on
+            } else
+            {
+                GetComponent<playerController>().ballDummy.SetActive(false); //If we're olaf then make sure ball man model doesn't turn on.
+            }
         }
 
     }
@@ -159,8 +184,6 @@ public class playerHealth : MonoBehaviour
         isDead = true; //This bool is used for the death animation
         myAnimator.SetBool("deadTrigger", isDead); //Set the bool in the animator to play the death animation
         myAnimator.SetFloat("speed", 0); //Set the speed variable in the animator to 0 to prevent the movement animation from playing
-        //myRB.constraints = RigidbodyConstraints.FreezeAll; //Stop movement to allow the death animation to play out in place
-        //GetComponent<playerController>().inputDisabled = true;
         StartCoroutine(DeathWait()); //Start this coroutine to allow time for the animation to play
     }
 
@@ -171,7 +194,7 @@ public class playerHealth : MonoBehaviour
     }
 
     //This Coroutine is what dictates when the player leaves the post damage invulnerability state
-    IEnumerator PostDamageWait()
+    IEnumerator PostDamageInvulnerabilityWait()
     {
         //Print the time of when the function is first called.
         //Debug.Log("Started Coroutine at timestamp : " + Time.time);
@@ -207,13 +230,14 @@ public class playerHealth : MonoBehaviour
         //yield on a new YieldInstruction that waits however many seconds. 
         yield return new WaitForSeconds(deathWaitTime);
 
-        canDie = true;
+        canDie = true; //When this bool flips we can fulfil our death condition on the next frame
 
         //After we have waited 5 seconds print the time again.
         //Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
 
-    IEnumerator DamageFreezeWait()
+    //This coroutine handles how long Olaf is unable to move after taking damage
+    IEnumerator DamageFreezeMovementWait()
     {
         GetComponent<playerController>().inputDisabled = true; //Stop movement for a bit
 
@@ -223,15 +247,35 @@ public class playerHealth : MonoBehaviour
         {
             GetComponent<playerController>().inputDisabled = false; //Start movement up again
         }
+
+        damageFrozenBool = false; //we are no longer in the coroutine so let's flip this bitch
     }
 
-    // OnCollisionEnter is called on the frame that the attached object's collider makes contact with another collider
-    /*void OnCollisionEnter(Collision collision)
+    //This coroutine handles Olaf visually blinking after taking damage.
+    IEnumerator BlinkingWait()
     {
-        if (collision.gameObject.tag == "Bullet")
+        //If we're in ball man form then the ball man model is what we want to turn off. If not then we want to turn off the regular Olaf model
+        if (GetComponent<playerController>().ballManBool == true)
         {
-            Physics.IgnoreCollision(collision.collider, GetComponent<Collider>(), true);
+            GetComponent<playerController>().ballDummy.SetActive(false);
+        } else
+        {
+            GetComponent<playerController>().olafDummy.SetActive(false);
         }
-    }*/
 
+        yield return new WaitForSeconds(blinkTime);
+
+        //This is exactly like the above check except we're turning the models back on now. It just felt a lot cleaner to me to make these checks inside the 
+        //coroutine. You should have seen the fucking spaghetti monstrosity sorry excuse for code I wrote up to do this shit all in the function.
+        if (GetComponent<playerController>().ballManBool == true)
+        {
+            GetComponent<playerController>().ballDummy.SetActive(true);
+        }
+        else
+        {
+            GetComponent<playerController>().olafDummy.SetActive(true);
+        }
+
+        blinkingBool = false; //We are no longer in the coroutine so this bool needs to be flipped
+    }
 }

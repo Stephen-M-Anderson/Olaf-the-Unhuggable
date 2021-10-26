@@ -6029,8 +6029,10 @@ MonoBehaviour:
   canTakeDamage: 1
   isDamaged: 0
   fullHealth: 6
-  damageFreezeWaitTime: 1
+  damageFreezeWaitTime: 0.7
   postDamageWaitTime: 2
+  deathWaitTime: 3
+  blinkTime: 0.01
   healthText: {fileID: 1773259304}
 --- !u!135 &336218377965007373
 SphereCollider:
