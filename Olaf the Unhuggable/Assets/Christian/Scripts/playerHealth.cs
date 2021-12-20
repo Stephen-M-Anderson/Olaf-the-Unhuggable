@@ -133,6 +133,10 @@ public class playerHealth : MonoBehaviour
     //This function knocks the character back after taking damage
     void Knockback()
     {
+        //Get a reference to object that damaged you, then take the player's Vector3 - Damaging Obj Vector3 and push the player back by that vector with 
+        //an increased magnitude based on damage taken. Make sure to cap it. Maybe have obstacles not do this? Set it up for enemies to hold a knockback
+        //amount and maybe a bool that determines if they cause it.
+
         //If the player is facing right they get knocked back to the left
         if (facingRight)
         {

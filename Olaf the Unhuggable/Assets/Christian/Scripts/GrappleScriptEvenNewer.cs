@@ -162,11 +162,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             yoyoZoom = true;
         }*/
 
-        if (isGrappling)
+        /*if (isGrappling)
         {
+
+
             SwingCheck(); //If the player is currently grappling then we run this function that handles all of the rope swinging
                           //mechanics.
-        }
+        }*/
 
         lr.positionCount = ropePositions.Count + 1; //This sets the amount of positions that connect the grapple rope to the length
                                                     //of the ropePositions list every frame.
@@ -182,6 +184,16 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //with any and all physics based functions. The way we achieve this is by flipping a bool on button press in update, then the 
         //bool dictates whether or not the function runs on FixedUpdate. This should minimize crazy fucked up bullshit happening with 
         //the physics. I hope...
+
+        if (isGrappling)
+        {
+
+
+            SwingCheck(); //If the player is currently grappling then we run this function that handles all of the rope swinging
+                          //mechanics.
+
+            myRB.AddForce(Physics.gravity);
+        }
 
         if (grappleZoomBool == true)
         {
@@ -207,6 +219,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             StopGrappleZoom(); //This function stops grapple zooming by zeroing out your velocity
         }
+
+
     }
 
     private void LateUpdate()
@@ -462,6 +476,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //If we are currently in the middle of YoYo Zooming we want to do the following code
         if (currentlyYoYoing == true)
         {
+            //Make this faster to feel better. Use lerp to give acceleration
+
             //Calculating distance traveled since yoyo zooming began:
             Vector3 distanceVector = transform.position - oldPos;
             float distanceThisFrame = distanceVector.magnitude;
@@ -536,26 +552,39 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last()); //The distance between the end of
                                                                                            //our rope and the point of our RaycastHit.
-
-        if (anchorDifference >= 0.01f) //I kinda forgot why we made this the if statement condition. Stephen help meeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+        
+        if (anchorDifference >= 0.01f) //The raycast has hit something that isn't the current anchor point so now we need to add this anchor point
         {
             //This whole section is for wrapping the rope around something. The logic behind this is that we shoot a Raycast out from
             //the grappleSpawn object in the same direction the rope shoots out from. If the raycast hits an object (which happens
             //each time the player's rope wraps around an object) then it creates a new temporary end of the rope. We still keep the
             //rope rendered in full so this gives the illusion of a rope wrapping around an object. 
 
-            ropePositions.Add(hitMeBabyOneMoreTime.point); //Add the point of our RaycastHit to the list of grapple rope positions.
+            //We had to add this check because it kept adding a zero'd out value to our ropelist for some reason
+            if(hitMeBabyOneMoreTime.point != new Vector3(0,0,0))
+            {
+                ropePositions.Add(hitMeBabyOneMoreTime.point); //Add the point of our RaycastHit to the list of grapple rope positions.
+            } else
+            {
+                Debug.Log("Couch it happened again, we got one of those zero'd out vectors why did it happen ");
+
+                return;
+            }
 
             float ropeSegLength = Vector3.Distance(hitMeBabyOneMoreTime.point, joint.connectedAnchor); //The length of the current 
                                                                 //segment of rope that will be removed in this portion of code.
 
-            float angleDiff = Vector3.Angle(joint.axis, hitMeBabyOneMoreTime.normal); //Stephen what the fuck does this mean?
+            //float angleDiff = Vector3.Angle(joint.axis, hitMeBabyOneMoreTime.normal); //Stephen what the fuck does this mean?
 
             joint.connectedAnchor = ropePositions.Last(); //Set the connected anchor of the configurable joint to the last element in 
                                                           //the ropePositions list.
 
             joint.axis = hitMeBabyOneMoreTime.normal; //We set the axis of our configurable joint to the normal value of our wrapping 
-                                                      //RaycastHit. Idk why we did this, Stephen tell me what this shit does
+            //RaycastHit. This lets the swinging angle be preserved.
+
+            //Mess with adding more shit to configurable joint
+
+            //joint.axis = Vector3.down;
 
             currRopeLength -= ropeSegLength; //Set the length of our rope to the distance between the wrap around RaycastHit and the 
                                              //anchor of our configurable joint.
@@ -584,6 +613,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             if (anchorDifference <= 0.001f) 
             {
+                Debug.Log("BOOOOOOOOY WE ARE UNWRAPPING HOLY SHID");
+
                 float ropeSegLength = Vector3.Distance(grappleUnwind.point, joint.connectedAnchor); //The length of the current 
                                                                     //segment of rope that will be added back in this portion of code.
 
@@ -592,7 +623,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
                 Vector3 slerpVal = Vector3.Slerp(joint.axis, grappleUnwind.normal, 1f); //slerpin' ( ͡° ͜ʖ ͡°) is pretty complicated and 
                                                                              //I kind of forget what it does every time. But if this
-                                                                             //makes sense to you I know it is spherically
+                                                                             //makes sense to you I know it spherically
                                                                              //interpolates between two vectors. 
 
                 joint.axis = grappleUnwind.normal; //We set the axis of our configurable joint to the normal value of our unwrapping 
