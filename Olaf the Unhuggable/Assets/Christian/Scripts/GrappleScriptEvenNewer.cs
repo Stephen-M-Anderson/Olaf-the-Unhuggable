@@ -52,6 +52,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private bool isCooldownHappening = false; //This bool is used to prevent multiple of the same coroutine from happening
     public bool yoyoZoom = false; //When this bool is true a YoYo Zoom is initiated
     bool currentlyYoYoing = false; //When this bool is true a YoYo Zoom is currently underway
+    public bool yoyoBack = false; //The yoyo zoom is currently moving backwards
+    public bool yoyoForth = false; //The yoyo zoom is currently moiving forward
 
 
     [Header("Grapple Rope")]
@@ -85,6 +87,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                         //of the original Magnitude to set it back to that value
     public float zoomCooldown; //The amount of time between finishing a zoom and being able to do it again
     public GameObject whatAmIZoomingTo; //The Game Object the player is zooming towards when they do a zoom
+    public float distanceToTravel; //This is the amount of distance we don't want to exceed traveling while zooming
+    public float currDistance; //The current distance between the player and object they are zooming to calculated every time velocity is added to a zoom
+    float distanceTraveledLastFrame; //The amount of distance traveled the last time the grapple zoom checked for distance traveled
+    public float totalDistanceTraveled; //The added up amount of distance a player has traveled while zooming
 
     //These values are used in the "Yo-Yo Zoom" ability. At one point in the ability we need to know how far the player has traveled.
     [Header("Tracking Distance")]
@@ -382,6 +388,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             DoGrappleZoom(zoomHit);
             //Debug.Log("Ray hit Grapplezoom... bitch");
             whatAmIZoomingTo = zoomHit.collider.gameObject;
+
+            //Declare the distance between us and the object we're zooming to at the moment zooming begins
+            distanceToTravel = Vector3.Distance(whatAmIZoomingTo.transform.position, grappleSpawn.transform.position);
         }
         else
         {
@@ -440,7 +449,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         whatAmIZoomingTo = null;
 
         //If we are yoyo zooming we want that shit to stop
-        yoyoZoom = false; 
+        yoyoZoom = false;
+
+        //If we were yoyo zooming and now we've stopped we want to show we aren't yoyoing back OR forward currently
+        yoyoBack = false;
+        yoyoForth = false;
+
+        //When the grapple Zoom rots, we set this float afire. For the sake of the next Grapple Zoom. It's the one thing we do right, unlike those fools in the spaghetti code files
+        //totalDistanceTraveled = 0;
 
         //If we had double zoom speed for this zoom we don't have it anymore
         ReturnZoomSpeed();
@@ -450,11 +466,37 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void AddZoomVelocity()
     {
+        //This top part is commented out because it doesn't really work yet. Let me explain my logic to future me so that I won't be confused about what the
+        //fuck I was doing here. So The idea is that I want to have this script measure the distance between you and the thing you're zooming too.
+        //I want to use this to prevent the player from flying off past something they want to zoom to. I guess the idea originally was if it traveled more
+        //distance than the amount estimated to travel to the object but that got a little scuffed along the way somehow. 
+
+        /*currDistance = Vector3.Distance(whatAmIZoomingTo.transform.position, grappleSpawn.transform.position);
+        currDistance = distanceTraveledLastFrame;
+        float distanceTraveled = distanceToTravel - currDistance;
+        totalDistanceTraveled = totalDistanceTraveled + distanceTraveled;
+
+        Debug.Log("YOYOYO FUCKER! Distance to travel is: " + distanceToTravel + ", current distance is: " + currDistance + ", distance traveled this frame is: " + distanceTraveled + ", and finally total distance travled is: " + totalDistanceTraveled);*/
+
+        /*if (totalDistanceTraveled >= distanceToTravel && yoyoZoom == false && currentlyYoYoing == false)
+        {
+            StopGrappleZoom();
+        }*/
+
+
+        //currDistance = whatAmIZoomingTo.transform.position - grappleSpawn.transform.position;
+
+        //if (currDistance <= )
+
         myRB.velocity = zoomDirection * zoomMagnitude; //The zoomin itself
 
         //If Parrying has enabled a YoYo Zoom to happen this is where it goes down
         if (yoyoZoom == true)
         {
+            //When this function hits we're yoyoing backwards so lets flip the bools to reflect that
+            yoyoBack = true;
+            yoyoForth = false;
+
             //Reverse direction
             zoomDirection.y = 0;
             zoomDirection.x = -(zoomDirection.x);
@@ -487,6 +529,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //If we exceed the arbitrary value of distance traveled, then we want to hit reverse
             if (totalDistance > maxDistanceYoYo)
             {
+                //Your honor, let the record show that my client is currently yoyoing forward and not backwards.
+                yoyoBack = false;
+                yoyoForth = true;
+
                 //Flip this bool to stop tracking our distance
                 currentlyYoYoing = false;
 

@@ -198,7 +198,7 @@ public class playerHealth : MonoBehaviour
     }
 
     //This Coroutine is what dictates when the player leaves the post damage invulnerability state
-    IEnumerator PostDamageInvulnerabilityWait()
+    public IEnumerator PostDamageInvulnerabilityWait()
     {
         //Print the time of when the function is first called.
         //Debug.Log("Started Coroutine at timestamp : " + Time.time);

@@ -77,6 +77,8 @@ public class Parry : MonoBehaviour
     {
         //Debug.Log("Fuckin Parryin every frame ain't I?");
 
+        StartCoroutine(this.gameObject.GetComponent<playerHealth>().PostDamageInvulnerabilityWait());
+
         //The object holding the physics overlap sphere is called
         parriedThings = Physics.OverlapSphere(this.transform.position, parrySphereRadius, whatIsParryable);
 
@@ -212,7 +214,7 @@ public class Parry : MonoBehaviour
         //4.) Yo-Yo Zoom (if Bullet = false, Danger Zone = True, and Zooming = true)
     }
 
-    //ReflectBullet Doesn't work yet
+    //ReflectBullet didn't work so we now have a new function in BulletScript that handles reflection successfully.
     void ReflectBullet(GameObject whoDidThisComeFrom, GameObject theBulletBeingDeflected)
     {
         /*//We determine the direction we want the bullet to go based on where the enemy is that shot it relative to our player. I hope I didn't
