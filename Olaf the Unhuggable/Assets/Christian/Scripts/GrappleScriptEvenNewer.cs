@@ -453,6 +453,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         //If we are yoyo zooming we want that shit to stop
         yoyoZoom = false;
+        currentlyYoYoing = false;
 
         //If we were yoyo zooming and now we've stopped we want to show we aren't yoyoing back OR forward currently
         yoyoBack = false;
@@ -479,7 +480,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Just for testing purposes this doesn't include yoyo zooming since that adds more distance onto the calculations not accounted for.
         //In order to get this to work with yoyo zooming we would need to add however much distance will be covered by yoyoing to the distanceToTravel float.
         //That aside the logic here is that when the amount of distance you've traveled exceeds the "distanceToTravel" value you gotta stop zoomin'
-        if (totalZoomDistance >= distanceToTravel && yoyoZoom == false && currentlyYoYoing == false)
+        //if (totalZoomDistance >= distanceToTravel && yoyoZoom == false && currentlyYoYoing == false)
+        if (totalZoomDistance >= distanceToTravel)
         {
             StopGrappleZoom();
         }
@@ -489,6 +491,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //If Parrying has enabled a YoYo Zoom to happen this is where it goes down
         if (yoyoZoom == true)
         {
+            //Now that we're yoyoing we need to add the amount of distance we'll be yoyoing to our distanceToTravel value that prevents us from
+            //the glitch of overshooting a zoom
+            distanceToTravel += (maxDistanceYoYo * 2);
+
             //When this function hits we're yoyoing backwards so lets flip the bools to reflect that
             yoyoBack = true;
             yoyoForth = false;
@@ -525,6 +531,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //If we exceed the arbitrary value of distance traveled, then we want to hit reverse
             if (totalDistance > maxDistanceYoYo)
             {
+
+
                 //Your honor, let the record show that my client is currently yoyoing forward and not backwards.
                 yoyoBack = false;
                 yoyoForth = true;
