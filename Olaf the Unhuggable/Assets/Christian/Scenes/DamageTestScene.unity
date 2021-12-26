@@ -168,7 +168,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 47668237}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 713a169be143bf44e8cba4a2ed4571c1, type: 3}
   m_Name: 
@@ -3621,6 +3621,17 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Untagged
       objectReference: {fileID: 0}
+    - target: {fileID: 9054255535366553866, guid: 4f6ef827e0c8bc64ca359876ad62e315,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9054255535366553866, guid: 4f6ef827e0c8bc64ca359876ad62e315,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 2f8146f9f79912840a85e1dc6e0ce6cb,
+        type: 2}
     - target: {fileID: 9054255535366553868, guid: 4f6ef827e0c8bc64ca359876ad62e315,
         type: 3}
       propertyPath: m_TagString
@@ -3701,6 +3712,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9054255536043709521, guid: 4f6ef827e0c8bc64ca359876ad62e315,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9054255536043709521, guid: 4f6ef827e0c8bc64ca359876ad62e315,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9054255536054615382, guid: 4f6ef827e0c8bc64ca359876ad62e315,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3712,6 +3733,11 @@ PrefabInstance:
       value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 9054255536456185576, guid: 4f6ef827e0c8bc64ca359876ad62e315,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9054255536456185577, guid: 4f6ef827e0c8bc64ca359876ad62e315,
         type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -7918,6 +7944,8 @@ MonoBehaviour:
   stopGrappleBool: 0
   isZooming: 0
   yoyoZoom: 0
+  yoyoBack: 0
+  yoyoForth: 0
   ropePositions: []
   maxRopeLength: 6
   currRopeLength: 0
@@ -7929,6 +7957,9 @@ MonoBehaviour:
   zoomMagnitudeOriginal: 2.5
   zoomCooldown: 0.5
   whatAmIZoomingTo: {fileID: 0}
+  oldZoomPos: {x: 0, y: 0, z: 0}
+  totalZoomDistance: 0
+  distanceToTravel: 0
   totalDistance: 0
   maxDistanceYoYo: 10
 --- !u!4 &6712364722006938054

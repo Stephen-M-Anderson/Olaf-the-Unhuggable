@@ -24,9 +24,9 @@ public class playerHealth : MonoBehaviour
     private bool isDead = false; //This bool is used to tell the animator to play the death animation
     public bool isDamaged = false; //This bool is true when the player takes damage
     private bool facingRight; //This bool is used to determine the direction the player is facing.
-    bool invulnerabilityBool = false; //When this bool is true we want to run the "Invulnerability" function every frame
-    bool blinkingBool = false; //When this bool is true then we are currently in a blinking coroutine
-    bool damageFrozenBool = false; //When this bool is true we are currently in the coroutine that freezes movement after damage
+    private bool invulnerabilityBool = false; //When this bool is true we want to run the "Invulnerability" function every frame
+    private bool blinkingBool = false; //When this bool is true then we are currently in a blinking coroutine
+    private bool damageFrozenBool = false; //When this bool is true we are currently in the coroutine that freezes movement after damage
 
 
     [Header("Float Values")]
