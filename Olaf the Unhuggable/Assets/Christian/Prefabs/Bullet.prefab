@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4276540281605898700}
   - component: {fileID: 3121795283430326797}
   m_Layer: 13
-  m_Name: Bullet (left)
+  m_Name: Bullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,8 +108,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3af86c6f2ff11c54f8a009cabfd4323d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletSpeed: -10
+  bulletForce: {x: 0, y: 0, z: 0}
+  bulletSpeed: 0
   damage: 1
+  BulletTargets: []
+  bulletSphereRadius: 0.135
+  whatIsPlayer:
+    serializedVersion: 2
+    m_Bits: 16384
+  backwardsDirection: {x: 0, y: 0, z: 0}
+  bulletParried: 0
 --- !u!54 &4276540281605898700
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -139,3 +147,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   amIBullet: 1
+  parentObj: {fileID: 0}

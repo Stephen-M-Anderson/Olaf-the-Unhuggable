@@ -25,7 +25,7 @@ TagManager:
   - Zoomable
   - Parryable
   - Player
-  - 
+  - NonParryable
   - 
   - 
   - 
@@ -45,4 +45,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Rope
+    uniqueID: 599897363
     locked: 0
