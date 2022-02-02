@@ -668,27 +668,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 462df41dedf612242a830bd8f1207a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  facingRight: 0
   runSpeed: 8
   swingSpeed: 12
-  facingRight: 0
+  movementForce: {x: 0, y: 0, z: 0}
+  isGrounded: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
   groundCheck: {fileID: 6078194832075770267}
   jumpHeight: 800
-  isGrapplingController: 0
-  ropeHook: {x: 0, y: 0, z: 0}
-  swingForce: 20
+  speedText: {fileID: 0}
   dashes: 2
+  isDashing: 0
   crosshair: {fileID: 9208316865133289959}
   dashSpeed: 25
-  dashTowards: {fileID: 286547000587247318, guid: e68bd630ec3a3a24cbd6eb2bc143ce77,
-    type: 3}
-  isDashing: 0
-  speedText: {fileID: 0}
-  dashText: {fileID: 0}
   verticalEquilizer: 1
-  grappleSpeed: 25
 --- !u!114 &3143333982759016620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,7 +1103,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4461677638679046668}
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2329680463371371227}
