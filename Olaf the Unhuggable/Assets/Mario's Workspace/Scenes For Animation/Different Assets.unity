@@ -352,8 +352,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 1033642573}
   waitfor: 4
-  combometer: 0
-  rage: 0
+  combometer: 2
+  rage: 4
 --- !u!135 &447537242
 SphereCollider:
   m_ObjectHideFlags: 0
