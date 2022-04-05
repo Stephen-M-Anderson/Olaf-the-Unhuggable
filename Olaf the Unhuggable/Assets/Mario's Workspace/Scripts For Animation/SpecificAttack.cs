@@ -11,6 +11,8 @@ public class SpecificAttack : MonoBehaviour
     bool InCoR = false;
 
     public int waitfor;
+    public int combometer;
+    public int rage;
 
     void Start()
     {
@@ -52,12 +54,41 @@ public class SpecificAttack : MonoBehaviour
         InCoR = true;
         Debug.Log("In Coroutine");
         yield return new WaitForSeconds(waitfor);
-        Attack();
+        if (combometer >= 2)
+        {
+            DownAttack();
+            Debug.Log("Down Attack");
+        } 
+        else if (rage >= 4)
+        {
+            SpinAttack();
+        } 
+        else
+        {
+            HorizontalAttack();
+        }
+        //HorizontalAttack();
         InCoR = false;
     }
 
-    public void Attack()
+    public void HorizontalAttack()
+    {
+        EnemyAttackAnimator.Play("Standing Melee Attack Horizontal");
+        combometer++;
+        rage++;
+    }
+
+    public void DownAttack()
     {
         EnemyAttackAnimator.Play("Standing Melee Attack Downward");
+        combometer = 0;
+        rage++;
+    }
+
+    public void SpinAttack()
+    {
+        EnemyAttackAnimator.Play("Standing Melee Attack 360 High");
+        rage = 0;
+        Debug.Log("Rage: " + rage);
     }
 }
