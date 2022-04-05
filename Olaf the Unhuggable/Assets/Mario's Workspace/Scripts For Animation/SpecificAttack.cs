@@ -10,6 +10,8 @@ public class SpecificAttack : MonoBehaviour
 
     bool InCoR = false;
 
+    public int waitfor;
+
     void Start()
     {
         
@@ -49,7 +51,7 @@ public class SpecificAttack : MonoBehaviour
     {
         InCoR = true;
         Debug.Log("In Coroutine");
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(waitfor);
         Attack();
         InCoR = false;
     }

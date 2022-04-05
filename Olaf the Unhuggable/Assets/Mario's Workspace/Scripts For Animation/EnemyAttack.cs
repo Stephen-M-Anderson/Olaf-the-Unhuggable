@@ -36,42 +36,68 @@ public class EnemyAttack : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            //enAnimation.SetBool("Attack", true);
-            //enAnimation.Play("Male Attack 1");
-            //Attack();
             if (InCoR == false)
             {
                 StartCoroutine(AttackPattern());
+                //StartCoroutine(AttackPatternV2());
             }
-            
-            Debug.Log("Enter");
+            Debug.Log("Stay");
         }
     }
     public void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            //enAnimation.SetBool("Attack", false);
             InCoR = false;
             StopCoroutine(AttackPattern());
+            //StopCoroutine(AttackPatternV2());
             Debug.Log("Exit");
         }
     }
 
     IEnumerator AttackPattern()
     {
+        Debug.Log("In Coroutine");
         InCoR = true;
-        RanNum = Random.Range(waitTimeMin, waitTimeMax);
-        Debug.Log(RanNum);
+        //RanNum = Random.Range(waitTimeMin, waitTimeMax);
+        RanNum = 2;
         yield return new WaitForSeconds(RanNum);
         Attack();
-        Debug.Log("In Coroutine");
         InCoR = false;
     }
 
+    /*IEnumerator AttackPatternV2()
+    {
+        RanNum = 3;
+        Debug.Log("In Corutine");
+        for (int i = 0; i > 3; i++)
+        {
+            //Should attack three times total. 1->1->2->End or repeat based on player proximity
+            Debug.Log("Entered For");
+            if (!enAnimation.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
+            {
+                AttackVersion = i;
+                Debug.Log("Looped");
+                if (i == 3)
+                {
+                    AttackVersion = 2;
+
+                }
+                i++;
+                AttackVersion *= AttackVersion;
+                yield return new WaitForSeconds(RanNum);
+                Attack();
+            }
+        }
+        Debug.Log("End of Corutine");
+    }*/
+
     public void Attack()
     {
-        AttackVersion = Random.Range(AttackVMin, AttackVMax);
+        //AttackVersion = Random.Range(AttackVMin, AttackVMax);
+
+        //DecideAttack();
+        Debug.Log(AttackVersion);
         switch (AttackVersion)
         {
             case 1:
@@ -85,4 +111,30 @@ public class EnemyAttack : MonoBehaviour
                 break;
         }
     }
+
+    /*public void DecideAttack()
+    {
+        Debug.Log("Decide Attack");
+        for (int i = 1; i < 4; i++)
+        {
+            //Should attack three times total. 1->1->2->End or repeat based on player proximity
+            Debug.Log("Entered For");
+            //this.enAnimation.GetCurrentAnimatorStateInfo(0).IsTag("Attack")
+            //enAnimation.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !enAnimation.IsInTransition(0)
+
+            if (enAnimation.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !enAnimation.IsInTransition(0))
+            {
+                Debug.Log("Looped");
+                AttackVersion = 1;
+                if (i == 3)
+                {
+                    Debug.Log("Innermost loop");
+                    AttackVersion =  2;
+                    Debug.Log(AttackVersion + "Innermost loop");
+                }
+                Debug.Log(AttackVersion + "In Loop");
+            }
+        }
+        Debug.Log(AttackVersion + "Outside Loop");
+    }*/
 }
