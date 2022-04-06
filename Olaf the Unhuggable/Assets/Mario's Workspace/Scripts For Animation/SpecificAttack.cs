@@ -12,9 +12,9 @@ public class SpecificAttack : MonoBehaviour
 
     public int waitfor;
     public int combometer;
-    private int combocounter;
+    private int combocounter = 0;
     public int rage;
-    private int ragecounter;
+    private int ragecounter = 0;
 
     void Start()
     {
@@ -56,18 +56,19 @@ public class SpecificAttack : MonoBehaviour
         InCoR = true;
         Debug.Log("In Coroutine");
         yield return new WaitForSeconds(waitfor);
-        if (combometer >= combocounter)
+        if (combocounter >= combometer)
         {
             DownAttack();
             Debug.Log("Down Attack");
         } 
-        else if (rage >= ragecounter)
+        else if (ragecounter >= rage)
         {
             SpinAttack();
         } 
         else
         {
             HorizontalAttack();
+            Debug.Log("Horizontal Attack");
         }
         //HorizontalAttack();
         InCoR = false;
