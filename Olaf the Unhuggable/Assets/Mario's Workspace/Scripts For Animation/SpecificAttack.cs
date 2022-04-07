@@ -5,14 +5,16 @@ using UnityEngine;
 public class SpecificAttack : MonoBehaviour
 {
     Animator EnemyAttackAnimator;
+    
 
-    public List<Transform> range;
+    //public List<Transform> range;
 
     public GameObject Player;
 
     bool InCoR = false;
 
-    public int waitfor;
+    public float waitfor;
+    public float attackDelay;
     public int combometer;
     private int combocounter = 0;
     public int rage;
@@ -21,6 +23,8 @@ public class SpecificAttack : MonoBehaviour
     void Start()
     {
         EnemyAttackAnimator = GetComponent<Animator>();
+        /*EnemyAttackAnimator.SetInteger("maxRage", rage);
+        EnemyAttackAnimator.SetInteger("maxCombo", combometer);*/
     }
 
     // Update is called once per frame
@@ -56,15 +60,20 @@ public class SpecificAttack : MonoBehaviour
     {
         InCoR = true;
         Debug.Log("In Coroutine");
-        yield return new WaitForSeconds(waitfor);
+        //
+        yield return new WaitForSeconds(waitfor + attackDelay);
         if (combocounter >= combometer)
         {
+            EnemyAttackAnimator.SetBool("comboFill", true);
             DownAttack();
+            
             Debug.Log("Down Attack");
         } 
         else if (ragecounter >= rage)
         {
+            EnemyAttackAnimator.SetBool("rageFill", true);
             SpinAttack();
+            
         } 
         else
         {
@@ -73,6 +82,8 @@ public class SpecificAttack : MonoBehaviour
         }
         //HorizontalAttack();
         InCoR = false;
+        EnemyAttackAnimator.SetInteger("animatorRage", ragecounter);
+        EnemyAttackAnimator.SetInteger("animatorCombo", combocounter);
     }
 
     public void HorizontalAttack()
@@ -80,6 +91,9 @@ public class SpecificAttack : MonoBehaviour
         EnemyAttackAnimator.Play("Standing Melee Attack Horizontal");
         combocounter++;
         ragecounter++;
+
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        Debug.Log("Waitfor: " + waitfor);
     }
 
     public void DownAttack()
@@ -87,12 +101,17 @@ public class SpecificAttack : MonoBehaviour
         EnemyAttackAnimator.Play("Standing Melee Attack Downward");
         combocounter = 0;
         ragecounter++;
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("comboFill", false);
+        Debug.Log("Waitfor: " + waitfor);
     }
 
     public void SpinAttack()
     {
         EnemyAttackAnimator.Play("Standing Melee Attack 360 High");
         ragecounter = 0;
-        Debug.Log("Rage: " + rage);
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("rageFill", false);
+        Debug.Log("Waitfor: " + waitfor);
     }
 }
