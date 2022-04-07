@@ -10,7 +10,7 @@ public class EnemyBehavior : MonoBehaviour
     public List<Transform> range;
     Rigidbody rigid;
 
-    Animator eAnimator;
+    //Animator eAnimator;
 
     bool detected = false;
     bool grounded;
@@ -38,9 +38,9 @@ public class EnemyBehavior : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.destination = target.position;
         player = GameObject.FindGameObjectWithTag("Player");
-        eAnimator = GetComponentInParent<Animator>();
-        eAnimator.SetBool("Start", true);
-        rigid = GetComponent<Rigidbody>();
+        //eAnimator = GetComponentInParent<Animator>();
+        //eAnimator.SetBool("Start", true);
+        //rigid = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -58,7 +58,7 @@ public class EnemyBehavior : MonoBehaviour
             Chase();
         }
 
-        if (grounded)
+        /*if (grounded)
         {
             StartCoroutine(JumpLogic());
             Debug.Log("StartCorutine");
@@ -77,7 +77,7 @@ public class EnemyBehavior : MonoBehaviour
             Debug.Log("Not Grounded");
         }
         grounded = true;
-        eAnimator.SetBool("Grounded", grounded);
+        eAnimator.SetBool("Grounded", grounded);*/
     }
 
     public void NextPoint()
@@ -108,7 +108,7 @@ public class EnemyBehavior : MonoBehaviour
         if(other.CompareTag("Player") && !detected)
         {
             detected = true;
-            eAnimator.SetBool("Detected", true);
+            //eAnimator.SetBool("Detected", true);
         }
     }
 
@@ -117,11 +117,11 @@ public class EnemyBehavior : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             detected = false;
-            eAnimator.SetBool("Detected", false);
+            //eAnimator.SetBool("Detected", false);
         }
     }
 
-    IEnumerator JumpLogic()
+    /*IEnumerator JumpLogic()
     {
         yield return new WaitForSeconds(Random.Range(minJumpTime, maxJumpTime));
         Debug.Log("In Coroutine");
@@ -133,5 +133,5 @@ public class EnemyBehavior : MonoBehaviour
         grounded = false;
         eAnimator.SetBool("Grounded", grounded);
         rigid.AddForce(new Vector3(0, jumpHeight, 0));
-    }
+    }*/
 }

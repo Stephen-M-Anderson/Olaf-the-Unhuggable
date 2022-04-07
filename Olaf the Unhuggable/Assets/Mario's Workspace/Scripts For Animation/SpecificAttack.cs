@@ -6,6 +6,8 @@ public class SpecificAttack : MonoBehaviour
 {
     Animator EnemyAttackAnimator;
 
+    public List<Transform> range;
+
     public GameObject Player;
 
     bool InCoR = false;
@@ -18,14 +20,13 @@ public class SpecificAttack : MonoBehaviour
 
     void Start()
     {
-        
+        EnemyAttackAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        EnemyAttackAnimator = GetComponent<Animator>();
-        
+ 
     }
 
     public void OnTriggerStay(Collider other)
