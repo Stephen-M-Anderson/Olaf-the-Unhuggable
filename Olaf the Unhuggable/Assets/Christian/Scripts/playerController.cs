@@ -20,6 +20,7 @@ public class playerController : MonoBehaviour
     public bool inputDisabled = false; //If this bool is true then all player input has been disabled
     public float runSpeed; //This variable correlates to the movement speed of the player
     public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
+    public float swingForce; //The Vector3 Force that pushes behind olaf to simulate pendulum movement 
     public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
     private Vector3 swingingForce; //Speed of movement plus a direction given by user input (dpad) while swinging
 
@@ -99,7 +100,7 @@ public class playerController : MonoBehaviour
                                                             //walking/running animation
         }
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
-        swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        swingingForce = new Vector3(moveX * swingSpeed, moveY * swingSpeed, 0); //Creating a force (spd + dir) for swinging
 
                                                 /* Referencing Other Scripts */
 
@@ -210,10 +211,12 @@ public class playerController : MonoBehaviour
             //If we wanted grapple movement to work differently from regular movement this is where we'd put that code.
 
             myRB.velocity = swingingForce; //Apply velocity to our rigidbody to move it
+            myRB.AddForce(Physics.gravity / 3, ForceMode.Impulse);
         }
         else if (movementBool == true)
         {
             myRB.velocity = movementForce; //Apply velocity to our rigidbody to move it
+
         }
 
         /* This was originally a check for a function that would flip the character's 3D model depending on facing
@@ -342,18 +345,18 @@ public class playerController : MonoBehaviour
         //}
 
         //Vector3 dir = new Vector3(x, myRB.velocity.y, myRB.velocity.z);
-        Vector3 dir = new Vector3(x, 0, myRB.velocity.z);
-        movementForce += dir * dashSpeed;
+        //Vector3 dir = new Vector3(x, 0, myRB.velocity.z);
+        //movementForce += dir * dashSpeed;
 
-        StartCoroutine(DashWait());
-        GrappleDashBool = false;
+       // StartCoroutine(DashWait());
+       // GrappleDashBool = false;
 
         /* Description Start!
          * 
          * Using the facingRight bool we can determine the direction to dash in. Then we give an impulse force in that direction. Make
          * sure this only works while grappling. 
          */
-    }
+    //}
 
     void SpeedCalc()
     {
