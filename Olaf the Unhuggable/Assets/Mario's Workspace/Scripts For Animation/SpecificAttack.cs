@@ -112,6 +112,7 @@ public class SpecificAttack : MonoBehaviour
     {
         EnemyAttackAnimator.Play("Standing Melee Attack 360 High");
         ragecounter = 0;
+        combocounter++;
         waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
         EnemyAttackAnimator.SetBool("rageFill", false);
         Debug.Log("Waitfor: " + waitfor);
