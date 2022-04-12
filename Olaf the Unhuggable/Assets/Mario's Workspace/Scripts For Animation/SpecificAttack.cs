@@ -77,6 +77,7 @@ public class SpecificAttack : MonoBehaviour
         } 
         else
         {
+            EnemyAttackAnimator.SetBool("BasicAttack", true);
             HorizontalAttack();
             Debug.Log("Horizontal Attack");
         }
@@ -93,6 +94,7 @@ public class SpecificAttack : MonoBehaviour
         ragecounter++;
 
         waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("BasicAttack", false);
         Debug.Log("Waitfor: " + waitfor);
     }
 
