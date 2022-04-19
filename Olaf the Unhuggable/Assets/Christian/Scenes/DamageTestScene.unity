@@ -3897,7 +3897,7 @@ PrefabInstance:
     - target: {fileID: 5104382578057954437, guid: aa2576096b9b337478fc28dd994cc296,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 20.839834
+      value: 22.72
       objectReference: {fileID: 0}
     - target: {fileID: 5104382578057954437, guid: aa2576096b9b337478fc28dd994cc296,
         type: 3}
@@ -7946,8 +7946,11 @@ MonoBehaviour:
   yoyoZoom: 0
   yoyoBack: 0
   yoyoForth: 0
+  shorteningGrapple: 0
+  lengtheningGrapple: 0
   ropePositions: []
   maxRopeLength: 6
+  minRopeLength: 2
   currRopeLength: 0
   player: {fileID: 3093048593194393743}
   grappleSpawn: {fileID: 3466755758487560071}

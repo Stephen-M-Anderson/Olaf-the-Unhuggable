@@ -54,14 +54,19 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     bool currentlyYoYoing = false; //When this bool is true a YoYo Zoom is currently underway
     public bool yoyoBack = false; //The yoyo zoom is currently moving backwards
     public bool yoyoForth = false; //The yoyo zoom is currently moiving forward
+    public bool shorteningGrapple = false; //We are currently calling the shorten grapple function
+    public bool lengtheningGrapple = false; //We are currently calling the lengthen grapple function
 
 
     [Header("Grapple Rope")]
 
     public List<Vector3> ropePositions = new List<Vector3>(); //A list of Vector3 positions that collectively make up the grapple rope
     public float maxRopeLength = 6f; //The longest that the grapple rope can be
+    public float minRopeLength = 1f; //The shortest the grapple rope can be
     public float currRopeLength; //The current length of the grapple rope
+    public float originalRopeLength; //The length of the rope at the time of start grapple.
     private float maxDistance = 15f; //The longest distance you can shoot the grapple rope out to
+    private RaycastHit lastHit; //The last raycast hit stored in memory. Might use this for lengthening and shortening grapple length.
 
     [Header("Outside Components")]
 
@@ -142,7 +147,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //Once you press down the grapple button it begins the grapple function.
             //This also disables your crosshair.
 
-            //Debug.Log("Left Click Down");
+            //Debug.Log("Left Click Down uh... beeeyotch. Idk this one seemed to tame I had to spice it up sorry");
 
             StartGrapple();
             //grappleBool = true;
@@ -159,6 +164,34 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             stopGrappleZoomBool = true;
             //StopGrappleZoom();
             crosshairSprite.enabled = true;
+        }
+
+                                                                        /* Removing and lengthening grapple rope */
+        if (Input.GetKey("q") && lengtheningGrapple == false && isGrappling && GetComponent<playerController>().inputDisabled == false)
+        {
+            //Debug.Log("grapple shorten button has in fact been pushed motherfucker");
+            shorteningGrapple = true;
+
+            ShortenGrapple();
+
+        }
+
+        if (Input.GetKey("e") && shorteningGrapple == false && isGrappling && GetComponent<playerController>().inputDisabled == false)
+        {
+            //Debug.Log("grapple lengthen button has in fact been pushed motherfucker");
+            lengtheningGrapple = true;
+
+            LengthenGrapple();
+        }
+
+        if (Input.GetKeyUp("q"))
+        {
+            shorteningGrapple = false;
+        }
+
+        if (Input.GetKeyUp("e"))
+        {
+            lengtheningGrapple = false;
         }
 
         //This was here for testing purposes only
@@ -254,6 +287,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                             //grappleSpawn location in the direction of grappleDir. The raycast then goes for the length of whatever 
                             //we set the value maxDistance to. This function we call handles actually making a grapple.
 
+            lastHit = hit; //We're storing the last raycast hit. I'm doing this as part of the lengthen and shorten grapple rope functionality. No clue if we'll keep this.
+
             //Debug.Log("Ray hit Grapple... motherfucker");
         }
         else if (canZoom)
@@ -275,7 +310,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //Debug.Log("Ball Mode Engage from grappling?");
         }
 
-                                                /* Fixing out Z Values */
+                                                /* Fixing our Z Values */
 
         if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
         {
@@ -318,6 +353,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
                                                 /* Calculations! */
 
+
         if (distanceFromPoint > maxRopeLength && distanceFromPoint < 15f) 
         {
             //Debug.Log("distanceFromPoint is: " + distanceFromPoint);
@@ -327,10 +363,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             isGrappling = true; //let the world know... that we grapplin' tonight boiz
 
             //setting the linear limit:
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = maxRopeLength; //set the value that we want to change
+            SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+            length.limit = maxRopeLength; //set the value that we want to change
             currRopeLength = maxRopeLength; //Set our current rope length to its maximum size
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            originalRopeLength = maxRopeLength;
+            joint.linearLimit = length; //set the joint's limit to our edited version.
 
         }
         else if (distanceFromPoint > 15f)
@@ -346,9 +383,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             isGrappling = true; //let the world know... that we grapplin' tonight boiz
 
             //setting the linear limit:
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = distanceFromPoint; //set the value that we want to change
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+            length.limit = distanceFromPoint; //set the value that we want to change
+            currRopeLength = length.limit;
+            originalRopeLength = length.limit;
+            joint.linearLimit = length; //set the joint's limit to our edited version.
         }
 
         //Debug.Log("Ray Hit BAYBEEEEEEEEE");
@@ -531,8 +570,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //If we exceed the arbitrary value of distance traveled, then we want to hit reverse
             if (totalDistance > maxDistanceYoYo)
             {
-
-
                 //Your honor, let the record show that my client is currently yoyoing forward and not backwards.
                 yoyoBack = false;
                 yoyoForth = true;
@@ -616,7 +653,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 ropePositions.Add(hitMeBabyOneMoreTime.point); //Add the point of our RaycastHit to the list of grapple rope positions.
             } else
             {
-                Debug.Log("Couch it happened again, we got one of those zero'd out vectors why did it happen ");
+                Debug.Log("Coach it happened again, we got one of those zero'd out vectors why did it happen ");
 
                 return;
             }
@@ -640,9 +677,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                              //anchor of our configurable joint.
 
             //set the linear limit
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = currRopeLength; //set the value that we want to change
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+            length.limit = currRopeLength; //set the value that we want to change
+            joint.linearLimit = length; //set the joint's limit to our edited version.
 
         }
         else if (ropePositions.Count > 1) //Y tho Stephen, y tho?
@@ -685,9 +722,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 currRopeLength += ropeSegLength; //Add back the segment of rope length from unwrapping
 
                 //set the linear limit
-                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-                limit.limit = currRopeLength; //set the value that we want to change
-                joint.linearLimit = limit; //set the joint's limit to our edited version.
+                SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+                length.limit = currRopeLength; //set the value that we want to change
+                joint.linearLimit = length; //set the joint's limit to our edited version.
             }
 
         }
@@ -730,6 +767,53 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             myRB.velocity = new Vector3(0, 0, 0); //zeroing out our velocity, stopping us in our tracks.
             stopGrappleZoomBool = true;
         }
+
+    }
+
+    void LengthenGrapple()
+    {
+        if(maxRopeLength <= joint.linearLimit.limit || maxRopeLength <= originalRopeLength)
+        {
+            return;
+        }
+
+        Debug.Log("Oh fuck babe I really don't love it when you unremove my grapple rope. I think maybe we should listen to your sister the last time she visited from Omaha and possibly consider a divorce if not for our sake then for the kids. I mean I know this is hard for you too but seriously should we really keep going like this?");
+
+        //set the linear limit
+        SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+        length.limit = length.limit + 0.1f;
+        originalRopeLength = originalRopeLength + 0.1f;
+        joint.linearLimit = length; //set the joint's limit to our edited version.
+
+        //maxRopeLength += 1;
+
+        //StopGrapple();
+        //transform.position = Vector3.down;
+        //StartGrapple();
+        //DoGrapple(lastHit);
+
+    }
+
+    void ShortenGrapple()
+    {
+        if (joint.linearLimit.limit - minRopeLength < 0.01)
+        {
+            return;
+        }
+
+        Debug.Log("Oh fuck babe I love it when you remove my grapple rope.");
+
+        //set the linear limit
+        SoftJointLimit length = joint.linearLimit; //First we get a copy of the limit we want to change
+        length.limit = length.limit - 0.01f;
+        originalRopeLength = originalRopeLength - 0.01f;
+        joint.linearLimit = length; //set the joint's limit to our edited version.
+
+        //maxRopeLength -= 1;
+
+        //StopGrapple();
+        //StartGrapple();
+        //DoGrapple(lastHit);
 
     }
 }

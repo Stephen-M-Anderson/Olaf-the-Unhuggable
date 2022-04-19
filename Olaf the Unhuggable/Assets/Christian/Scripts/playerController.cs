@@ -261,6 +261,7 @@ public class playerController : MonoBehaviour
             if (ballManBool == true)
             {
                 BallModeInactive(); //When we are grounded we want to make sure our character model is in regular form
+                GetComponent<GrappleScriptEvenNewer>().stopGrappleBool = true;
             }
         }
         else

@@ -142,6 +142,7 @@ public class playerHealth : MonoBehaviour
         {
             myRB.velocity = Vector3.zero; //When damaged you lose all current velocity
             myRB.AddForce(new Vector3(-100, 0, 0), ForceMode.Impulse); //Apply a force to the left
+            //myRB.position.x = Mathf.Lerp(myRB.position.x, (myRB.position.x - 100), postDamageWaitTime);
         }
         //If the player is facing left they get knocked back to the right
         else
