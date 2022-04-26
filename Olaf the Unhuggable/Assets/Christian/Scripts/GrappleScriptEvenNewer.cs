@@ -51,9 +51,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     [Header("Grapple Rope")]
 
     public List<Vector3> ropePositions = new List<Vector3>(); //A list of Vector3 positions that collectively make up the grapple rope
-    public float maxRopeLength = 6f; //The longest that the grapple rope can be
+    public float maxRopeLength = 20f; //The longest that the grapple rope can be
     public float currRopeLength; //The current length of the grapple rope
-    private float maxDistance = 15f; //The longest distance you can shoot the grapple rope out to
+    private float maxDistance = 20f; //The longest distance you can shoot the grapple rope out to
 
     [Header("Outside Components")]
 
@@ -69,6 +69,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
                                      //to be the best fit as every other joint we tried ended in a fucking mess of spaghetti code.
                                      //The joint is configured ( ͡° ͜ʖ ͡°) to help simulate how a character would fling around on a rope.
+    private SoftJointLimit tempLimit;
 
 
     // Start is called before the first frame update
@@ -197,6 +198,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
         {
+            
+
+
             DoGrapple(hit); //If our raycast hits something grappleable then we store it as the value hit. Our raycast starts from the
                             //grappleSpawn location in the direction of grappleDir. The raycast then goes for the length of whatever 
                             //we set the value maxDistance to. This function we call handles actually making a grapple.
@@ -262,13 +266,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         joint.autoConfigureConnectedAnchor = false; //We want the autoConfigure value of them joint to be turned off. We want to do
                                                     //that part ourselves goddammit!
         joint.xMotion = ConfigurableJointMotion.Limited; //We want to be able to set limits on exactly how the joint can move
-        joint.yMotion = ConfigurableJointMotion.Limited; //see above
-        joint.zMotion = ConfigurableJointMotion.Limited; //see above above
+        joint.yMotion = ConfigurableJointMotion.Limited; 
+        joint.zMotion = ConfigurableJointMotion.Limited; 
         joint.connectedAnchor = grapplePoint; //The anchor that connects the player and the joint is the end of our grapple rope.
-
-        //joint.enableCollision = true; //The intention with this line of code was to allow objects to collide with the rope but I've
-                                        //currently commented it out for two reasons. 1.) I don't think it worked the way I wanted
-                                        //and 2.) Do we even want that? Discuss at next meeting...
 
 
                                                 /* Calculations! */
@@ -281,10 +281,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             isGrappling = true; //let the world know... that we grapplin' tonight boiz
 
             //setting the linear limit:
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = maxRopeLength; //set the value that we want to change
+            tempLimit = joint.linearLimit; //First we get a copy of the limit we want to change
+            tempLimit.limit = maxRopeLength; //set the value that we want to change
             currRopeLength = maxRopeLength; //Set our current rope length to its maximum size
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            joint.linearLimit = tempLimit; //set the joint's limit to our edited version.
 
         }
         else if (distanceFromPoint > 15f)
@@ -298,9 +298,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             isGrappling = true; //let the world know... that we grapplin' tonight boiz
 
             //setting the linear limit:
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = distanceFromPoint; //set the value that we want to change
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            tempLimit = joint.linearLimit; //First we get a copy of the limit we want to change
+            tempLimit.limit = distanceFromPoint; //set the value that we want to change
+            joint.linearLimit = tempLimit; //set the joint's limit to our edited version.
         }
 
         //Debug.Log("Ray Hit BAYBEEEEEEEEE");
@@ -362,6 +362,78 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         crosshair.transform.position = crossHairPosition; //Actually setting the crosshair to the value we just determined above
     }
 
+
+    /*-------------------------------------------------------------------------------------------------------------------------
+     * SWING CHECK EXPLANATION
+     *  An Incoherent Ramble, 
+     *   by Stpehen Anderson
+     * 
+     * So I figured since this section is by far the most complicated bit for the grappling mechanics that I would write out
+     * an in depth explanation for what it's doing.
+     * 
+     * PROBLEM: Using one of Unity's built in ropes for our grapple ends terribly.
+     * 
+     * OUR SOLUTION: An over-engineered "rope-under-tension" simulation using raycasts!
+     * 
+     * RESULT: It F*&%ING WORKED!
+     * 
+     * EXPLANATION: Olaf swings by placing down a "configurable joint," which basically acts like a hinge,
+     *              wherever the player clicks their mouse to grapple. The key to getting the grapple to
+     *              wrap around objects and terrain is changing where the joints "anchor point" is located.
+     *              This anchor point determines what point Olaf's rope connects to, and is the point that
+     *              Olaf rotates around as he swings. 
+     *              
+     *              Olaf continuously fires raycasts from himself to the anchor point to see if there are
+     *              any obstructions that the rope should hit. When the raycast hits something between Olaf
+     *              and the anchor point, it moves the anchor point to be the point that the raycast hit.
+     *              All of the anchor points that are assigned this way are tracked in a stack so they can
+     *              be removed in the proper order to unwrap.
+     *               
+     *              How do we tell when the rope should unwrap from an object? Well, we shoot an extra ray-
+     *              cast at the second to last anchor point in the rope's anchor point stack. If both of 
+     *              the raycasts hit their target successfully, we know that there is no longer an object
+     *              or other kind of obstruction between Olaf and the previous anchor point.
+     *              
+     * Symbols:
+     * O = Olaf, + = joint anchor, (+) = prior joint anchor, 
+     * -> = movement, line = rope, ## = object with collision, 
+     * R> = Raycast hit detected here
+     *........................WRAPPING........................                     
+     *:          STEP 1          :           STEP 2          :  Step 1 & 2: Olaf is swinging and his rope approaches an      
+     *:           +              :            +              :              obstacle. The Raycast fires from Olaf to the                   
+     *:          /               :            |              :              joint anchor every frame. When the raycast       
+     *:         /  ##            :            | ##           :              hits something between Olaf and the anchor, 
+     *:        /                 :            |              :              that signifies our rope "snagging" on an        
+     *:       O->                :            O->            :              object or terrain.           
+     *:                          :                           :                                           
+     *:.......................................................                                           
+     *:          STEP 3          :           STEP 4          :  Step 3:     The Raycast has hit an object between Olaf                                                
+     *:           +              :           (+)             :              and the joint anchor so our rope should start                                
+     *:           |              :            |              :              wrapping around the obstacle. 
+     *:         R>|##            :            +##            :                                                   
+     *:           |              :             \             :  Step 4:     We move the anchor point to where the Raycast                                             
+     *:           |              :              \            :              hit was, allowing Olaf to swing around this                                      
+     *:           O->            :               O->         :              new point.                                  
+     *.......................................................: 
+     *
+     *.......................UNWRAPPING.......................                     
+     *:          STEP 1          :           STEP 2          :  Step 1:     Olaf is swinging from a shorter rope segement           
+     *:          (+)             :           (+)             :              as a result of wrapping. He fires a second
+     *:           |              :            |              :              raycast towards (+), the second to last anchor 
+     *:           +##            :            +##            :              point, but they are blocked. 
+     *:            \             :            |              :                      
+     *:             \            :            |              :  Step 2:     Olaf is now in direct line of sight of both
+     *:            <-O           :          <-O              :              anchor points.
+     *:.......................................................                                           
+     *:          STEP 3          :           STEP 4          :  Step 3:     The raycasts now hit both the last and second                                               
+     *:        R>(+)             :            +              :              to last anchor points, triggering an unwrap.
+     *:           |              :           /               :               
+     *:           +##            :          /  ##            :                                                   
+     *:           |              :         /                 :  Step 4:     The last anchor point is deleted and replaced                                            
+     *:           |              :        /                  :              by the second to last anchor point. 
+     *:         <-O              :     <-O                   :                                               
+     *.......................................................:
+     */
     void SwingCheck() //This function handles the rope swinging mechanics for wrapping and unwrapping the grapple rope. 
     {
         RaycastHit hitMeBabyOneMoreTime; //We didn't want to just name this one 'hit' also. Stephen let me name it, his mistake.
@@ -372,13 +444,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                                                      //Raycast from the end of our rope to where the 
                                                                                      //rope spawns.
 
-        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, whatIsGrappleable); //Shoot out our wrapping Raycast
+        Physics.Raycast(grappleSpawn.position, dir, out hitMeBabyOneMoreTime, maxRopeLength, whatIsGrappleable); //Shoot out our wrapping Raycast
         //Debug.DrawRay(grappleSpawn.position, dir, Color.red, 1);
 
         float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last()); //The distance between the end of
                                                                                            //our rope and the point of our RaycastHit.
 
-        if (anchorDifference >= 0.01f) //I kinda forgot why we made this the if statement condition. Stephen help meeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+        if (anchorDifference >= 0.01f && hitMeBabyOneMoreTime.point != Vector3.zero) // this filters out extremely small movements in where the raycast is hitting
         {
             //This whole section is for wrapping the rope around something. The logic behind this is that we shoot a Raycast out from
             //the grappleSpawn object in the same direction the rope shoots out from. If the raycast hits an object (which happens
@@ -390,21 +462,20 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             float ropeSegLength = Vector3.Distance(hitMeBabyOneMoreTime.point, joint.connectedAnchor); //The length of the current 
                                                                 //segment of rope that will be removed in this portion of code.
 
-            float angleDiff = Vector3.Angle(joint.axis, hitMeBabyOneMoreTime.normal); //Stephen what the fuck does this mean?
-
             joint.connectedAnchor = ropePositions.Last(); //Set the connected anchor of the configurable joint to the last element in 
                                                           //the ropePositions list.
 
             joint.axis = hitMeBabyOneMoreTime.normal; //We set the axis of our configurable joint to the normal value of our wrapping 
                                                       //RaycastHit. Idk why we did this, Stephen tell me what this shit does
+                                                      //Stephen answer: When we change where the joint is at, 
 
             currRopeLength -= ropeSegLength; //Set the length of our rope to the distance between the wrap around RaycastHit and the 
                                              //anchor of our configurable joint.
 
             //set the linear limit
-            SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-            limit.limit = currRopeLength; //set the value that we want to change
-            joint.linearLimit = limit; //set the joint's limit to our edited version.
+            tempLimit = joint.linearLimit; //First we get a copy of the limit we want to change
+            tempLimit.limit = currRopeLength; //set the value that we want to change
+            joint.linearLimit = tempLimit; //set the joint's limit to our edited version.
 
         }
         else if (ropePositions.Count > 1) //Y tho Stephen, y tho?
@@ -445,9 +516,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 currRopeLength += ropeSegLength; //Add back the segment of rope length from unwrapping
 
                 //set the linear limit
-                SoftJointLimit limit = joint.linearLimit; //First we get a copy of the limit we want to change
-                limit.limit = currRopeLength; //set the value that we want to change
-                joint.linearLimit = limit; //set the joint's limit to our edited version.
+                tempLimit = joint.linearLimit; //First we get a copy of the limit we want to change
+                tempLimit.limit = currRopeLength; //set the value that we want to change
+                joint.linearLimit = tempLimit; //set the joint's limit to our edited version.
             }
 
         }
@@ -477,6 +548,5 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             StopGrappleZoom();
         }
-
     }
 }
