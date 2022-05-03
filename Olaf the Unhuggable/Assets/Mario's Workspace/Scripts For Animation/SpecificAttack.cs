@@ -55,6 +55,35 @@ public class SpecificAttack : MonoBehaviour
         }
         Debug.Log("Exit");
     }
+    public void HorizontalAttack()
+    {
+        //EnemyAttackAnimator.Play("Standing Melee Attack Horizontal");
+        combocounter++;
+        ragecounter++;
+
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("BasicAttack", false);
+        Debug.Log("Waitfor Horizontal: " + waitfor);
+    }
+    public void DownAttack()
+    {
+        //EnemyAttackAnimator.Play("Standing Melee Attack Downward");
+        combocounter = 0;
+        ragecounter++;
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("comboFill", false);
+        Debug.Log("Waitfor Down Attack: " + waitfor);
+    }
+
+    public void SpinAttack()
+    {
+        //EnemyAttackAnimator.Play("Standing Melee Attack 360 High");
+        ragecounter = 0;
+        combocounter++;
+        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
+        EnemyAttackAnimator.SetBool("rageFill", false);
+        Debug.Log("Waitfor Spin Attack: " + waitfor);
+    }
 
     IEnumerator AttackCombo()
     {
@@ -85,36 +114,5 @@ public class SpecificAttack : MonoBehaviour
         InCoR = false;
         EnemyAttackAnimator.SetInteger("animatorRage", ragecounter);
         EnemyAttackAnimator.SetInteger("animatorCombo", combocounter);
-    }
-
-    public void HorizontalAttack()
-    {
-        EnemyAttackAnimator.Play("Standing Melee Attack Horizontal");
-        combocounter++;
-        ragecounter++;
-
-        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
-        EnemyAttackAnimator.SetBool("BasicAttack", false);
-        Debug.Log("Waitfor: " + waitfor);
-    }
-
-    public void DownAttack()
-    {
-        EnemyAttackAnimator.Play("Standing Melee Attack Downward");
-        combocounter = 0;
-        ragecounter++;
-        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
-        EnemyAttackAnimator.SetBool("comboFill", false);
-        Debug.Log("Waitfor: " + waitfor);
-    }
-
-    public void SpinAttack()
-    {
-        EnemyAttackAnimator.Play("Standing Melee Attack 360 High");
-        ragecounter = 0;
-        combocounter++;
-        waitfor = EnemyAttackAnimator.GetCurrentAnimatorStateInfo(0).length;
-        EnemyAttackAnimator.SetBool("rageFill", false);
-        Debug.Log("Waitfor: " + waitfor);
     }
 }
