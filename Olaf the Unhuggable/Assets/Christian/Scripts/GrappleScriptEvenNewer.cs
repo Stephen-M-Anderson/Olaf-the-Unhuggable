@@ -66,6 +66,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float currRopeLength; //The current length of the grapple rope
     public float originalRopeLength; //The length of the rope at the time of start grapple.
     private float maxDistance = 15f; //The longest distance you can shoot the grapple rope out to
+    public float currentSwingStartAngle;
+    public float currentSwingMagnitude;
+    public Vector3 currentSwingForceVector;
     private RaycastHit lastHit; //The last raycast hit stored in memory. Might use this for lengthening and shortening grapple length.
 
     [Header("Outside Components")]
@@ -78,11 +81,12 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     private Vector3 grapplePoint; //The end point of the player's grapple rope
     public Transform grappleSpawn; //The transform component where the start point of the grapple rope spawns
-    public Vector3 grappleVect; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
-    private ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
+    private Vector3 grappleVect; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
+    public ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
                                      //to be the best fit as every other joint we tried ended in a fucking mess of spaghetti code.
                                      //The joint is configured ( ͡° ͜ʖ ͡°) to help simulate how a character would fling around on a rope.
     private SoftJointLimit tempLimit;
+
 
     [Header("Zooming")]
     Vector3 zoomDirection; //This is the last recorded direction of a grapple zoom. It can be a global variable because only one zoom should
@@ -231,7 +235,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             SwingCheck(); //If the player is currently grappling then we run this function that handles all of the rope swinging
                           //mechanics.
 
-            myRB.AddForce(Physics.gravity);
+            myRB.AddForce(Physics.gravity, ForceMode.Acceleration);
         }
 
         if (grappleZoomBool == true)
@@ -284,13 +288,18 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out hit, maxDistance, whatIsGrappleable))
         {
+
+
             
-
-
             DoGrapple(hit); //If our raycast hits something grappleable then we store it as the value hit. Our raycast starts from the
                             //grappleSpawn location in the direction of grappleDir. The raycast then goes for the length of whatever 
                             //we set the value maxDistance to. This function we call handles actually making a grapple.
 
+            // Variables for performing Pendulum physics
+            currentSwingStartAngle = GetGrappleAngle(); // save the starting angle of the swing
+            currentSwingMagnitude = Physics.gravity.magnitude * Mathf.Sin((currentSwingStartAngle * Mathf.PI) / 180);
+            currentSwingForceVector = Quaternion.AngleAxis(-90, Vector3.forward) * myRB.position - grapplePoint;
+            currentSwingForceVector *= currentSwingMagnitude;
             lastHit = hit; //We're storing the last raycast hit. I'm doing this as part of the lengthen and shorten grapple rope functionality. No clue if we'll keep this.
 
             //Debug.Log("Ray hit Grapple... motherfucker");
@@ -330,6 +339,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                 /* Setting Values for later Calculations */
 
         grapplePoint = hit.point; //We assign the point in 3D space of our raycast hit to be the point that our grapple rope ends.
+        
         grappleVect = grapplePoint - transform.position; //We use this value for testing purposes. It tells us the location in 3D
                                                          //space between our grappling hook's end point and the player character.
 
@@ -347,7 +357,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                     //that part ourselves goddammit!
         joint.xMotion = ConfigurableJointMotion.Limited; //We want to be able to set limits on exactly how the joint can move
         joint.yMotion = ConfigurableJointMotion.Limited; 
-        joint.zMotion = ConfigurableJointMotion.Limited; 
+        joint.zMotion = ConfigurableJointMotion.Limited;
+        joint.rotationDriveMode = RotationDriveMode.Slerp;
         joint.connectedAnchor = grapplePoint; //The anchor that connects the player and the joint is the end of our grapple rope.
 
 
@@ -609,7 +620,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         lr.SetPosition(ropePositions.Count, grappleSpawn.position); //Filling the last entry of the line renderer's positions with the
                                                                     //spawn location of the grapple rope.
-
         //Debug.Log("Fuuuuug I'm shooting (drawing) Ropes dawg");
     }
 
@@ -710,9 +720,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         float anchorDifference = Vector3.Distance(hitMeBabyOneMoreTime.point, ropePositions.Last()); //The distance between the end of
                                                                                            //our rope and the point of our RaycastHit.
-
-        if (anchorDifference >= 0.01f && hitMeBabyOneMoreTime.point != Vector3.zero) // this filters out extremely small movements in where the raycast is hitting
+        
+        if (anchorDifference >= 0.01f) // this filters out extremely small movements in where the raycast is hitting
         {
+            if (hitMeBabyOneMoreTime.point != Vector3.zero)
+            {
+                return;
+            }
             //This whole section is for wrapping the rope around something. The logic behind this is that we shoot a Raycast out from
             //the grappleSpawn object in the same direction the rope shoots out from. If the raycast hits an object (which happens
             //each time the player's rope wraps around an object) then it creates a new temporary end of the rope. We still keep the
@@ -798,6 +812,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             }
 
         }
+        Debug.DrawRay(grapplePoint, joint.axis);
 
     }
 
@@ -884,5 +899,58 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //StartGrapple();
         //DoGrapple(lastHit);
 
+    }
+    public Vector3 CalculateSwingVelocity(float swingSpeed)
+    {
+        Vector3 result = new Vector3();
+        if (isGrappling)
+        {
+            
+            float xDiff = myRB.position.x - grapplePoint.x;
+            Vector3 gpToPlayer = myRB.position - grapplePoint;
+            float ropeAngle = Vector3.Angle(gpToPlayer, Vector3.down);
+            
+            if(xDiff < 0) // Olaf is left of the Grapple, so he will be pulled counterclockwise
+            {
+                // make a vector that's rotated 90 degrees counterclockwise from the rope,
+                // this is the direction that Olaf is traveling in, so we normalize it.
+                Vector3 rotated = Quaternion.AngleAxis(90, Vector3.forward) * gpToPlayer;
+                rotated = rotated.normalized;
+
+                // Now that we have the direction of the swing, lets get the magnitude
+                float swingForceMagnitude = myRB.velocity.magnitude + Physics.gravity.y * Mathf.Cos((ropeAngle * Mathf.PI) / 180);
+                if (swingForceMagnitude < 0)
+                {
+                    swingForceMagnitude *= -1;
+                }
+                rotated *= swingForceMagnitude;
+                result = rotated;
+                Debug.Log("swing magnitude: " + swingForceMagnitude + ", rope angle = " + ropeAngle + ", result vector = " + result);
+            }
+            else if(xDiff > 0) // Olaf is right of the grapple, so he will be pulled clockwise
+            {
+                Vector3 rotated = Quaternion.AngleAxis(-90, Vector3.forward) * gpToPlayer;
+                rotated = rotated.normalized;
+                float swingForceMagnitude = Physics.gravity.y * Mathf.Cos((ropeAngle * Mathf.PI) / 180);
+                if (swingForceMagnitude < 0)
+                {
+                    swingForceMagnitude *= -1;
+                }
+                rotated *= swingForceMagnitude;
+                result = rotated;
+                Debug.Log("swing magnitude: " + swingForceMagnitude + ", rope angle = " + ropeAngle + ", result vector = " + result);
+            }
+        }
+        if(result == null)
+        {
+            Debug.Break();
+            Debug.Log("OOF");
+        }
+        Debug.DrawRay(myRB.position, result, Color.red);
+        return result;
+    }
+    public float GetGrappleAngle() 
+    {
+        return Vector3.Angle(myRB.position - grapplePoint, Vector3.down); ;
     }
 }

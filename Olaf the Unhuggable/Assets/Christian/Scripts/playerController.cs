@@ -38,6 +38,7 @@ public class playerController : MonoBehaviour
     public float jumpHeight; //This number correlates to how high the player can jump
 
     [Header("Grappling Variables")]
+    public GrappleScriptEvenNewer grappleScript;
     private bool isGrappling = false; //If this bool is true then the player is currently grappling
     private bool grappleMove = false; //This bool determines whether the grapple movement function is being used instead 
                                       //of the regular movement function.
@@ -82,7 +83,7 @@ public class playerController : MonoBehaviour
         myAnimator = GetComponent<Animator>(); //setting myAnimator to reference the animator component of our player
         olafBallCollider = GetComponent<SphereCollider>();
         olafBodyCollider = GetComponent<CapsuleCollider>();
-
+        grappleScript = GetComponent<GrappleScriptEvenNewer>();
     }
 
     // Update is called once per frame
@@ -99,7 +100,8 @@ public class playerController : MonoBehaviour
                                                             //walking/running animation
         }
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
-        swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        //swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        swingingForce = grappleScript.CalculateSwingVelocity(swingSpeed);
 
         /* SPEEDO CHEKKU */
         if (checkSpeed)
@@ -109,9 +111,9 @@ public class playerController : MonoBehaviour
 
         /* Referencing Other Scripts */
 
-        isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling; //Reference the grappling script to see if we're
+        isGrappling = grappleScript.isGrappling; //Reference the grappling script to see if we're
                                                                           //grapplin'
-        aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection; //Reference the direction the player is aiming.
+        aimDir = grappleScript.aimDirection; //Reference the direction the player is aiming.
                                                                       //This is used for any dashes that use the crosshair
 
         /* Determining What Movement Type to Use */
@@ -220,7 +222,9 @@ public class playerController : MonoBehaviour
         {
             //If we wanted grapple movement to work differently from regular movement this is where we'd put that code.
 
-            myRB.velocity = swingingForce; //Apply velocity to our rigidbody to move it
+            //myRB.velocity = myRB.velocity + swingingForce; //Apply velocity to our rigidbody to move it
+            //myRB.velocity = myRB.velocity + swingingForce * swingSpeed * Time.deltaTime;
+            myRB.AddForce(grappleScript.currentSwingForceVector, ForceMode.Acceleration);
         }
         else if (movementBool == true)
         {
