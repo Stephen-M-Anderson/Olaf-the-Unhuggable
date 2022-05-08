@@ -17,6 +17,7 @@ public class playerController : MonoBehaviour
 
     [Header("Movement Variables")]
     public bool facingRight = true; //Used for changing the direction the character is facing
+    public bool swingingRight = true;
     private bool movementBool = true; //If this bool is true then the regular movement function is called
     public bool inputDisabled = false; //If this bool is true then all player input has been disabled
     public float runSpeed; //This variable correlates to the movement speed of the player
@@ -100,8 +101,7 @@ public class playerController : MonoBehaviour
                                                             //walking/running animation
         }
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
-        //swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
-        swingingForce = grappleScript.CalculateSwingVelocity(swingSpeed);
+        swingingForce = new Vector3(myRB.velocity.x + (moveX * swingSpeed), myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
 
         /* SPEEDO CHEKKU */
         if (checkSpeed)
@@ -222,9 +222,12 @@ public class playerController : MonoBehaviour
         {
             //If we wanted grapple movement to work differently from regular movement this is where we'd put that code.
 
-            //myRB.velocity = myRB.velocity + swingingForce; //Apply velocity to our rigidbody to move it
+            // BEWARE YE WHO TREAD HERE
+            // LEST YE TRY YET ANOTHER WAY OF MAKING OLAF NOT SWING AROUND LIKE A F#&%ING MUPPET
+
+            myRB.velocity += swingingForce * Time.deltaTime; //Apply velocity to our rigidbody to move it
             //myRB.velocity = myRB.velocity + swingingForce * swingSpeed * Time.deltaTime;
-            myRB.AddForce(grappleScript.currentSwingForceVector, ForceMode.Acceleration);
+            //myRB.AddForce(grappleScript.currentSwingForceVector, ForceMode.Acceleration);
         }
         else if (movementBool == true)
         {
@@ -254,6 +257,7 @@ public class playerController : MonoBehaviour
             facingRight = !facingRight;
         }
     }
+
 
     void groundedCheck()
     {

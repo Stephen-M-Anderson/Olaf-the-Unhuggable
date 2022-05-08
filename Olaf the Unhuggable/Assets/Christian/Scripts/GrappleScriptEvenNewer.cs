@@ -41,9 +41,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     [Header("Bools")]
 
     public bool isGrappling = false; //This bool dictates whether or not the player is currently grappling.
+    public bool IsSwingingRight = true;
     //private bool grappleBool = false; //This bool was an attempt at getting the grapple function to work the same way as the dash script:
-                                //flipping bools on update then calling the function itself on fixed update. Something went wrong 
-                                //with it so we may need to work on this.
+    //flipping bools on update then calling the function itself on fixed update. Something went wrong 
+    //with it so we may need to work on this.
     private bool grappleZoomBool = false; //This bool dictates whether or not the player is currently zoomin' https://youtu.be/dfrlUNgaFLQ 
     public bool stopGrappleBool = false; //This bool is flipped in order to start the function that ends grappling.
     private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
@@ -295,10 +296,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                             //grappleSpawn location in the direction of grappleDir. The raycast then goes for the length of whatever 
                             //we set the value maxDistance to. This function we call handles actually making a grapple.
 
+            // Stephen's work on making Olaf more like a Pendulum starts mostly here
+            // started May 3rd, 2022
+
             // Variables for performing Pendulum physics
+
             currentSwingStartAngle = GetGrappleAngle(); // save the starting angle of the swing
-            currentSwingMagnitude = Physics.gravity.magnitude * Mathf.Sin((currentSwingStartAngle * Mathf.PI) / 180);
+            currentSwingMagnitude =  Physics.gravity.y * Mathf.Sin(currentSwingStartAngle);
             currentSwingForceVector = Quaternion.AngleAxis(-90, Vector3.forward) * myRB.position - grapplePoint;
+            SetSwingDirection();
             currentSwingForceVector *= currentSwingMagnitude;
             lastHit = hit; //We're storing the last raycast hit. I'm doing this as part of the lengthen and shorten grapple rope functionality. No clue if we'll keep this.
 
@@ -816,6 +822,15 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     }
 
+    void SetSwingDirection()
+    {
+        IsSwingingRight = myRB.position.x - grapplePoint.x < 0;
+    }
+
+    void SetSwingVelocity(float xInput)
+    {
+        
+    }
     void grappleCheck() //This function changes the color of the crosshair when a grappleable object is within your reach.
     {
         RaycastHit grappleCheckhit; //A RaycastHit for determining whether or not a grappleable object is within reach.
@@ -951,6 +966,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     }
     public float GetGrappleAngle() 
     {
-        return Vector3.Angle(myRB.position - grapplePoint, Vector3.down); ;
+        return Vector3.Angle(myRB.position - grapplePoint, Vector3.down);
+    }
+    public float GetGrappleAngleAbsolute()
+    {
+        float angle = Vector3.Angle(myRB.position - grapplePoint, Vector3.down);
+        if (angle < 0)
+            return angle * -1;
+        else
+            return angle;
     }
 }
