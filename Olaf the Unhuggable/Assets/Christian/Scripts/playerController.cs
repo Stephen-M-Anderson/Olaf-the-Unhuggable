@@ -104,7 +104,11 @@ public class playerController : MonoBehaviour
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
         swingingForce = new Vector3(myRB.velocity.x + (moveX * swingSpeed), myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
         swingMagnitude = swingSpeed * moveX;
-        if (swingMagnitude < 0)
+        if (grappleScript.originallySwingingRight == false)
+        {
+            swingMagnitude *= -1;
+        }
+        if (grappleScript.swapGrappleDirection)
         {
             swingMagnitude *= -1;
         }
@@ -122,6 +126,7 @@ public class playerController : MonoBehaviour
         aimDir = grappleScript.aimDirection; //Reference the direction the player is aiming.
                                                                       //This is used for any dashes that use the crosshair
 
+        
         /* Determining What Movement Type to Use */
 
         //If we're grappling we use grapple movement, if not then we use regular movement. That's it dawg

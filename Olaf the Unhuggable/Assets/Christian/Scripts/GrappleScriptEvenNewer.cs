@@ -42,6 +42,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     public bool isGrappling = false; //This bool dictates whether or not the player is currently grappling.
     public bool IsSwingingRight = true;
+    public bool originallySwingingRight;
     //private bool grappleBool = false; //This bool was an attempt at getting the grapple function to work the same way as the dash script:
     //flipping bools on update then calling the function itself on fixed update. Something went wrong 
     //with it so we may need to work on this.
@@ -57,6 +58,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public bool yoyoForth = false; //The yoyo zoom is currently moiving forward
     public bool shorteningGrapple = false; //We are currently calling the shorten grapple function
     public bool lengtheningGrapple = false; //We are currently calling the lengthen grapple function
+    public bool swapGrappleDirection = false; // whether or not olaf has swung to the other side of a swing. used in calculations.
 
 
     [Header("Grapple Rope")]
@@ -163,7 +165,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //grappleBool = true;
             crosshairSprite.enabled = false;
         }
-        else if (Input.GetButtonUp("Fire1"))
+        else if (Input.GetButtonUp("Fire1") && isGrappling)
         {
             //Letting go of the grapple button starts the function to end grappling.
             //This re-enables the crosshair.
@@ -283,8 +285,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Debug.Log("Start Grapple");
 
         //myAnimator.SetBool("grappling", isGrappling); //This will be used to tell the animator to play a grappling animation...
-                                                      //if we had one. cri.
+        //if we had one. cri.
 
+        swapGrappleDirection = false;
+        originallySwingingRight = false;
         myAnimator.enabled = false;
         RaycastHit hit; //We are declaring a RayCastHit type variable here that we're just gonna call hit. Unity's TOTALLY DESCRIPTIVE
                         //AND NOT AWFUL documentation refers to a RayCastHit as a "Structure used to get information back from a 
@@ -335,6 +339,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             currentSwingMagnitude *= -1;
         }
         SetSwingDirection();
+        originallySwingingRight = IsSwingingRight;
         if (IsSwingingRight)
         {
             currentSwingForceVector = Quaternion.AngleAxis(90, Vector3.forward) * (myRB.position - grapplePoint);
@@ -452,7 +457,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     void StopGrapple() //This function stops grappling in its tracks. All grapples get killed dead or your money back.
     {
 
-        myAnimator.enabled = true;
+        //myAnimator.enabled = true;
         lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
         Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
         isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
@@ -463,6 +468,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         stopGrappleBool = false; //Flip this bool to show that the stopGrapple has uh... stopped.
 
         //Debug.Log("Stop Grapple");
+        
+        myRB.AddForce(currentSwingForceVector, ForceMode.Impulse);
     }
 
     void StartGrappleZoom() //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
@@ -867,13 +874,14 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     {
         // if the player is to the left of their grapple point, they must be swinging or getting pulled to the right.
         IsSwingingRight = myRB.position.x - grapplePoint.x < 0;
+        swapGrappleDirection = IsSwingingRight != originallySwingingRight; 
     }
 
     public Vector3 CalculateSwingVector()
     {
         ropeLengthXValue = myRB.position.x - grapplePoint.x;
         updateSwingAngle = GetGrappleAngleAbsolute();
-
+        SetSwingDirection();
         if (IsSwingingRight)
         {
             currentSwingForceVector = Quaternion.AngleAxis(90, Vector3.forward) * (myRB.position - grapplePoint);
