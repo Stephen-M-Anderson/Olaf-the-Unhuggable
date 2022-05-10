@@ -22,6 +22,7 @@ public class playerController : MonoBehaviour
     public bool inputDisabled = false; //If this bool is true then all player input has been disabled
     public float runSpeed; //This variable correlates to the movement speed of the player
     public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
+    private float swingMagnitude;
     public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
     private Vector3 swingingForce; //Speed of movement plus a direction given by user input (dpad) while swinging
 
@@ -102,6 +103,11 @@ public class playerController : MonoBehaviour
         }
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
         swingingForce = new Vector3(myRB.velocity.x + (moveX * swingSpeed), myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        swingMagnitude = swingSpeed * moveX;
+        if (swingMagnitude < 0)
+        {
+            swingMagnitude *= -1;
+        }
 
         /* SPEEDO CHEKKU */
         if (checkSpeed)
@@ -225,9 +231,14 @@ public class playerController : MonoBehaviour
             // BEWARE YE WHO TREAD HERE
             // LEST YE TRY YET ANOTHER WAY OF MAKING OLAF NOT SWING AROUND LIKE A F#&%ING MUPPET
 
-            myRB.velocity += swingingForce * Time.deltaTime; //Apply velocity to our rigidbody to move it
+            //myRB.velocity += swingingForce * Time.deltaTime; //Apply velocity to our rigidbody to move it
             //myRB.velocity = myRB.velocity + swingingForce * swingSpeed * Time.deltaTime;
             //myRB.AddForce(grappleScript.currentSwingForceVector, ForceMode.Acceleration);
+
+            // ok so it works, we unbroke the animator and now the swinging is so nice. 
+            // we calculate the swing magnitude by multiplying the player's xInput by their
+            // swing magnitude. 
+            myRB.AddForce(grappleScript.CalculateSwingVector() * swingMagnitude);
         }
         else if (movementBool == true)
         {

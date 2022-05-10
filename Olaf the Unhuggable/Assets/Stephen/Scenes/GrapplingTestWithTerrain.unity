@@ -2114,7 +2114,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!135 &852862108
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4278,7 +4278,7 @@ PrefabInstance:
     - target: {fileID: 4568297034626780238, guid: 4dd65ab03f42ba44f84b55b4fcc61e93,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -63.4
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 4568297034626780238, guid: 4dd65ab03f42ba44f84b55b4fcc61e93,
         type: 3}
@@ -4318,7 +4318,7 @@ PrefabInstance:
     - target: {fileID: 6099406905769789077, guid: 4dd65ab03f42ba44f84b55b4fcc61e93,
         type: 3}
       propertyPath: field of view
-      value: 10
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6988099437975004784, guid: 4dd65ab03f42ba44f84b55b4fcc61e93,
         type: 3}
@@ -4359,6 +4359,16 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2787642047164510961, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4836602169661130827, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4836602169661130827, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: speedText
@@ -4367,13 +4377,18 @@ PrefabInstance:
     - target: {fileID: 4836602169661130827, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: swingSpeed
-      value: 3000
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 5444133033568044016, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: healthText
       value: 
       objectReference: {fileID: 2099837991}
+    - target: {fileID: 5526003400616678587, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: m_AngularDrag
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 5526003400616678587, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: m_Constraints
