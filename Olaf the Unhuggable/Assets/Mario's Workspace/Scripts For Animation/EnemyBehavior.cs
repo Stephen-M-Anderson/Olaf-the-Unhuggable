@@ -8,12 +8,12 @@ public class EnemyBehavior : MonoBehaviour
 {
     NavMeshAgent agent;
     public List<Transform> range;
-    Rigidbody rigid;
+    //Rigidbody rigid;
 
     //Animator eAnimator;
 
     bool detected = false;
-    bool grounded;
+    //bool grounded;
 
     public Transform point1;
     public Transform point2;
@@ -30,8 +30,8 @@ public class EnemyBehavior : MonoBehaviour
 
     public LayerMask groundLayer;
     public Transform groundCheck;
-    Collider[] groundCollisions;
-    float groundCheckRadius = 0.2f;
+    //Collider[] groundCollisions;
+    //float groundCheckRadius = 0.2f;
 
     void Start()
     {
