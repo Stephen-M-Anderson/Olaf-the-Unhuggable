@@ -17,10 +17,12 @@ public class playerController : MonoBehaviour
 
     [Header("Movement Variables")]
     public bool facingRight = true; //Used for changing the direction the character is facing
+    public bool swingingRight = true;
     private bool movementBool = true; //If this bool is true then the regular movement function is called
     public bool inputDisabled = false; //If this bool is true then all player input has been disabled
     public float runSpeed; //This variable correlates to the movement speed of the player
     public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
+    private float swingMagnitude;
     public Vector3 movementForce; //Speed of movement plus a direction given by user input (dpad)
     private Vector3 swingingForce; //Speed of movement plus a direction given by user input (dpad) while swinging
 
@@ -38,6 +40,7 @@ public class playerController : MonoBehaviour
     public float jumpHeight; //This number correlates to how high the player can jump
 
     [Header("Grappling Variables")]
+    public GrappleScriptEvenNewer grappleScript;
     private bool isGrappling = false; //If this bool is true then the player is currently grappling
     private bool grappleMove = false; //This bool determines whether the grapple movement function is being used instead 
                                       //of the regular movement function.
@@ -82,7 +85,7 @@ public class playerController : MonoBehaviour
         myAnimator = GetComponent<Animator>(); //setting myAnimator to reference the animator component of our player
         olafBallCollider = GetComponent<SphereCollider>();
         olafBodyCollider = GetComponent<CapsuleCollider>();
-
+        grappleScript = GetComponent<GrappleScriptEvenNewer>();
     }
 
     // Update is called once per frame
@@ -99,7 +102,16 @@ public class playerController : MonoBehaviour
                                                             //walking/running animation
         }
         movementForce = new Vector3(moveX * runSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for movement
-        swingingForce = new Vector3(moveX * swingSpeed, myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        swingingForce = new Vector3(myRB.velocity.x + (moveX * swingSpeed), myRB.velocity.y, 0); //Creating a force (spd + dir) for swinging
+        swingMagnitude = swingSpeed * moveX;
+        if (grappleScript.originallySwingingRight == false)
+        {
+            swingMagnitude *= -1;
+        }
+        if (grappleScript.swapGrappleDirection)
+        {
+            swingMagnitude *= -1;
+        }
 
         /* SPEEDO CHEKKU */
         if (checkSpeed)
@@ -109,11 +121,12 @@ public class playerController : MonoBehaviour
 
         /* Referencing Other Scripts */
 
-        isGrappling = GetComponent<GrappleScriptEvenNewer>().isGrappling; //Reference the grappling script to see if we're
+        isGrappling = grappleScript.isGrappling; //Reference the grappling script to see if we're
                                                                           //grapplin'
-        aimDir = GetComponent<GrappleScriptEvenNewer>().aimDirection; //Reference the direction the player is aiming.
+        aimDir = grappleScript.aimDirection; //Reference the direction the player is aiming.
                                                                       //This is used for any dashes that use the crosshair
 
+        
         /* Determining What Movement Type to Use */
 
         //If we're grappling we use grapple movement, if not then we use regular movement. That's it dawg
@@ -220,7 +233,17 @@ public class playerController : MonoBehaviour
         {
             //If we wanted grapple movement to work differently from regular movement this is where we'd put that code.
 
-            myRB.velocity = swingingForce; //Apply velocity to our rigidbody to move it
+            // BEWARE YE WHO TREAD HERE
+            // LEST YE TRY YET ANOTHER WAY OF MAKING OLAF NOT SWING AROUND LIKE A F#&%ING MUPPET
+
+            //myRB.velocity += swingingForce * Time.deltaTime; //Apply velocity to our rigidbody to move it
+            //myRB.velocity = myRB.velocity + swingingForce * swingSpeed * Time.deltaTime;
+            //myRB.AddForce(grappleScript.currentSwingForceVector, ForceMode.Acceleration);
+
+            // ok so it works, we unbroke the animator and now the swinging is so nice. 
+            // we calculate the swing magnitude by multiplying the player's xInput by their
+            // swing magnitude. 
+            myRB.AddForce(grappleScript.CalculateSwingVector() * swingMagnitude);
         }
         else if (movementBool == true)
         {
@@ -250,6 +273,7 @@ public class playerController : MonoBehaviour
             facingRight = !facingRight;
         }
     }
+
 
     void groundedCheck()
     {
