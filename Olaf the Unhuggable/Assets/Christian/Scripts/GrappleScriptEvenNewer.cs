@@ -290,6 +290,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         swapGrappleDirection = false;
         originallySwingingRight = false;
         myAnimator.enabled = false;
+        var tempVelocity = myRB.velocity;
         RaycastHit hit; //We are declaring a RayCastHit type variable here that we're just gonna call hit. Unity's TOTALLY DESCRIPTIVE
                         //AND NOT AWFUL documentation refers to a RayCastHit as a "Structure used to get information back from a 
                         //raycast".
@@ -307,6 +308,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                             //we set the value maxDistance to. This function we call handles actually making a grapple.
 
             SetStartingGrappleValues();
+            myRB.velocity = tempVelocity;
             lastHit = hit; //We're storing the last raycast hit. I'm doing this as part of the lengthen and shorten grapple rope functionality. No clue if we'll keep this.
 
             //Debug.Log("Ray hit Grapple... motherfucker");
@@ -458,6 +460,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     {
 
         myAnimator.enabled = true;
+        var tempVelocity = myRB.velocity;
         lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
         Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
         isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
@@ -468,8 +471,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         stopGrappleBool = false; //Flip this bool to show that the stopGrapple has uh... stopped.
 
         //Debug.Log("Stop Grapple");
-        
-        myRB.AddForce(currentSwingForceVector, ForceMode.Impulse);
+        myRB.velocity = tempVelocity;
+        //myRB.AddForce(currentSwingForceVector, ForceMode.Impulse);
     }
 
     void StartGrappleZoom() //This function grapple zooms! This zooms the player to the thing they hit with their grapple hook!
