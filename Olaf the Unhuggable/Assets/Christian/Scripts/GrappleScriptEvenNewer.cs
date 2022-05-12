@@ -86,7 +86,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     [Header("Grappling")]
 
-    private Vector3 grapplePoint; //The end point of the player's grapple rope
+    public Vector3 grapplePoint; //The end point of the player's grapple rope
     public Transform grappleSpawn; //The transform component where the start point of the grapple rope spawns
     private Vector3 grappleVect; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
     public ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
@@ -287,10 +287,11 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //myAnimator.SetBool("grappling", isGrappling); //This will be used to tell the animator to play a grappling animation...
         //if we had one. cri.
 
+        var tempVelocity = myRB.velocity;
         swapGrappleDirection = false;
         originallySwingingRight = false;
         myAnimator.enabled = false;
-        var tempVelocity = myRB.velocity;
+        
         RaycastHit hit; //We are declaring a RayCastHit type variable here that we're just gonna call hit. Unity's TOTALLY DESCRIPTIVE
                         //AND NOT AWFUL documentation refers to a RayCastHit as a "Structure used to get information back from a 
                         //raycast".
@@ -459,8 +460,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     void StopGrapple() //This function stops grappling in its tracks. All grapples get killed dead or your money back.
     {
 
-        myAnimator.enabled = true;
         var tempVelocity = myRB.velocity;
+        myAnimator.enabled = true;
         lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
         Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
         isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
