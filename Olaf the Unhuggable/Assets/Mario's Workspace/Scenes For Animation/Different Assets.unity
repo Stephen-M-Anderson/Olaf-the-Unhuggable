@@ -354,7 +354,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 1033642573}
   waitfor: 3
-  attackDelay: 2
+  attackDelay: 1
   combometer: 2
   rage: 4
 --- !u!135 &447537242
