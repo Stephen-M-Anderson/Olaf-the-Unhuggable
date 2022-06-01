@@ -407,15 +407,16 @@ public class playerController : MonoBehaviour
         //speed = (transform.position - lastPosition).magnitude * 100;
         //lastPosition = transform.position;
 
-        /* This one was how I calculated speed in mph: */
+        /* This one was how I calculated speed in mph: */ 
         speed = myRB.velocity.magnitude * 2.237f;
+        speed = speed - (speed % 1); // get rid of the decimal for the speed
         speedText.text = speed.ToString();
         StartCoroutine(SpeedCalcWait());
     }
 
     IEnumerator SpeedCalcWait()
     {
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.1f); // how often does the speed update? Lower number = faster update
         checkSpeed = true;
     }
 

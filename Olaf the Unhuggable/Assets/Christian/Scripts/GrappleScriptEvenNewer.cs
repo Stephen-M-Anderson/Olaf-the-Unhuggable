@@ -88,7 +88,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     public Vector3 grapplePoint; //The end point of the player's grapple rope
     public Transform grappleSpawn; //The transform component where the start point of the grapple rope spawns
-    private Vector3 grappleVect; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
+    public GameObject grappleAnchor; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
     public ConfigurableJoint joint; //This is the joint that connects the player to the grapple rope. A configurable joint was decided
                                     //to be the best fit as every other joint we tried ended in a fucking mess of spaghetti code.
                                     //The joint is configured ( ͡° ͜ʖ ͡°) to help simulate how a character would fling around on a rope.
@@ -392,9 +392,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                 /* Setting Values for later Calculations */
 
         grapplePoint = hit.point; //We assign the point in 3D space of our raycast hit to be the point that our grapple rope ends.
-        
-        grappleVect = grapplePoint - transform.position; //We use this value for testing purposes. It tells us the location in 3D
-                                                         //space between our grappling hook's end point and the player character.
 
         ropePositions.Add(grapplePoint); //We add the end of our grapple rope to a list called ropePositions. We will use this list to
                                          //determine the points along our rope for line renderer and wrapping/unwrapping mechanics.
