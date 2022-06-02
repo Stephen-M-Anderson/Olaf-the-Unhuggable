@@ -34,7 +34,10 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     [Header("Crosshair")]
 
     public Vector3 aimDirection; //A representation of where the player is aiming their crosshair using the mouse.
+    public float crosshairDistance;
     public Transform crosshair; //The transform component of the crosshair image on the screen.
+    public SpriteRenderer mouseCrosshairSprite;
+    public Transform mouseCrosshair;
     public SpriteRenderer crosshairSprite; //The sprite used to represent the crosshair.
     public Transform cameraTransform; //The transform component of the game's camera.
 
@@ -122,6 +125,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                                                               //our lineRendererObject
         myRB = GetComponent<Rigidbody>(); //setting myRB to reference the rigidbody component of our player
         myAnimator = GetComponent<Animator>(); //setting myAnimator to reference the animator component of our player
+        mouseCrosshairSprite.enabled = true;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -137,6 +142,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             player.transform.position.z - cameraTransform.position.z)); //This variable turns the user's mouse position into
                                                                         //a position that fits the world space more appropriately. It also takes into account how we don't want shit moving on
                                                                         //the z axis.
+        mouseCrosshair.transform.position = worldMousePosition - new Vector3(0,0,5f); // move the croshair closer to the camera
         var facingDirection = worldMousePosition - grappleSpawn.transform.position; //facingDirection is the position from 
                                                                                     //worldMousePosition but contrasted with the 
                                                                                     //position that the grapple rope spawns at.
@@ -152,9 +158,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //Debug.Log("aimAngle is: " + aimAngle);
         //Debug.Log("aimDirection is: " + aimDirection);
 
-        grappleCheck(); //This function is run every frame to determine if something you're aiming at can be grappled to.
+        //grappleCheck(); //This function is run every frame to determine if something you're aiming at can be grappled to.
 
-        if (Input.GetButtonDown("Fire1") && GetComponent<playerController>().inputDisabled == false)
+        if (Input.GetButtonDown("Fire1") && GetComponent<playerController>().inputDisabled == false && crosshairSprite.material.color == Color.green)
         {
             //Once you press down the grapple button it begins the grapple function.
             //This also disables your crosshair.
@@ -163,7 +169,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             StartGrapple();
             //grappleBool = true;
-            crosshairSprite.enabled = false;
+            
         }
         else if (Input.GetButtonUp("Fire1") && isGrappling)
         {
@@ -175,7 +181,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             stopGrappleBool = true;
             stopGrappleZoomBool = true;
             //StopGrappleZoom();
-            crosshairSprite.enabled = true;
+            
         }
 
         /* Removing and lengthening grapple rope */
@@ -286,7 +292,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         //myAnimator.SetBool("grappling", isGrappling); //This will be used to tell the animator to play a grappling animation...
         //if we had one. cri.
-
+        crosshairSprite.enabled = false; // turn off crosshair
         var tempVelocity = myRB.velocity;
         swapGrappleDirection = false;
         originallySwingingRight = false;
@@ -457,6 +463,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     void StopGrapple() //This function stops grappling in its tracks. All grapples get killed dead or your money back.
     {
 
+        crosshairSprite.enabled = true;
         var tempVelocity = myRB.velocity;
         myAnimator.enabled = true;
         lr.positionCount = 0; //Setting the amount of positions on the line renderer to 0 essentially deletes any line it has rendered.
@@ -680,10 +687,35 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private void SetCrosshairPosition(float aimAngle) //This function determines the position of the crosshair on screen
     {
         //The two following lines create a distance from the grapple spawn along a circle that the crosshair travels:
-        var x = grappleSpawn.transform.position.x + 2f * Mathf.Cos(aimAngle); 
-        var y = grappleSpawn.transform.position.y + 2f * Mathf.Sin(aimAngle);
+        var x = grappleSpawn.transform.position.x + crosshairDistance * Mathf.Cos(aimAngle); 
+        var y = grappleSpawn.transform.position.y + crosshairDistance * Mathf.Sin(aimAngle);
+        var z = player.transform.position.z;
+        var crossHairPosition = new Vector3(x, y, z); //The value we store the position of the crosshair
+        var crosshairDirection = crossHairPosition - grappleSpawn.transform.position;
 
-        var crossHairPosition = new Vector3(x, y, player.transform.position.z); //The value we store the position of the crosshair
+        RaycastHit result;
+
+        if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance, whatIsGrappleable)) 
+        // the crosshair is targeting something grappleable, so lets put the crosshair there.
+        {
+            crosshairSprite.material.color = Color.green;
+            crossHairPosition = result.point;
+        }
+        else if(Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance))
+        // the crosshair is targeting something not grappleable, so lets make it red and leave it near the player
+        {
+            crosshairSprite.material.color = Color.red;
+            if (Vector3.Distance(grappleSpawn.transform.position, result.point) < crosshairDistance)
+            {
+                crossHairPosition = result.point;
+            }
+        }
+        else
+        // the player is pointing the crosshair at the sky or something idk, make it some third color. 
+        {
+            crosshairSprite.material.color = Color.blue;
+        }
+
         crosshair.transform.position = crossHairPosition; //Actually setting the crosshair to the value we just determined above
     }
 
