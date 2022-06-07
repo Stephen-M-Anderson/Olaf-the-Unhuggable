@@ -113,9 +113,10 @@ public class playerController : MonoBehaviour
         {
             swingMagnitude *= -1;
         }
-        if (grappleScript.grapplePoint.y - myRB.position.y < 0)
+        if (grappleScript.grapplePoint.y < myRB.position.y)
         {
             swingMagnitude = 0f;
+            Debug.Log("No mre swing!");
         }
 
         /* SPEEDO CHEKKU */
