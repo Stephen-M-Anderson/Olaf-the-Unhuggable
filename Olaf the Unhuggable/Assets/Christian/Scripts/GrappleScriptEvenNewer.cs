@@ -16,6 +16,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 public class GrappleScriptEvenNewer : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float crosshairDistance;
     public Transform crosshair; //The transform component of the crosshair image on the screen.
     public SpriteRenderer mouseCrosshairSprite;
+    public Image cooldownCircle;
     public Transform mouseCrosshair;
     public SpriteRenderer crosshairSprite; //The sprite used to represent the crosshair.
     public Transform cameraTransform; //The transform component of the game's camera.
@@ -54,7 +56,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private bool stopGrappleZoomBool = false; //This bool is flipped in order to start the function that ends grapple zooming.
     public bool isZooming = false; //Tells us if the player is currently zooming!
     private bool canZoom = true; //Can the player currently zoom or is that ability still in cooldown? Only this bool truly knows!
-    private bool isCooldownHappening = false; //This bool is used to prevent multiple of the same coroutine from happening
+    private bool isZoomOnCooldown = false; //This bool is used to prevent multiple of the same coroutine from happening
     public bool yoyoZoom = false; //When this bool is true a YoYo Zoom is initiated
     bool currentlyYoYoing = false; //When this bool is true a YoYo Zoom is currently underway
     public bool yoyoBack = false; //The yoyo zoom is currently moving backwards
@@ -65,7 +67,6 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
 
     [Header("Grapple Rope")]
-
     public List<Vector3> ropePositions = new List<Vector3>(); //A list of Vector3 positions that collectively make up the grapple rope
     public float maxRopeLength = 6f; //The longest that the grapple rope can be
     public float minRopeLength = 1f; //The shortest the grapple rope can be
@@ -88,7 +89,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     private Rigidbody myRB; //A reference to the player's rigidbody component
 
     [Header("Grappling")]
-
+    public float grappleMaxCooldown;
+    public bool isGrappleOnCooldown = false;
     public Vector3 grapplePoint; //The end point of the player's grapple rope
     public Transform grappleSpawn; //The transform component where the start point of the grapple rope spawns
     public GameObject grappleAnchor; //This is a value for testing purposes. It gives a Vector3 of the length of the current grapple rope
@@ -160,7 +162,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
         //grappleCheck(); //This function is run every frame to determine if something you're aiming at can be grappled to.
 
-        if (Input.GetButtonDown("Fire1") && GetComponent<playerController>().inputDisabled == false && crosshairSprite.material.color == Color.green)
+        if (Input.GetButtonDown("Fire1") && GetComponent<playerController>().inputDisabled == false
+            && crosshairSprite.material.color == Color.green)
         {
             //Once you press down the grapple button it begins the grapple function.
             //This also disables your crosshair.
@@ -290,6 +293,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     {
         //Debug.Log("Start Grapple");
 
+        if (isGrappleOnCooldown)
+            return;
+
         //myAnimator.SetBool("grappling", isGrappling); //This will be used to tell the animator to play a grappling animation...
         //if we had one. cri.
         crosshairSprite.enabled = false; // turn off crosshair
@@ -382,6 +388,12 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             //Debug.Log("Ball Mode Engage from grappling?");
         }
 
+        if (!isGrappleOnCooldown)
+        {
+            StartCoroutine(GrappleCooldown());
+            StartCoroutine(CooldownReticle());
+        }
+
                                                 /* Fixing our Z Values */
 
         if (hit.point.z != player.transform.position.z - cameraTransform.position.z)
@@ -470,7 +482,8 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Destroy(joint); //Destroy the joint that holds the player to the grappleable surface
         isGrappling = false; //This bool determines two things: 1.) Whether or not the grapple animation is playing and 2.) Whether or
                              //not the SwingCheck() function that handles all swinging mechanics is being called.
-        myAnimator.SetBool("grappling", isGrappling); //We run this to make sure the animator knows the animation should end.
+        // this is where our animation trigger will go... WHEN WE HAVE ONE!!!
+        //myAnimator.SetBool("grappling", isGrappling); //We run this to make sure the animator knows the animation should end.
         ropePositions.Clear(); //We clear the list of rope positions we created so that it won't be full of stuff next time we need it.
         currRopeLength = maxRopeLength; //Reset the currRopeLength value to the maximum for the next time we need it.
         stopGrappleBool = false; //Flip this bool to show that the stopGrapple has uh... stopped.
@@ -554,7 +567,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         //isGrappling = false;
 
         //As long as the cooldown hasn't already started then we start the cooldown
-        if (!isCooldownHappening && !canZoom)
+        if (!isZoomOnCooldown && !canZoom)
         {
             StartCoroutine(GrappleZoomCooldown()); 
         }
@@ -661,13 +674,30 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     IEnumerator GrappleZoomCooldown()
     {
-        isCooldownHappening = true; //A cooldown is happening
+        isZoomOnCooldown = true; //A cooldown is happening
         yield return new WaitForSeconds(zoomCooldown); 
         canZoom = true; //We regain use of our grapple zoom
-        isCooldownHappening = false; //The cooldown has finished
+        isZoomOnCooldown = false; //The cooldown has finished
         Debug.Log("Zooming priveleges have returned. All is right in the world.");
     }
 
+    IEnumerator GrappleCooldown()
+    {
+        isGrappleOnCooldown = true; //A cooldown is happening
+        yield return new WaitForSeconds(grappleMaxCooldown);
+        isGrappleOnCooldown = false; //The cooldown has finished
+    }
+
+    IEnumerator CooldownReticle()
+    {
+        cooldownCircle.fillAmount = 0;
+        float waitTime = grappleMaxCooldown / 360f; // figure out how long each wait should be
+        for (int i = 0; i < 360; ++i)
+        {
+            yield return new WaitForSeconds(waitTime);
+            cooldownCircle.fillAmount = i / 360;
+        }
+    }
     void DrawRope() //This function draws the grapple rope as a physical line.
     {
 
@@ -694,29 +724,39 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         var crosshairDirection = crossHairPosition - grappleSpawn.transform.position;
 
         RaycastHit result;
-
-        if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance, whatIsGrappleable)) 
-        // the crosshair is targeting something grappleable, so lets put the crosshair there.
+        if (!isGrappleOnCooldown)
         {
-            crosshairSprite.material.color = Color.green;
-            crossHairPosition = result.point;
-        }
-        else if(Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance))
-        // the crosshair is targeting something not grappleable, so lets make it red and leave it near the player
-        {
-            crosshairSprite.material.color = Color.red;
+            if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance, whatIsGrappleable))
+            // the crosshair is targeting something grappleable, so lets put the crosshair there.
+            {
+                crosshairSprite.material.color = Color.green;
+                crossHairPosition = result.point;
+            }
+            else if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance))
+            // the crosshair is targeting something not grappleable, so lets make it red and leave it near the player
+            {
+                crosshairSprite.material.color = Color.red;
+                
+            }
+            else
+            // the player is pointing the crosshair at the sky or something idk, make it some third color. 
+            {
+                crosshairSprite.material.color = Color.blue;
+            }
             if (Vector3.Distance(grappleSpawn.transform.position, result.point) < crosshairDistance)
             {
                 crossHairPosition = result.point;
             }
         }
         else
-        // the player is pointing the crosshair at the sky or something idk, make it some third color. 
         {
-            crosshairSprite.material.color = Color.blue;
+            crosshairSprite.material.color = Color.black;
         }
+        
 
         crosshair.transform.position = crossHairPosition; //Actually setting the crosshair to the value we just determined above
+        cooldownCircle.transform.position = crossHairPosition;
+        cooldownCircle.rectTransform.position = crossHairPosition;
     }
 
 
