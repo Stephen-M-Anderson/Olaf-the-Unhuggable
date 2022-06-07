@@ -20,6 +20,7 @@ public class playerController : MonoBehaviour
     public bool swingingRight = true;
     private bool movementBool = true; //If this bool is true then the regular movement function is called
     public bool inputDisabled = false; //If this bool is true then all player input has been disabled
+    public bool swingInputDisabled = false; //If this bool is true, the player can't have influence on their swing
     public float runSpeed; //This variable correlates to the movement speed of the player
     public float swingSpeed; //This variable correlates to the movement speed of the player while swinging on a rope
     private float swingMagnitude;
@@ -111,6 +112,10 @@ public class playerController : MonoBehaviour
         if (grappleScript.swapGrappleDirection)
         {
             swingMagnitude *= -1;
+        }
+        if (grappleScript.grapplePoint.y - myRB.position.y < 0)
+        {
+            swingMagnitude = 0f;
         }
 
         /* SPEEDO CHEKKU */
@@ -402,15 +407,16 @@ public class playerController : MonoBehaviour
         //speed = (transform.position - lastPosition).magnitude * 100;
         //lastPosition = transform.position;
 
-        /* This one was how I calculated speed in mph: */
+        /* This one was how I calculated speed in mph: */ 
         speed = myRB.velocity.magnitude * 2.237f;
+        speed = speed - (speed % 1); // get rid of the decimal for the speed
         speedText.text = speed.ToString();
         StartCoroutine(SpeedCalcWait());
     }
 
     IEnumerator SpeedCalcWait()
     {
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.1f); // how often does the speed update? Lower number = faster update
         checkSpeed = true;
     }
 
