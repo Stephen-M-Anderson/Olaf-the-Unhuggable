@@ -7,6 +7,8 @@ TagManager:
   - Nodes
   - Grapple Spawn
   - LastNodes
+  - Enemy
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -21,9 +23,9 @@ TagManager:
   - NoCollision
   - Rope
   - Zoomable
-  - 
-  - 
-  - 
+  - Parryable
+  - Player
+  - NonParryable
   - 
   - 
   - 
@@ -41,6 +43,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: UI
+    uniqueID: 1437443515
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Rope
+    uniqueID: 599897363
     locked: 0
