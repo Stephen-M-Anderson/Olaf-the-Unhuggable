@@ -879,6 +879,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 214412532}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &260455492 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4074686083832236489, guid: dd4c5754ba18a304a836f73470391d8d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1765234431}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &260455493 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 9164647930357048007, guid: dd4c5754ba18a304a836f73470391d8d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1765234431}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &330648836
 GameObject:
   m_ObjectHideFlags: 0
@@ -4389,14 +4401,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
+      propertyPath: mouseCrosshair
+      value: 
+      objectReference: {fileID: 260455492}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 110191488}
     - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
+      propertyPath: crosshairDistance
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: grappleMaxCooldown
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
       propertyPath: lineRendererObject
       value: 
       objectReference: {fileID: 529393210}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: mouseCrosshairSprite
+      value: 
+      objectReference: {fileID: 260455493}
     - target: {fileID: 2697418826334436111, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: m_LocalPosition.x
