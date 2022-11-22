@@ -427,11 +427,11 @@ public class playerController : MonoBehaviour
         //ballManBool = true; //Ball Made Mode is active so we must flip the almighty bool to reflect that
 
         //Setting the correct mesh renderer active
-        olafDummy.SetActive(false);
-        ballDummy.SetActive(true);
-
+        //olafDummy.SetActive(false);
+        //ballDummy.SetActive(true);
+        myAnimator.SetBool("curl up", true);
         //Setting the correct collider active
-        olafBallCollider.enabled = true;
+        //olafBallCollider.enabled = true;
         olafBodyCollider.enabled = false;
 
         //Debug.Log("Ball mode has FUCKING ENGAGED MOTHERFUCKER");
