@@ -304,16 +304,19 @@ public class playerController : MonoBehaviour
 
         myAnimator.SetBool("grounded", isGrounded); //The animator determines whether or not the jumping animation plays
                                                     //based on if the character is grounded.
+        myAnimator.SetBool("jumping", jumpBool);
+
 
         //Debug.Log("Grounded is: " + isGrounded);
     }
 
     void Jump()
     {
-        myAnimator.SetBool("grounded", isGrounded); //The animator determines whether or not the jumping animation plays
-                                                    //based on if the character is grounded.
+        myAnimator.SetBool("jumping", true);
         myRB.AddForce(new Vector3(0, jumpHeight, 0)); //Add some fucking force to make the character jump
         isGrounded = false; //If we're in the air we ain't grounded
+        myAnimator.SetBool("grounded", isGrounded); //The animator determines whether or not the jumping animation plays
+                                                   //based on if the character is grounded.
         jumpBool = false; //gotta flip that bool so that it doesn't call this function on the next FixedUpdate
         BallModeActive(); //Activate BALL MAN MODE
     }
@@ -445,6 +448,7 @@ public class playerController : MonoBehaviour
     public void BallModeInactive() //This function turns the player into his regular game model
     {
         ballManBool = false; //Ball Made Mode is NOT active so we must flip the almighty bool to reflect that
+        myAnimator.SetBool("curl up", false);
 
         //Setting the correct mesh renderer active
         olafDummy.SetActive(true);
