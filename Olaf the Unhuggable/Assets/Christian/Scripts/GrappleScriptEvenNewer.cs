@@ -291,7 +291,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
     void StartGrapple() //This function starts the grapple process, it also determines whether the player wants to grapple or zoom.
     {
-        //Debug.Log("Start Grapple");
+        Debug.Log("Start Grapple");
 
         if (isGrappleOnCooldown)
             return;
@@ -324,7 +324,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             myRB.velocity = tempVelocity;
             lastHit = hit; //We're storing the last raycast hit. I'm doing this as part of the lengthen and shorten grapple rope functionality. No clue if we'll keep this.
 
-            //Debug.Log("Ray hit Grapple... motherfucker");
+            Debug.Log("Ray hit Grapple... motherfucker");
         }
         else if (canZoom)
         {
@@ -332,7 +332,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
 
             grappleZoomBool = true;
 
-            //Debug.Log("Ray might have hit Grapplezoom... bitch");
+            Debug.Log("Ray might have hit Grapplezoom... bitch");
         }
 
     }
@@ -509,8 +509,9 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         if (Physics.Raycast(grappleSpawn.transform.position, grappleDir, out zoomHit, maxDistance, whatIsZoomable))
         {
             DoGrappleZoom(zoomHit);
-            //Debug.Log("Ray hit Grapplezoom... bitch");
+            Debug.Log("Ray hit Grapplezoom... bitch");
             whatAmIZoomingTo = zoomHit.collider.gameObject;
+            Debug.Log("I am zooming to: " + whatAmIZoomingTo);
 
             //Declare our position set in stone the moment we begin a zoom
             oldZoomPos = grappleSpawn.transform.position;
@@ -728,6 +729,12 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         {
             if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance, whatIsGrappleable))
             // the crosshair is targeting something grappleable, so lets put the crosshair there.
+            {
+                crosshairSprite.material.color = Color.green;
+                crossHairPosition = result.point;
+            }
+            else if (Physics.Raycast(grappleSpawn.transform.position, crosshairDirection, out result, maxDistance, whatIsZoomable))
+            // the crosshair is targeting something zoomable, so lets put the crosshair there.
             {
                 crosshairSprite.material.color = Color.green;
                 crossHairPosition = result.point;

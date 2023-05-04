@@ -174,7 +174,7 @@ public class Parry : MonoBehaviour
                 //Zoom back to enemy
 
                 //Get Rid of Danger Zone attack
-                //whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().RemoveRed();
+                whoAttackThisIs.GetComponent<UniversalEnemyBehavior>().RemoveRed();
 
                 //Begin the Yo-Yo Zoom
                 this.gameObject.GetComponent<GrappleScriptEvenNewer>().yoyoZoom = true;
