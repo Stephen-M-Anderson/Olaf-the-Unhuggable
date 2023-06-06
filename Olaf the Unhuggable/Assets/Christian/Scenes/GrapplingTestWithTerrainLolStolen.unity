@@ -7179,6 +7179,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5582184473934023646, guid: e1e7f3637a84c664197762fc23215011,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5582184473956690279, guid: e1e7f3637a84c664197762fc23215011,
         type: 3}
       propertyPath: m_Layer
@@ -7192,7 +7197,7 @@ PrefabInstance:
     - target: {fileID: 5582184473982522664, guid: e1e7f3637a84c664197762fc23215011,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 18.47
+      value: 9.51
       objectReference: {fileID: 0}
     - target: {fileID: 5582184473982522664, guid: e1e7f3637a84c664197762fc23215011,
         type: 3}
@@ -11495,6 +11500,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
+      propertyPath: zoomYoYoMult
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: zoomMagnitude
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
       propertyPath: cooldownCircle
       value: 
       objectReference: {fileID: 1835525581}
@@ -11528,6 +11543,11 @@ PrefabInstance:
       propertyPath: mouseCrosshairSprite
       value: 
       objectReference: {fileID: 577151828}
+    - target: {fileID: 1509227502053198268, guid: dd4c5754ba18a304a836f73470391d8d,
+        type: 3}
+      propertyPath: zoomMagnitudeOriginal
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2697418826334436111, guid: dd4c5754ba18a304a836f73470391d8d,
         type: 3}
       propertyPath: m_LocalPosition.x

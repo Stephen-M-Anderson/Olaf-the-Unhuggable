@@ -107,6 +107,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
     public float zoomMagnitudeDouble; //When your Zoom is doubled from a parry, this is the magnitude it gets set to
     public float zoomMagnitudeOriginal; //So that the math doesn't get fucky when we double and then halve the zoom again, we just keep track 
                                         //of the original Magnitude to set it back to that value
+    public float zoomYoYoMult; //How much the magnitude should change while yo-yo zooming
     public float zoomCooldown; //The amount of time between finishing a zoom and being able to do it again
     public GameObject whatAmIZoomingTo; //The Game Object the player is zooming towards when they do a zoom
     public Vector3 oldZoomPos; //The position of the player when we begin zooming
@@ -600,7 +601,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         Vector3 tempDistanceVector = transform.position - oldZoomPos; //The distance between our current position and where we started
         float distanceZoomedThisFrame = tempDistanceVector.magnitude; //How far have we zoomed on this specific frame?
         totalZoomDistance += distanceZoomedThisFrame; //Add the amount zoomed this frame to the total we've zoomed so far
-        oldZoomPos = transform.position; //For the next frame of calculation to go correctly we need to reset out old position to the current one in this frame
+        oldZoomPos = transform.position; //For the next frame of calculation to go correctly we need to reset our old position to the current one in this frame
 
         //Just for testing purposes this doesn't include yoyo zooming since that adds more distance onto the calculations not accounted for.
         //In order to get this to work with yoyo zooming we would need to add however much distance will be covered by yoyoing to the distanceToTravel float.
@@ -612,6 +613,13 @@ public class GrappleScriptEvenNewer : MonoBehaviour
         }
 
         myRB.velocity = zoomDirection * zoomMagnitude; //The zoomin itself
+
+        if (totalDistance < maxDistanceYoYo * 0.8f && yoyoBack == false)
+        {
+            Debug.Log("This be where the lerpin happens BUT FORWARDS");
+            //Using the lerp function
+            zoomMagnitude = Mathf.Lerp(zoomMagnitude, (zoomMagnitudeOriginal * zoomYoYoMult) + 2, 0.5f);
+        }
 
         //If Parrying has enabled a YoYo Zoom to happen this is where it goes down
         if (yoyoZoom == true)
@@ -629,7 +637,7 @@ public class GrappleScriptEvenNewer : MonoBehaviour
             zoomDirection.x = -(zoomDirection.x);
 
             //Add a little speed
-            zoomMagnitude = zoomMagnitude * 1.5f;
+            zoomMagnitude = zoomMagnitude * zoomYoYoMult;
 
             //We only want this reversal to happen once so we flip the bool
             yoyoZoom = false;
@@ -670,6 +678,20 @@ public class GrappleScriptEvenNewer : MonoBehaviour
                 //Zero out the total distance so it will be ready for the next time we need it.
                 totalDistance = 0;
             }
+            //We are near the end of the rope here and we want to slow down until we get to the end of it using Lerp
+            else if (totalDistance > maxDistanceYoYo * 0.8f && yoyoBack == true)
+            {
+                Debug.Log("This be where the lerpin happens");
+                //Using the lerp function
+                zoomMagnitude = Mathf.Lerp(zoomMagnitude, 0.25f, 0.25f); 
+            }
+            //Same shit but we're facing forwards now
+            /*else if (totalDistance < maxDistanceYoYo * 0.8f && yoyoBack == false)
+            {
+                Debug.Log("This be where the lerpin happens BUT FORWARDS");
+                //Using the lerp function
+                zoomMagnitude = Mathf.Lerp(zoomMagnitude, (zoomMagnitudeOriginal * zoomYoYoMult) + 2, 0.5f);
+            }*/
         }
     }
 
